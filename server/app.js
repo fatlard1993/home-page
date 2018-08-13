@@ -1,12 +1,11 @@
-const fs = require('fs');
-const path = require('path');
-const Execute = require('child_process').exec;
-// const http = require('http');
+const Fs = require('fs');
+const Path = require('path');
+const Exec = require('child_process').exec;
 
-const polka = require('polka'), app = polka();
-const staticServer = require('serve-static');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
+const Polka = require('polka'), app = Polka();
+const StaticServer = require('serve-static');
+const BodyParser = require('body-parser');
+const CookieParser = require('cookie-parser');
 
 const Log = require(process.env.DIST ? `${__dirname}/_log` : `${__dirname}/../../swiss-army-knife/js/_log`);
 const Cjs = require(process.env.DIST ? `${__dirname}/_common` : `${__dirname}/../../swiss-army-knife/js/_common`);
@@ -15,7 +14,7 @@ const System = require(`${__dirname}/services/system`);
 const Errors = require(`${__dirname}/middleware/error`);
 const Sockets = require(`${__dirname}/services/sockets`);
 
-const publicDir = path.join(__dirname, process.env.DIST ? `/resources` : `/../client/public`);
+const PublicDir = Path.join(__dirname, process.env.DIST ? `/resources` : `/../client/public`);
 
 (function start(){
 	System.loadConfig(function(err){
@@ -24,7 +23,7 @@ const publicDir = path.join(__dirname, process.env.DIST ? `/resources` : `/../cl
 		appInit(function(){
 			System.sockets = Sockets.init(app.server);
 
-			Log.info()(`-	Version ${System.VERSION}	-`);
+			Log.info()(`-	Version ${System.version}	-`);
 		});
 	});
 })();
@@ -53,7 +52,7 @@ function appInit(cb){
 		next();
 	});
 
-	app.use(staticServer(publicDir));
+	app.use(StaticServer(PublicDir));
 
 	app.get('*', function redirectTrailingWak(req, res, next){
 		var queryStringIndex = req.originalUrl.indexOf('?');
@@ -67,11 +66,11 @@ function appInit(cb){
 		Log()('301 redirected '+ req.originalUrl +' to '+ redirectPath);
 	});
 
-	app.use(bodyParser.urlencoded({ extended: false }));
+	app.use(BodyParser.urlencoded({ extended: false }));
 
-	app.use(bodyParser.json());
+	app.use(BodyParser.json());
 
-	app.use(cookieParser());
+	app.use(CookieParser());
 
 	//
 
@@ -85,10 +84,10 @@ function appInit(cb){
 		app.listen(System.config.systemSettings.httpPort).then(function(){
 			Log()('info', 'HTTP server is running!');
 
-			fs.readFile(`${__dirname}/logo`, function(err, data){
+			Fs.readFile(`${__dirname}/logo`, function(err, data){
 				process.stdout.write(data);
 
-				Execute(`ip addr | grep 'state UP' -A2 | head -n3 | tail -n1 | awk '{print $2}' | cut -f1	-d'/'`, function(err, stdout, stderr){
+				Exec(`ip addr | grep 'state UP' -A2 | head -n3 | tail -n1 | awk '{print $2}' | cut -f1	-d'/'`, function(err, stdout, stderr){
 					System.ip_address = stdout;
 
 					Log.info()('IP: ', stdout);
