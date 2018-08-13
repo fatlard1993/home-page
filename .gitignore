@@ -1,0 +1,9 @@
+**/node_modules
+
+client/public
+
+dist
+
+server/config.json
+
+temp*
