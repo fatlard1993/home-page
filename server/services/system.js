@@ -8,7 +8,7 @@ const Cjs = require(process.env.DIST ? `${__dirname}/../_common` : `${__dirname}
 const Config = require(process.env.DIST ? `${__dirname}/config` : `${__dirname}/../../../symetrix-web-common/server/services/config`);
 
 var System = {
-	VERSION: '0.1.dev',
+	version: '0.1.dev',
 	fs: {
 		rm: function(file){ exec(`rm "${file}"`); },
 		cat: function(file, cb){
@@ -35,7 +35,7 @@ var System = {
 	},
 	loadConfig: function(cb){
 		Config.load({ path: path.join(__dirname, '..'), default: System.defaultConfig }, function(config){
-			config.systemInfo.version = System.VERSION;
+			config.systemInfo.version = System.version;
 
 			System.config = config;
 
