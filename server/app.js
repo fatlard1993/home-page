@@ -9,9 +9,9 @@ const CookieParser = require('cookie-parser');
 
 const Log = require(process.env.DIST ? `${__dirname}/_log` : `${__dirname}/../../swiss-army-knife/js/_log`);
 const Cjs = require(process.env.DIST ? `${__dirname}/_common` : `${__dirname}/../../swiss-army-knife/js/_common`);
+const Errors = require(Path.join(__dirname, process.env.DIST ? '' : '../../swiss-army-knife/server', 'middleware/errors'));
 
 const System = require(`${__dirname}/services/system`);
-const Errors = require(`${__dirname}/middleware/error`);
 const Sockets = require(`${__dirname}/services/sockets`);
 
 const PublicDir = Path.join(__dirname, process.env.DIST ? `/resources` : `/../client/public`);
@@ -52,18 +52,24 @@ function appInit(cb){
 		next();
 	});
 
+	app.get('/', function(req, res, next){
+		Log()('hit /');
+
+		res.sendFile(Path.join(__dirname, process.env.DIST ? '../resources' : '../client/public', 'html/index.html'));
+	});
+
 	app.use(StaticServer(PublicDir));
 
 	app.get('*', function redirectTrailingWak(req, res, next){
 		var queryStringIndex = req.originalUrl.indexOf('?');
-		var path = req.originalUrl.slice(0, ((queryStringIndex >= 0) ? queryStringIndex : req.originalUrl.length));
+		var path = req.originalUrl.slice(0, (queryStringIndex >= 0 ? queryStringIndex : req.originalUrl.length));
 
 		if(path.slice(-1) !== '/') return next();
 
-		var redirectPath = path.slice(0, (path.length - 1)) + ((queryStringIndex > -1) ? req.originalUrl.slice(queryStringIndex) : '');
+		var redirectPath = path.slice(0, (path.length - 1)) + (queryStringIndex >= 0 ? req.originalUrl.slice(queryStringIndex) : '');
 
 		res.redirect(301, redirectPath);
-		Log()('301 redirected '+ req.originalUrl +' to '+ redirectPath);
+		Log()(`301 redirected ${req.originalUrl} to ${redirectPath}`);
 	});
 
 	app.use(BodyParser.urlencoded({ extended: false }));
