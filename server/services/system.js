@@ -5,7 +5,7 @@ const exec = require('child_process').exec;
 const Log = require(process.env.DIST ? `${__dirname}/../_log` : `${__dirname}/../../../swiss-army-knife/js/_log`);
 const Cjs = require(process.env.DIST ? `${__dirname}/../_common` : `${__dirname}/../../../swiss-army-knife/js/_common`);
 
-const Config = require(process.env.DIST ? `${__dirname}/config` : `${__dirname}/../../../symetrix-web-common/server/services/config`);
+const Config = require(process.env.DIST ? `${__dirname}/config` : `${__dirname}/../../../swiss-army-knife/server/services/config`);
 
 var System = {
 	version: '0.1.dev',
