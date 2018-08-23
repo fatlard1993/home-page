@@ -1,0 +1,13 @@
+#!/bin/bash
+
+rm -rf ./node_modules
+
+npm i
+
+(cd ./server && rm -rf ./node_modules && npm i)
+
+sudo rm -rf ./client/public
+
+mkdir -p ./client/public
+
+gulp compile
