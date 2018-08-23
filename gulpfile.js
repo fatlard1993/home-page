@@ -12,7 +12,7 @@ Gulp.task('compile-js', function(){ Compile.js('client/public/js'); });
 
 Gulp.task('compile-css', function(){ Compile.scss('client/public/css'); });
 
-Gulp.task('compile-html', function(){ Compile.html('client/public/html'); });
+Gulp.task('compile-html', function(){ Compile.html('client/public'); });
 
 Gulp.task('compile', ['compile-js', 'compile-css', 'compile-html']);
 
