@@ -33,15 +33,15 @@ var System = {
 			debugBeep: 'beep -f 1000 -r 5 -l 10 -n -f 600 -n 300'
 		}
 	},
-	loadConfig: function(cb){
-		Config.load({ path: path.join(__dirname, '..'), default: System.defaultConfig }, function(config){
+	loadConfig: function(error, done){
+		Config.load({ path: path.join(__dirname, '..'), default: System.defaultConfig }, error, function(config){
 			config.systemInfo.version = System.version;
 
 			System.config = config;
 
 			Log(1)('Loaded config!');
 
-			Config.save(config, cb);
+			Config.save(config, error, done);
 		});
 	}
 };

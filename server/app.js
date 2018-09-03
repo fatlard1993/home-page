@@ -155,9 +155,7 @@ App.get('/home', function(req, res){
 
 Log()('info', 'Request router loaded!');
 
-System.loadConfig(function(err){
-	if(err) Log.error(err);
-
+System.loadConfig(Log.error(), function(){
 	App.listen(System.config.systemSettings.httpPort).then(function(){
 		Log()('info', 'HTTP server is running!');
 
