@@ -153,10 +153,48 @@ App.get('/home', function(req, res){
 	res.sendFile(Path.join(PublicDir, 'home.html'));
 });
 
+App.get('/bookmarks', function(req, res){
+	res.json(System.config.systemSettings.bookmarks);
+});
+
+App.post('/bookmarks/add', function(req, res){
+	if(req.body.name && req.body.url){
+		System.config.systemSettings.bookmarks[req.body.name] = req.body.url;
+
+		System.saveConfig();
+	}
+
+	res.json(System.config.systemSettings.bookmarks);
+});
+
+App.post('/bookmarks/edit/:name', function(req, res){
+	if(req.params.name) delete System.config.systemSettings.bookmarks[decodeURIComponent(req.params.name)];
+
+	if(req.body.name && req.body.url){
+		System.config.systemSettings.bookmarks[req.body.name] = req.body.url;
+
+		if(!System.config.systemSettings.bookmarks[req.body.name]) delete System.config.systemSettings.bookmarks[req.body.name];
+
+		System.saveConfig();
+	}
+
+	res.json(System.config.systemSettings.bookmarks);
+});
+
+App.delete('/bookmarks/:name', function(req, res){
+	if(req.params.name){
+		delete System.config.systemSettings.bookmarks[decodeURIComponent(req.params.name)];
+
+		System.saveConfig();
+	}
+
+	res.json(System.config.systemSettings.bookmarks);
+});
+
 Log()('info', 'Request router loaded!');
 
 System.loadConfig(Log.error(), function(){
-	App.listen(System.config.systemSettings.httpPort).then(function(){
+	App.listen(System.config.systemSettings.port).then(function(){
 		Log()('info', 'HTTP server is running!');
 
 		Fs.readFile(`${__dirname}/logo`, function(err, data){

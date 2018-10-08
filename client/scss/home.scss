@@ -1,4 +1,79 @@
+@import 'colors';
+
+@import 'fonts';
+@import 'boilerplate';
+@import 'scrollbar_square';
+
+@import 'notify';
+@import 'prompt';
+@import 'menu';
+
 body {
-	background: #333;
-	color: #f1f1f1;
+	border: 3px outset $grey-light;
+	border-radius: 5px;
+	overflow: hidden;
+	margin: 0;
+	background: $black;
+}
+
+input[type="text"], input[type="password"], input[type="number"], select {
+	background: $white;
+	color: $grey-darkest;
+	border: 2px solid $grey-dark;
+	border-radius: 3px;
+	text-indent: 2px;
+	opacity: 0.7;
+	line-height: 20px;
+	height: 26px;
+}
+
+input[type="text"]:focus, input[type="password"]:focus, input[type="number"]:focus, select:focus, button:focus {
+	border-color: $teal-dark;
+	opacity: 1;
+}
+
+button, a.link {
+	display: block;
+	cursor: pointer;
+	font-size: 16px;
+	text-align: center;
+	color: $teal-darkest;
+	border: 2px outset $grey-light;
+	border-radius: 4px;
+	background:	$grey-lighter;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	padding: 2px 10px;
+}
+
+button:active, a.link:active {
+	border-style: inset;
+}
+
+div#Wrapper {
+	position: relative;
+	height: 100%;
+	border: 1px solid $grey-darker;
+	border-radius: 2px;
+	box-sizing: border-box;
+	z-index: 1;
+}
+
+div#Content {
+	position: relative;
+	height: 100%;
+
+	a.link {
+		display: inline-block;
+		font-size: 20px;
+		text-decoration: none;
+		width: 47%;
+    margin: 1% 1.25%;
+    padding: 1% 0;
+	}
+
+	ul#Menu {
+		top: 2%;
+	}
 }

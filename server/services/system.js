@@ -27,10 +27,13 @@ var System = {
 			version: ''
 		},
 		systemSettings: {
-			httpPort: 8080,
-			httpsPort: 443,
-			startupBeep: 'beep -f 900 -r 2 -l 100 -d 20 -n -l 0 -D 200 -n',
-			debugBeep: 'beep -f 1000 -r 5 -l 10 -n -f 600 -n 300'
+			port: 8080,
+			bookmarks: {
+				test: 'http://www.google.com',
+				test2: 'http://www.google.com',
+				test3: 'http://www.google.com',
+				test4: 'http://www.google.com',
+			}
 		}
 	},
 	loadConfig: function(error, done){
@@ -43,6 +46,9 @@ var System = {
 
 			Config.save(config, error, done);
 		});
+	},
+	saveConfig: function(config, error, done){
+		Config.save(config || System.config, error || Log.error(), done);
 	}
 };
 
