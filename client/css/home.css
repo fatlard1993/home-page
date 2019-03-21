@@ -1,12 +1,4 @@
-@import 'colors';
-
-@import 'fonts';
-@import 'boilerplate';
-@import 'scrollbar_square';
-
-@import 'notify';
-@import 'prompt';
-@import 'menu';
+// includes colors fonts dom menu dialog
 
 body {
 	border: 3px outset $grey-light;
@@ -51,7 +43,7 @@ button:active, a.link:active {
 	border-style: inset;
 }
 
-div#Wrapper {
+div#wrapper {
 	position: relative;
 	height: 100%;
 	border: 1px solid $grey-darker;
@@ -60,7 +52,7 @@ div#Wrapper {
 	z-index: 1;
 }
 
-div#Content {
+div#content {
 	position: relative;
 	height: 100%;
 
@@ -69,11 +61,11 @@ div#Content {
 		font-size: 20px;
 		text-decoration: none;
 		width: 47%;
-    margin: 1% 1.25%;
-    padding: 1% 0;
+		margin: 1% 1.25%;
+		padding: 1% 0;
 	}
 
-	ul#Menu {
+	ul#menu {
 		top: 2%;
 	}
 }
