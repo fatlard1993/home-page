@@ -1,11 +1,39 @@
-// includes colors fonts dom menu dialog
+// includes colors fonts dom menu dialog menuTheme
 
-body {
-	border: 3px outset $grey-light;
-	border-radius: 5px;
-	overflow: hidden;
-	margin: 0;
-	background: $black;
+html {
+	height: 100%;
+
+	body {
+		height: 100%;
+		border: 3px outset $grey-light;
+		border-radius: 5px;
+		overflow: hidden;
+		margin: 0;
+		background: $black;
+	}
+
+	* {
+		font-family: "Source Sans Pro", sans-serif;
+		touch-action: manipulation;
+		-webkit-text-size-adjust: none;
+	}
+
+	*:not(input) {
+		cursor: default;
+		-webkit-tap-highlight-color: $transparent;
+		-webkit-touch-callout: none;
+		user-select: none;
+	}
+
+	button {
+		cursor: pointer;
+	}
+
+	.selectable {
+		cursor: text;
+		-webkit-tap-highlight-color: initial;
+		user-select: text;
+	}
 }
 
 input[type="text"], input[type="password"], input[type="number"], select {
@@ -63,9 +91,5 @@ div#content {
 		width: 47%;
 		margin: 1% 1.25%;
 		padding: 1% 0;
-	}
-
-	ul#menu {
-		top: 2%;
 	}
 }

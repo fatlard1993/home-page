@@ -12,7 +12,7 @@ dom.onLoad(function onLoad(){
 
 	socketClient.init();
 
-	dom.content = document.getElementById('Content');
+	dom.content = dom.content || document.getElementById('content');
 
 	socketClient.on('bookmarks', function(bookmarks){
 		dom.empty(dom.content);
