@@ -18,7 +18,6 @@ const { app, sendPage, pageCompiler, staticServer } = require('http-server').ini
 const SocketServer = require('websocket-server');
 
 const socketServer = new SocketServer({ server: app.server });
-const stdin = process.openStdin();
 
 pageCompiler.buildFile('home');
 
@@ -34,14 +33,14 @@ app.get('/test', function(req, res){
 	res.send('test');
 });
 
-app.use('/resources', staticServer(path.join(__dirname, '../client/resources')));
+app.use('/resources', staticServer(path.join(rootFolder, 'client/resources')));
 
-app.use('/fonts', staticServer(path.join(__dirname, '../client/fonts')));
+app.use('/fonts', staticServer(path.join(rootFolder, 'client/fonts')));
 
 app.get('/home', sendPage('home'));
 
 socketServer.registerEndpoints({
-	open: function(){
+	client_connect: function(){
 		this.reply('bookmarks', config.current.bookmarks);
 	},
 	addBookmark: function(bookmark){
@@ -50,6 +49,8 @@ socketServer.registerEndpoints({
 		config.current.bookmarks[bookmark.name] = bookmark.url;
 
 		this.reply('bookmarks', config.current.bookmarks);
+
+		config.save();
 	},
 	deleteBookmark: function(name){
 		if(!config.current.bookmarks[name]) return;
@@ -59,6 +60,8 @@ socketServer.registerEndpoints({
 		delete config.current.bookmarks[name];
 
 		this.reply('bookmarks', config.current.bookmarks);
+
+		config.save();
 	},
 	editBookmark: function(bookmark){
 		log(`Changing bookmark: `, bookmark);
@@ -68,11 +71,7 @@ socketServer.registerEndpoints({
 		if(config.current.bookmarks[bookmark.old.name]) delete config.current.bookmarks[bookmark.old.name];
 
 		this.reply('bookmarks', config.current.bookmarks);
+
+		config.save();
 	}
-});
-
-stdin.addListener('data', function(data){
-	var cmd = data.toString().trim();
-
-	log(`CMD: ${cmd}`);
 });
