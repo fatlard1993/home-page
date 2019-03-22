@@ -8,8 +8,6 @@ dom.onLoad(function onLoad(){
 		single: ['Edit', 'Delete']
 	});
 
-	dialog.init();
-
 	socketClient.init();
 
 	dom.content = dom.content || document.getElementById('content');
@@ -30,12 +28,20 @@ dom.onLoad(function onLoad(){
 		log(evt.target);
 
 		if(evt.target.className === 'link'){
+			evt.preventDefault();
+			dom.interact.pointerTarget = null;
+
 			targetedLink = evt.target;
 
 			menu.open('single');
 		}
 
-		else menu.open('main');
+		else{
+			menu.open('main');
+
+			menu.elem.style.top = (evt.clientY >= document.body.clientHeight - menu.elem.clientHeight ? evt.clientY - menu.elem.clientHeight : evt.clientY) +'px';
+			menu.elem.style.left = (evt.clientX >= document.body.clientWidth - menu.elem.clientWidth ? evt.clientX - menu.elem.clientWidth : evt.clientX) +'px';
+		}
 	});
 
 	menu.on('selection', function(evt){
