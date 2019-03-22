@@ -34,12 +34,12 @@ git clean -xdf
 
 echo -e "\nInstalling packages"
 
-if [ ! -e "$(which zelda)" ]; then
-	npm i -g fatlard1993/zelda
-fi
-
 if [ "$1" == "dev" ]; then
-	zelda -ia
+	if [ ! -e "$(which zelda)" ]; then
+		npm i -g fatlard1993/zelda
+	fi
+
+	zelda -a
 else
 	npm i --only=prod
 fi
