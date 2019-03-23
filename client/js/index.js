@@ -6,7 +6,7 @@ dom.onLoad(function onLoad(){
 	menu.init({
 		main: ['Add Bookmark'],
 		single: ['Edit', 'Delete']
-	});
+	}, { discardDirection: 'static' });
 
 	socketClient.init();
 
