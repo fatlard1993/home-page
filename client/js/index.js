@@ -4,44 +4,45 @@
 
 dom.onLoad(function onLoad(){
 	menu.init({
-		main: ['Add Bookmark'],
+		main: ['Add Bookmark:~:default'],
 		single: ['Edit', 'Delete']
 	}, { discardDirection: 'static' });
 
 	socketClient.init();
 
-	dom.content = dom.content || document.getElementById('content');
-
 	socketClient.on('bookmarks', function(bookmarks){
-		dom.empty(dom.content);
+		dom.empty(dom.getElemById('content'));
 
 		for(var x = 0, arr = Object.keys(bookmarks), count = arr.length; x < count; ++x){
-			log(arr[x], bookmarks[arr[x]]);
+			log()(arr[x], bookmarks[arr[x]]);
 
-			dom.createElem('a', { className: 'link', textContent: arr[x], href: bookmarks[arr[x]], appendTo: dom.content });
+			dom.createElem('a', { className: 'link', textContent: arr[x], href: bookmarks[arr[x]], appendTo: dom.getElemById('content') });
 		}
 	});
 
 	var targetedLink;
 
-	dom.interact.on('contextMenu', function(evt){
-		log(evt.target);
+	dom.interact.on('pointerUp', function(evt){
+		if(!evt.target.parentElement || evt.target.parentElement.id !== 'menu') menu.close();
+
+		if(evt.which !== 3) return;
+
+		evt.preventDefault();
 
 		if(evt.target.className === 'link'){
-			evt.preventDefault();
-			dom.interact.pointerTarget = null;
-
 			targetedLink = evt.target;
 
 			menu.open('single');
 		}
 
 		else{
-			menu.open('main');
+			targetedLink = null;
 
-			menu.elem.style.top = (evt.clientY >= document.body.clientHeight - menu.elem.clientHeight ? evt.clientY - menu.elem.clientHeight : evt.clientY) +'px';
-			menu.elem.style.left = (evt.clientX >= document.body.clientWidth - menu.elem.clientWidth ? evt.clientX - menu.elem.clientWidth : evt.clientX) +'px';
+			menu.open('main');
 		}
+
+		menu.elem.style.top = (evt.pageY >= document.body.clientHeight - menu.elem.clientHeight ? evt.pageY - menu.elem.clientHeight : evt.pageY) +'px';
+		menu.elem.style.left = (evt.pageX >= document.body.clientWidth - menu.elem.clientWidth ? evt.pageX - menu.elem.clientWidth : evt.pageX) +'px';
 	});
 
 	menu.on('selection', function(evt){
