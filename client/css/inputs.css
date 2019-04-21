@@ -1,0 +1,18 @@
+// includes colors dom
+
+input[type="text"], input[type="password"], input[type="number"], select {
+	background: $white;
+	color: $grey-darkest;
+	border: 2px inset rgba(170, 170, 170, 0.7);
+	border-radius: 3px;
+	text-indent: 2px;
+	opacity: 0.5;
+	line-height: 20px;
+	height: 26px;
+
+	&:focus {
+		border-color: hsla(164, 55%, 88%, 0.7);
+		opacity: 1;
+		outline: none;
+	}
+}
