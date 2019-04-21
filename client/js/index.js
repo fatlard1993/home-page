@@ -8,10 +8,14 @@ dom.onLoad(function onLoad(){
 		single: ['Edit', 'Delete']
 	}, { discardDirection: 'static' });
 
+	var searchBar = dom.createElem('input', { type: 'text', id: 'search', autocapitalize: 'none', appendTo: dom.getElemById('content') });
+
+	searchBar.focus();
+
 	socketClient.init();
 
 	socketClient.on('bookmarks', function(bookmarks){
-		dom.empty(dom.getElemById('content'));
+		// dom.empty(dom.getElemById('content'));
 
 		for(var x = 0, arr = Object.keys(bookmarks), count = arr.length; x < count; ++x){
 			log()(arr[x], bookmarks[arr[x]]);
@@ -43,6 +47,12 @@ dom.onLoad(function onLoad(){
 
 		menu.elem.style.top = (evt.pageY >= document.body.clientHeight - menu.elem.clientHeight ? evt.pageY - menu.elem.clientHeight : evt.pageY) +'px';
 		menu.elem.style.left = (evt.pageX >= document.body.clientWidth - menu.elem.clientWidth ? evt.pageX - menu.elem.clientWidth : evt.pageX) +'px';
+	});
+
+	dom.interact.on('keyUp', function(evt){
+		if(evt.keyPressed === 'ENTER' && searchBar.value.length){
+			location.href = `http://google.com/search?q=${searchBar.value}`
+		}
 	});
 
 	menu.on('selection', function(evt){
