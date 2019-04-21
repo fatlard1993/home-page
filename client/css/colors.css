@@ -89,3 +89,8 @@ $grey-darkest:	 	hsl(0, 0%, 15%);
 $black:						hsl(0, 0%, 10%);
 
 $transparent:			rgba(255, 255, 255, 0);
+
+$button-bg-lighter:    linear-gradient(to bottom, $grey-lighter, $grey-lightest 42%, $grey-lightest 62%, $grey-lighter 92%);
+$button-bg-light:      linear-gradient(to bottom, $grey-light, $grey-lighter 42%, $grey-lighter 62%, $grey-light 92%);
+$button-bg:            linear-gradient(to bottom, hsl(0, 0%, 65%), hsl(0, 0%, 70%) 42%, hsl(0, 0%, 70%) 62%, hsl(0, 0%, 65%) 92%);
+$button-bg-pressed:    linear-gradient(to bottom, $teal-lighter, $teal-lightest 42%, $teal-lightest 62%, $teal-lighter 92%);

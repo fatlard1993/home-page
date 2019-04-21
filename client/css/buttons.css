@@ -1,0 +1,40 @@
+// includes colors
+
+button, a.link {
+	display: block;
+	cursor: pointer;
+	font-size: 16px;
+	text-align: center;
+	color: $black;
+	text-shadow: 0 0 3px $grey;
+	border-radius: 4px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	padding: 2px 10px;
+	background:	$button-bg;
+	border: 2px outset rgba(120, 120, 120, 0.7);
+
+	&:focus {
+		outline: none;
+	}
+
+	&:hover, &:focus, &.default {
+		color: $teal-darkest;
+	}
+
+	&:focus, &.default {
+		background: $button-bg-light;
+	}
+
+	&:hover {
+		background:	$button-bg-lighter;
+	}
+
+	&:active, &.active {
+		border-style: inset;
+		background: $button-bg-pressed;
+		text-shadow: 0 0 4px $teal-white;
+		color: $teal-darkest !important;
+	}
+}

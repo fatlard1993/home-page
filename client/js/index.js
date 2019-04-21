@@ -8,7 +8,7 @@ dom.onLoad(function onLoad(){
 		single: ['Edit', 'Delete']
 	}, { discardDirection: 'static' });
 
-	var searchBar = dom.createElem('input', { type: 'text', id: 'search', autocapitalize: 'none', appendTo: dom.getElemById('content') });
+	var searchBar = dom.createElem('input', { type: 'text', id: 'search', autocapitalize: 'none', placeholder: 'Search', appendTo: dom.getElemById('content') });
 
 	searchBar.focus();
 
