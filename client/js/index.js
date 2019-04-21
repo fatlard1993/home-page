@@ -15,7 +15,7 @@ dom.onLoad(function onLoad(){
 	socketClient.init();
 
 	socketClient.on('bookmarks', function(bookmarks){
-		// dom.empty(dom.getElemById('content'));
+		dom.remove(document.getElementsByClassName('link'));
 
 		for(var x = 0, arr = Object.keys(bookmarks), count = arr.length; x < count; ++x){
 			log()(arr[x], bookmarks[arr[x]]);
