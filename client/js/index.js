@@ -51,7 +51,7 @@ dom.onLoad(function onLoad(){
 
 	dom.interact.on('keyUp', function(evt){
 		if(evt.keyPressed === 'ENTER' && searchBar.value.length){
-			location.href = `http://google.com/search?q=${searchBar.value}`
+			location.href = `http://google.com/search?q=${searchBar.value}`;
 		}
 	});
 
