@@ -59,7 +59,7 @@ dom.onLoad(function onLoad(){
 		if(menu.isOpen === 'main'){
 			if(evt.item === 'Add Bookmark'){
 				dialog.form('Add Bookmark', { name: '', url: '' }, 'cancel|OK', function(choice, changes){
-					if(choice === 'cancel') return;
+					if(choice === 'Cancel') return;
 
 					socketClient.reply('addBookmark', changes);
 				});
@@ -71,7 +71,7 @@ dom.onLoad(function onLoad(){
 				var old = { name: targetedLink.textContent, url: targetedLink.href };
 
 				dialog.form('Edit Bookmark', old, 'cancel|OK', function(choice, changes){
-					if(choice === 'cancel') return;
+					if(choice === 'Cancel') return;
 
 					socketClient.reply('editBookmark', { old, new: changes });
 				});
