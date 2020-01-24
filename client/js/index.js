@@ -91,3 +91,7 @@ dom.onLoad(function onLoad(){
 		menu.close();
 	});
 });
+
+document.oncontextmenu = function(evt){
+	evt.preventDefault();
+};
