@@ -16,30 +16,21 @@ var config = new Config(path.join(rootFolder, 'config.json'), {
 	bookmarks: {}
 });
 
-const { app, sendPage, pageCompiler, staticServer } = require('http-server').init(args.port || config.current.port, rootFolder);
+const { app, staticServer } = require('http-server').init(args.port || config.current.port, rootFolder);
+const pageCompiler = require('page-compiler');
 const SocketServer = require('websocket-server');
 
 const socketServer = new SocketServer({ server: app.server });
 
-pageCompiler.buildFile('index');
-
-app.get('/testj', function(req, res){
-	log('Testing JSON...');
-
-	res.json({ test: 1 });
-});
-
-app.get('/test', function(req, res){
-	log('Testing...');
-
-	res.send('test');
-});
+pageCompiler.build('index');
 
 app.use('/resources', staticServer(path.join(rootFolder, 'client/resources')));
 
 app.use('/fonts', staticServer(path.join(rootFolder, 'client/fonts')));
 
-app.get('/home', sendPage('index'));
+app.get('/home', function(req, res, next){
+	res.sendPage('index');
+});
 
 socketServer.registerEndpoints({
 	client_connect: function(){
