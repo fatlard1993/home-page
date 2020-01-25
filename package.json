@@ -1,6 +1,6 @@
 {
 	"name": "home-page",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "A simple browser home page",
 	"main": "src/index.js",
 	"scripts": {
@@ -21,8 +21,8 @@
 	},
 	"devDependencies": {
 		"eslint-config-rules": "github:fatlard1993/eslint-config-rules#2.x.x",
-		"babel-eslint": "^10.0.1",
-		"eslint": "^5.16.0"
+		"babel-eslint": "^10.0.3",
+		"eslint": "^6.8.0"
 	},
 	"dependencies": {
 		"config-manager": "github:fatlard1993/config-manager#2.x.x",
@@ -36,6 +36,6 @@
 		"menu": "github:fatlard1993/menu#2.x.x",
 		"socket-client": "github:fatlard1993/socket-client#2.x.x",
 		"websocket-server": "github:fatlard1993/websocket-server#2.x.x",
-		"yargs": "^13.2.2"
+		"yargs": "^15.1.0"
 	}
 }
