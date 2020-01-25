@@ -58,8 +58,8 @@ dom.onLoad(function onLoad(){
 	menu.on('selection', function(evt){
 		if(menu.isOpen === 'main'){
 			if(evt.item === 'Add Bookmark'){
-				dialog.form('Add Bookmark', { name: '', url: '' }, 'cancel|OK', function(choice, changes){
-					if(choice === 'Cancel') return;
+				dialog.form('Add Bookmark', { name: '', url: '' }, 2, function(choice, changes){
+					if(choice !== 'OK') return;
 
 					socketClient.reply('addBookmark', changes);
 				});
@@ -70,18 +70,18 @@ dom.onLoad(function onLoad(){
 			if(evt.item === 'Edit'){
 				var old = { name: targetedLink.textContent, url: targetedLink.href };
 
-				dialog.form('Edit Bookmark', old, 'cancel|OK', function(choice, changes){
-					if(choice === 'Cancel') return;
+				dialog.form('Edit Bookmark', old, 2, function(choice, changes){
+					if(choice !== 'OK') return;
 
 					socketClient.reply('editBookmark', { old, new: changes });
 				});
 			}
 
 			else if(evt.item === 'Delete'){
-				dialog('warning deleteBookmark', 'Warning', 'You are about to delete this bookmark, do you wish to continue?', 'no|yes');
+				dialog('warning deleteBookmark', 'Warning', 'You are about to delete this bookmark, do you wish to continue?', 'yes|no');
 
 				dialog.resolve.deleteBookmark = function(choice){
-					if(choice === 'no') return;
+					if(choice !== 'yes') return;
 
 					socketClient.reply('deleteBookmark', targetedLink.textContent);
 				};
