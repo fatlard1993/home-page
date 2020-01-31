@@ -71,21 +71,7 @@ const homePage = {
 	keyUp: function(evt){
 		var selectedLink = document.getElementsByClassName('link selected')[0];
 
-		if(evt.target === homePage.searchBar){
-			log()('search keyup', evt);
-
-			var keyword = homePage.searchBar.value;
-
-			if(evt.keyPressed === 'ENTER' && keyword.length) return homePage[homePage.websiteRegex.test(keyword) ? 'goToWebsite' : 'google'](keyword);
-
-			if(!keyword.length) return homePage.updateBookmarks(homePage.bookmarks);
-
-			homePage.search(keyword);
-		}
-
-		else if(evt.keyPressed === 'ENTER' && selectedLink) return homePage[homePage.websiteRegex.test(selectedLink.href) ? 'goToWebsite' : 'google'](selectedLink.href);
-
-		else if({ 'UP': 1, 'DOWN': 1, 'LEFT': 1, 'RIGHT': 1 }[evt.keyPressed]){
+		if({ 'UP': 1, 'DOWN': 1, 'LEFT': 1, 'RIGHT': 1 }[evt.keyPressed]){
 			log()('link nav', evt.keyPressed, selectedLink);
 
 			if(selectedLink) selectedLink.classList.remove('selected');
@@ -103,6 +89,20 @@ const homePage = {
 					else if(selectedLink.nextElementSibling) selectedLink.nextElementSibling.classList.add('selected');
 				}
 			}
+		}
+
+		else if(evt.keyPressed === 'ENTER' && selectedLink) return homePage[homePage.websiteRegex.test(selectedLink.href) ? 'goToWebsite' : 'google'](selectedLink.href);
+
+		else if(evt.target === homePage.searchBar){
+			log()('search keyup', evt);
+
+			var keyword = homePage.searchBar.value;
+
+			if(evt.keyPressed === 'ENTER' && keyword.length) return homePage[homePage.websiteRegex.test(keyword) ? 'goToWebsite' : 'google'](keyword);
+
+			if(!keyword.length) return homePage.updateBookmarks(homePage.bookmarks);
+
+			homePage.search(keyword);
 		}
 
 		else if(evt.keyPressed === 'SLASH' && document.activeElement !== homePage.searchBar) homePage.searchBar.focus();
