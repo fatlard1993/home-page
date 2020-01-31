@@ -22,7 +22,7 @@ ul#menu {
 }
 
 body:not(.mobile) {
-  ul#menu {
+	ul#menu {
 		&:active, &.active {
 			background-color: $grey-darker;
 			color: $grey-lighter;
@@ -38,7 +38,7 @@ body:not(.mobile) {
 }
 
 body.mobile {
-  ul#menu {
+	ul#menu {
 		li {
 			&:active, &.active {
 				background-color: $purple;

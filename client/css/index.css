@@ -1,4 +1,4 @@
-// includes colors fonts dom menu dialog menuTheme buttons inputs
+// includes colors fonts dom menu dialog menuTheme buttons inputs color-picker
 
 html {
 	height: 100%;
@@ -11,6 +11,7 @@ html {
 	}
 
 	* {
+		font: 400 16px "Source Sans Pro";
 		font-family: "Source Sans Pro", sans-serif;
 		touch-action: manipulation;
 		-webkit-text-size-adjust: none;
@@ -48,7 +49,7 @@ div#wrapper {
 
 		input#search {
 			width: 95%;
-			margin: 1% auto 0;
+			margin: 1% auto;
 			display: block;
 			font-size: 20px;
 			padding: 1px;
@@ -56,13 +57,82 @@ div#wrapper {
 			height: 32px;
 		}
 
+		div.linkContainer {
+			padding: 1%;
+		}
+
 		a.link {
-			display: inline-block;
-			font-size: 20px;
 			text-decoration: none;
-			width: 47%;
-			margin: 1% 1.25%;
-			padding: 1% 0;
+
+			&:before {
+				@extend .fas;
+
+				font-size: .8em;
+				margin-right: .3em;
+			}
+
+			&.bookmark:before {
+				content: "\f02e";
+			}
+
+			&.search:before {
+				content: "\f002";
+			}
+
+			&.history:before {
+				content: "\f1da";
+			}
 		}
 	}
+}
+
+div#colorPickerDialog {
+	width: 250px;
+	height: 250px;
+	background-color: $black;
+	position: absolute;
+	border-radius: 6px;
+	border: 5px solid $black;
+
+	button {
+		display: inline-block;
+		margin: 5px 5px 0 0;
+	}
+}
+
+div.colorPicker{
+	div.pickerArea, div.hueArea {
+		box-shadow: unset;
+
+		div.indicator {
+			background-color: $white;
+			opacity: 0.3;
+			width: 6px;
+			border: 2px solid $black;
+		}
+	}
+
+	div.pickerArea div.indicator {
+		height: 6px;
+	}
+
+	div.hueArea {
+		width: unset;
+
+		div.indicator {
+			top: -2px;
+			left: -3px;
+		}
+	}
+}
+
+p.validationWarning {
+	border: 1px solid $red;
+	background-color: $red-white;
+	color: $red;
+	margin: 0 0 5px;
+}
+
+div#dialogWrapper div#dialog button {
+	padding: 0.6em;
 }
