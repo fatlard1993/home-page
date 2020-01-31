@@ -1,6 +1,6 @@
 {
 	"name": "home-page",
-	"version": "1.1.0",
+	"version": "2.0.0",
 	"description": "A simple browser home page",
 	"main": "src/index.js",
 	"scripts": {
@@ -26,15 +26,18 @@
 	},
 	"dependencies": {
 		"config-manager": "github:fatlard1993/config-manager#2.x.x",
+		"color-picker": "github:fatlard1993/color-picker#2.x.x",
 		"dialog": "github:fatlard1993/dialog#2.x.x",
 		"dom": "github:fatlard1993/dom#2.x.x",
 		"find-root": "^1.1.0",
 		"http-server": "github:fatlard1993/http-server#4.x.x",
-		"page-compiler": "github:fatlard1993/page-compiler#1.x.x",
 		"js-util": "github:fatlard1993/js-util#2.x.x",
 		"log": "github:fatlard1993/log#2.x.x",
 		"menu": "github:fatlard1993/menu#2.x.x",
+		"page-compiler": "github:fatlard1993/page-compiler#1.x.x",
+		"relevancy": "^0.2.0",
 		"socket-client": "github:fatlard1993/socket-client#2.x.x",
+		"sortablejs": "^1.9.0",
 		"websocket-server": "github:fatlard1993/websocket-server#2.x.x",
 		"yargs": "^15.1.0"
 	}
