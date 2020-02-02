@@ -35,7 +35,7 @@ const homePage = {
 
 		socketClient.on('bookmarks', homePage.updateBookmarks);
 
-		socketClient.on('search', function(search){
+		socketClient.on('search', function(search){//todo load in search results separately (for slow internet)
 			log()('search', search.suggestions);
 
 			dom.remove(document.getElementsByClassName('link'));
