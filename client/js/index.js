@@ -40,6 +40,8 @@ const homePage = {
 
 			log(1)('google search suggestions', search.keyword, suggestions);
 
+			dom.remove(document.getElementsByClassName('link search'));
+
 			for(var x = 0, count = suggestions.length, link; x < count; ++x){
 				link = homePage.createLink(suggestions[x], `http://google.com/search?q=${suggestions[x]}`, util.stringToColor(suggestions[x]));
 
@@ -91,7 +93,11 @@ const homePage = {
 
 			var keyword = homePage.searchBar.value;
 
-			if(evt.keyPressed === 'ENTER' && keyword.length) return homePage[homePage.websiteRegex.test(keyword) ? 'goToWebsite' : 'google'](keyword);
+			if(evt.keyPressed === 'ENTER' && keyword.length){
+				homePage.history.push(keyword);
+
+				return homePage[homePage.websiteRegex.test(keyword) ? 'goToWebsite' : 'google'](keyword);
+			}
 
 			if(!keyword.length) return homePage.updateBookmarks(homePage.bookmarks);
 
@@ -164,7 +170,6 @@ const homePage = {
 
 		homePage.lastSearch = keyword;
 
-
 		dom.remove(document.getElementsByClassName('link'));
 
 		var relativeOrder = relevancy.sort(homePage.bookmarks.__sortOrder, keyword).slice(0, 5).concat(relevancy.sort(homePage.history, keyword).slice(0, 5));
@@ -188,8 +193,6 @@ const homePage = {
 		homePage.goToWebsite(`http://google.com/search?q=${keyword}`);
 	},
 	goToWebsite: function(website){
-		homePage.history.push(website);
-
 		dom.storage.set('history', JSON.stringify(homePage.history));
 
 		if(!/http:\/\/|https:\/\//.test(website)) website = `http://${website}`;
