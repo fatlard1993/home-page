@@ -98,7 +98,7 @@ const homePage = {
 			homePage.search(keyword);
 		}
 
-		else if(evt.keyPressed === 'SLASH' && document.activeElement !== homePage.searchBar) homePage.searchBar.focus();
+		else if(evt.keyPressed === 'SLASH' && document.activeElement !== homePage.searchBar && !dialog.active) homePage.searchBar.focus();
 	},
 	pointerUp: function(evt){
 		if(evt.which === 3){
