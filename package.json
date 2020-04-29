@@ -21,7 +21,7 @@
 	},
 	"devDependencies": {
 		"eslint-config-rules": "github:fatlard1993/eslint-config-rules#2.x.x",
-		"babel-eslint": "^10.0.3",
+		"babel-eslint": "^10.1.0",
 		"eslint": "^6.8.0"
 	},
 	"dependencies": {
@@ -37,8 +37,8 @@
 		"page-compiler": "github:fatlard1993/page-compiler#1.x.x",
 		"relevancy": "^0.2.0",
 		"socket-client": "github:fatlard1993/socket-client#2.x.x",
-		"sortablejs": "^1.9.0",
+		"sortablejs": "^1.10.2",
 		"websocket-server": "github:fatlard1993/websocket-server#2.x.x",
-		"yargs": "^15.1.0"
+		"yargs": "^15.3.1"
 	}
 }
