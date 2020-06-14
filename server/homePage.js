@@ -63,7 +63,7 @@ const homePage = {
 
 				res.on('end', () => {
 					try{
-						data = JSON.parse(data)[1].slice(0, 5);
+						data = JSON.parse(data)[1].slice(0, 3);
 					}
 					catch(err){
 						return done(err);
