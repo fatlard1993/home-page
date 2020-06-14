@@ -38,14 +38,17 @@ const homePage = {
 		socketClient.on('search', function(search){
 			var suggestions = search.suggestions.slice(0, 5);
 
-			log(1)('google search suggestions', search.keyword, suggestions);
+			var relativeOrder = relevancy.sort(homePage.bookmarks.__sortOrder, search.keyword).slice(0, 1).concat(relevancy.sort(suggestions.concat(homePage.history)).slice(0, 5));
 
-			dom.remove(document.getElementsByClassName('link search'));
+			log(1)('search', search.keyword, relativeOrder);
 
-			for(var x = 0, count = suggestions.length, link; x < count; ++x){
-				link = homePage.createLink(suggestions[x], `http://google.com/search?q=${suggestions[x]}`, util.stringToColor(suggestions[x]));
+			for(var x = 0, count = relativeOrder.length, bookmark, link; x < count; ++x){
+				bookmark = homePage.bookmarks[relativeOrder[x]];
+				link = homePage.createLink(relativeOrder[x], bookmark ? bookmark.url : `http://google.com/search?q=${relativeOrder[x]}`, bookmark ? bookmark.color : 'hsl(209, 55%, 45%)');
 
-				link.classList.add('search');
+				if(bookmark) link.classList.add('bookmark');
+				else if(homePage.history.includes(relativeOrder[x])) link.classList.add('history');
+				else link.classList.add('search');
 
 				homePage.linkContainer.appendChild(link);
 			}
@@ -171,21 +174,6 @@ const homePage = {
 		homePage.lastSearch = keyword;
 
 		dom.remove(document.getElementsByClassName('link'));
-
-		var relativeOrder = relevancy.sort(homePage.bookmarks.__sortOrder, keyword).slice(0, 5).concat(relevancy.sort(homePage.history, keyword).slice(0, 5));
-
-		log(1)('search', keyword, relativeOrder);
-
-		for(var x = 0, count = relativeOrder.length, bookmark, link; x < count; ++x){
-			bookmark = homePage.bookmarks[relativeOrder[x]];
-			link = homePage.createLink(relativeOrder[x], bookmark ? bookmark.url : `http://google.com/search?q=${relativeOrder[x]}`, bookmark ? bookmark.color : 'hsl(209, 55%, 45%)');
-
-			if(homePage.history.includes(relativeOrder[x])) link.classList.add('history');
-
-			else link.classList.add('bookmark');
-
-			homePage.linkContainer.appendChild(link);
-		}
 
 		socketClient.reply('getSearchSuggestions', keyword);
 	},
