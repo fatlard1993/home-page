@@ -1,6 +1,6 @@
 // includes colors fonts
 
-button, a.link {
+button, .link {
 	display: inline-block;
 	cursor: pointer;
 	padding: 0.7em 1.4em;
@@ -37,7 +37,7 @@ button, a.link {
 }
 
 @media all and (max-width: 30em) {
-	button, a.link {
+	button, .link {
 		display: block;
 		margin: 0.4em auto;
 	}
