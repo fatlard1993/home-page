@@ -4,7 +4,7 @@ input[type="text"], input[type="password"], input[type="number"], select {
 	background: $white;
 	color: $grey-darkest;
 	border: 2px inset rgba(170, 170, 170, 0.7);
-	border-radius: 3px;
+	border-radius: .15em;
 	text-indent: 2px;
 	line-height: 20px;
 	height: 26px;

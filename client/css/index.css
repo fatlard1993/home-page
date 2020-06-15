@@ -89,6 +89,15 @@ div#wrapper {
 	}
 }
 
+div#dialogWrapper div#dialog {
+	border-radius: 0.2em;
+
+	div.colorPicker {
+		border-radius: 0.25em;
+	}
+}
+
+
 div#colorPickerDialog {
 	width: 250px;
 	height: 250px;
