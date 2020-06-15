@@ -111,7 +111,7 @@ const homePage = {
 		if(evt.which === 3){
 			evt.preventDefault();
 
-			if(evt.target.className === 'link'){
+			if(evt.target.classList.contains('bookmark')){
 				homePage.targetedLink = evt.target;
 
 				menu.open('single');
@@ -169,7 +169,11 @@ const homePage = {
 		for(var x = 0, count = homePage.bookmarks.__sortOrder.length, bookmark; x < count; ++x){
 			bookmark = bookmarks[homePage.bookmarks.__sortOrder[x]];
 
-			homePage.linkContainer.appendChild(homePage.createLink(homePage.bookmarks.__sortOrder[x], bookmark.url, bookmark.color));
+			bookmark = homePage.createLink(homePage.bookmarks.__sortOrder[x], bookmark.url, bookmark.color);
+
+			bookmark.classList.add('bookmark');
+
+			homePage.linkContainer.appendChild(bookmark);
 		}
 	},
 	loadHistory: function(){
