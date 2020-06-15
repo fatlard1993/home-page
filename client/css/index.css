@@ -67,8 +67,10 @@ div#wrapper {
 			&:before {
 				@extend .fas;
 
-				font-size: .8em;
-				margin-right: .3em;
+				position: absolute;
+				font-size: .7em;
+				top: .3em;
+				left: .3em;
 			}
 
 			&.bookmark:before {
