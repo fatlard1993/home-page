@@ -3,7 +3,9 @@
 /* global dom util log socketClient menu dialog Sortable relevancy colorPicker */
 
 const homePage = {
-	websiteRegex: /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/,
+	websiteRegex: /^(https?:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/,
+	ipRegex: /^(https?:\/\/)?(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(:[0-9]{1,5})?(\/.*)?$/,
+	localhostRegex: /^(https?:\/\/)?localhost(:[0-9]{1,5})?(\/.*)?$/,
 	init: function(){
 		var content = dom.getElemById('content');
 
@@ -89,18 +91,14 @@ const homePage = {
 			}
 		}
 
-		else if(evt.keyPressed === 'ENTER' && selectedLink) return homePage[homePage.websiteRegex.test(selectedLink.href) ? 'goToWebsite' : 'google'](selectedLink.href);
+		else if(evt.keyPressed === 'ENTER' && selectedLink) return homePage.goTo(selectedLink.href);
 
 		else if(evt.target === homePage.searchBar){
 			log()('search keyup', evt);
 
 			var keyword = homePage.searchBar.value;
 
-			if(evt.keyPressed === 'ENTER' && keyword.length){
-				homePage.history.push(keyword);
-
-				return homePage[homePage.websiteRegex.test(keyword) ? 'goToWebsite' : 'google'](keyword);
-			}
+			if(evt.keyPressed === 'ENTER' && keyword.length) homePage.goTo(keyword);
 
 			if(!keyword.length) return homePage.updateBookmarks(homePage.bookmarks);
 
@@ -141,6 +139,21 @@ const homePage = {
 
 		menu.close();
 	},
+	goTo: function(name){
+		if(!homePage.history.includes(name)){
+			homePage.history.push(name);
+
+			dom.storage.set('history', JSON.stringify(homePage.history));
+		}
+
+		if(homePage.websiteRegex.test(name) || homePage.ipRegex.test(name) || homePage.localhostRegex.test(name)){
+			if(!/http:\/\/|https:\/\//.test(name)) name = `http://${name}`;
+		}
+
+		else name = `http://google.com/search?q=${name}`;
+
+		location.href = name;
+	},
 	createLink: function(name, url, color){
 		if(!homePage.websiteRegex.test(url)) url = `http://google.com/search?q=${url}`;
 
@@ -176,16 +189,6 @@ const homePage = {
 		dom.remove(document.getElementsByClassName('link'));
 
 		socketClient.reply('getSearchSuggestions', keyword);
-	},
-	google: function(keyword){
-		homePage.goToWebsite(`http://google.com/search?q=${keyword}`);
-	},
-	goToWebsite: function(website){
-		dom.storage.set('history', JSON.stringify(homePage.history));
-
-		if(!/http:\/\/|https:\/\//.test(website)) website = `http://${website}`;
-
-		location.href = website;
 	},
 	addBookmark: function(){
 		dialog.form('Add Bookmark', { name: '$required$', url: '$required$', color: 'hsl(209, 55%, 45%)' }, 2, function(choice, changes){
