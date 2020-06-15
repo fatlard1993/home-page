@@ -61,7 +61,7 @@ div#wrapper {
 			padding: 1%;
 		}
 
-		a.link {
+		.link {
 			text-decoration: none;
 
 			&:before {
