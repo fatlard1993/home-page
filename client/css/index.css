@@ -71,6 +71,7 @@ div#wrapper {
 				font-size: .7em;
 				top: .3em;
 				left: .3em;
+				opacity: 0.6;
 			}
 
 			&.bookmark:before {
