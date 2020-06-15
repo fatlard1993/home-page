@@ -128,6 +128,8 @@ const homePage = {
 			return menu.drawAtCursor(evt);
 		}
 
+		if(evt.target.classList.contains('link')) homePage.goTo(evt.target.href);
+
 		if(!evt.target.parentElement || evt.target.parentElement.id !== 'menu') menu.close();
 	},
 	menuSelection: function(evt){
@@ -157,7 +159,7 @@ const homePage = {
 	createLink: function(name, url, color){
 		if(!homePage.websiteRegex.test(url)) url = `http://google.com/search?q=${url}`;
 
-		return dom.createElem('a', { className: 'link', textContent: name, href: url, style: { backgroundColor: color } });
+		return dom.createElem('span', { className: 'link', textContent: name, href: url, style: { backgroundColor: color } });
 	},
 	updateBookmarks: function(bookmarks){
 		homePage.bookmarks = bookmarks;
