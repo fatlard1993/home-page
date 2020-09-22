@@ -37,7 +37,7 @@
 		"page-compiler": "github:fatlard1993/page-compiler#1.x.x",
 		"relevancy": "^0.2.0",
 		"socket-client": "github:fatlard1993/socket-client#2.x.x",
-		"sortablejs": "^1.10.2",
+		"sortablejs": "1.10.2",
 		"websocket-server": "github:fatlard1993/websocket-server#2.x.x",
 		"yargs": "^15.3.1"
 	}
