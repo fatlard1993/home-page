@@ -144,8 +144,9 @@ const homePage = {
 		menu.close();
 	},
 	goTo: function(name){
-		if(!homePage.history.includes(name)){
-			homePage.history.push(name);
+		var cleanName = homePage.fixLink(name).replace('http://google.com/search?q=', '');
+		if(!homePage.history.includes(cleanName) && !	homePage.bookmarks.__links.includes(cleanName)){
+			homePage.history.push(cleanName);
 
 			dom.storage.set('history', JSON.stringify(homePage.history));
 		}
@@ -173,10 +174,16 @@ const homePage = {
 	updateBookmarks: function(bookmarks){
 		homePage.bookmarks = bookmarks;
 
+		homePage.bookmarks.__links = [];
+
 		dom.empty(homePage.linkContainer);
 
 		for(var x = 0, count = homePage.bookmarks.__sortOrder.length, bookmark; x < count; ++x){
 			bookmark = bookmarks[homePage.bookmarks.__sortOrder[x]];
+
+			bookmark.url = homePage.fixLink(bookmark.url);
+
+			homePage.bookmarks.__links.push(bookmark.url.replace());
 
 			bookmark = homePage.createLink(homePage.bookmarks.__sortOrder[x], bookmark.url, bookmark.color);
 
