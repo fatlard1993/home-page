@@ -38,6 +38,8 @@ const homePage = {
 		socketClient.on('bookmarks', homePage.updateBookmarks);
 
 		socketClient.on('search', function(search){
+			dom.empty(homePage.linkContainer);
+
 			var suggestions = search.suggestions.slice(0, 5);
 
 			var relativeOrder = relevancy.sort(homePage.bookmarks.__sortOrder, search.keyword).slice(0, 1).concat(relevancy.sort(suggestions.concat(homePage.history)).slice(0, 5));
