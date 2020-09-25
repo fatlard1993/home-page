@@ -148,16 +148,21 @@ const homePage = {
 			dom.storage.set('history', JSON.stringify(homePage.history));
 		}
 
-		if(homePage.websiteRegex.test(name) || homePage.ipRegex.test(name) || homePage.localhostRegex.test(name)){
-			if(!/http:\/\/|https:\/\//.test(name)) name = `http://${name}`;
-		}
-
-		else name = `http://google.com/search?q=${name}`;
+		name = homePage.fixLink(name);
 
 		location.href = name;
 	},
+	fixLink: function(url){
+		if(homePage.websiteRegex.test(url) || homePage.ipRegex.test(url) || homePage.localhostRegex.test(url)){
+			if(!/http:\/\/|https:\/\//.test(url)) url = `http://${url}`;
+		}
+
+		else url = `http://google.com/search?q=${url}`;
+
+		return url;
+	},
 	createLink: function(name, url, color){
-		if(!homePage.websiteRegex.test(url)) url = `http://google.com/search?q=${url}`;
+		url = homePage.fixLink(url);
 
 		return dom.createElem('span', { className: 'link', textContent: name, href: url, style: { backgroundColor: color } });
 	},
