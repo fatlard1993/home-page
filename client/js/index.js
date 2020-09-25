@@ -162,6 +162,8 @@ const homePage = {
 		return url;
 	},
 	createLink: function(name, url, color){
+		if(url.startsWith('http://google') && homePage.websiteRegex.test(name)) url = name;
+
 		url = homePage.fixLink(url);
 
 		return dom.createElem('span', { className: 'link', title: name, textContent: name, href: url, style: { backgroundColor: color } });
