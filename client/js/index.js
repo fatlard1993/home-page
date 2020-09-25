@@ -164,7 +164,7 @@ const homePage = {
 	createLink: function(name, url, color){
 		url = homePage.fixLink(url);
 
-		return dom.createElem('span', { className: 'link', textContent: name, href: url, style: { backgroundColor: color } });
+		return dom.createElem('span', { className: 'link', title: name, textContent: name, href: url, style: { backgroundColor: color } });
 	},
 	updateBookmarks: function(bookmarks){
 		homePage.bookmarks = bookmarks;
