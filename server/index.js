@@ -28,23 +28,14 @@ yargs.describe({
 	p: '<port>'
 });
 
-var opts = yargs.argv;
+const args = yargs.argv;
 
-opts.rootFolder = rootFolder;
+['_', '$0', 'v', 'p'].forEach((item) => { delete args[item]; });
 
-delete opts._;
-delete opts.$0;
-delete opts.v;
-delete opts.p;
+const opts = Object.assign(args, { args: Object.assign({}, args), rootFolder, verbosity: Number(args.verbosity) });
 
-opts.verbosity = Number(opts.verbosity);
+const log = new (require('log'))({ tag: 'home-page', color: true, verbosity: opts.verbosity });
 
-//log args polyfill
-process.env.DBG = opts.verbosity;
-process.env.COLOR = true;
-
-const log = require('log');
-
-log(1)(opts);
+log(1)('Options', opts);
 
 (require('./homePage')).init(opts);

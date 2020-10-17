@@ -32,7 +32,7 @@
 		"find-root": "^1.1.0",
 		"http-server": "github:fatlard1993/http-server#4.x.x",
 		"js-util": "github:fatlard1993/js-util#2.x.x",
-		"log": "github:fatlard1993/log#2.x.x",
+		"log": "github:fatlard1993/log#3.x.x",
 		"menu": "github:fatlard1993/menu#2.x.x",
 		"page-compiler": "github:fatlard1993/page-compiler#1.x.x",
 		"relevancy": "^0.2.0",
