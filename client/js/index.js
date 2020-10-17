@@ -1,6 +1,14 @@
-// includes dom js-util log socket-client menu dialog sortablejs relevancy color-picker
-// babel
-/* global dom util log socketClient menu dialog Sortable relevancy colorPicker */
+import Log from 'log';
+import util from 'js-util';
+import dom from 'dom';
+import menu from 'menu';
+import dialog from 'dialog';
+import relevancy from 'relevancy';
+import colorPicker from 'color-picker';
+import Sortable from 'sortablejs';
+import socketClient from 'socket-client';
+
+const log = new Log();
 
 const homePage = {
 	websiteRegex: /^(https?:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/,

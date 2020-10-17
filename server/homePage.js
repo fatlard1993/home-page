@@ -4,7 +4,7 @@ const client = {
 	https: require('https')
 };
 
-const log = require('log');
+const log = new (require('log'))({ tag: 'home-page' });
 const Config = require('config-manager');
 const SocketServer = require('websocket-server');
 
@@ -26,7 +26,7 @@ const homePage = {
 	editBookmark: function(bookmark){
 		var old = homePage.bookmarks.current[bookmark.old];
 
-		log(`[home-page] Changing bookmark: `, bookmark);
+		log(`Changing bookmark: `, bookmark);
 
 		homePage.bookmarks.current[bookmark.new.name || bookmark.old] = {
 			url: bookmark.new.url || old.url,
@@ -45,14 +45,14 @@ const homePage = {
 		homePage.bookmarks.save();
 	},
 	getSearchSuggestions: function(keyword, done){
-		log(3)(`[home-page] Requesting suggestions for ${keyword}`);
+		log(3)(`Requesting suggestions for ${keyword}`);
 
 		try{
 			client.http.get(`http://suggestqueries.google.com/complete/search?client=chrome&q=${keyword}`, (res) => {
 				if(res.statusCode !== 200){
 					res.resume();
 
-					return log.error(`[home-page] Suggestion request failed with code: ${res.statusCode}`);
+					return log.error(`Suggestion request failed with code: ${res.statusCode}`);
 				}
 
 				var data = '';
@@ -72,11 +72,11 @@ const homePage = {
 					done(null, data);
 				});
 			}).on('error', (err) => {
-				log.error(1)('[home-page] Resource request error: ', err);
+				log.error(1)('Resource request error: ', err);
 			});
 		}
 		catch(err){
-			log.error('[home-page] Suggestion request failed', err);
+			log.error('Suggestion request failed', err);
 
 			done(err);
 		}
@@ -86,12 +86,12 @@ const homePage = {
 			this.reply('bookmarks', homePage.bookmarks.current);
 		},
 		updateOrder: function(order){
-			log(`[home-page] update order: `, order);
+			log(`update order: `, order);
 
 			homePage.updateOrder(order);
 		},
 		addBookmark: function(bookmark){
-			log(`[home-page] Adding bookmark: `, bookmark);
+			log(`Adding bookmark: `, bookmark);
 
 			homePage.bookmarks.current[bookmark.name] = { url: bookmark.url, color: bookmark.color };
 
@@ -104,7 +104,7 @@ const homePage = {
 		deleteBookmark: function(name){
 			if(!homePage.bookmarks.current[name]) return;
 
-			log(`[home-page] Deleting bookmark: ${name}`);
+			log(`Deleting bookmark: ${name}`);
 
 			delete homePage.bookmarks.current[name];
 
