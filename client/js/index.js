@@ -138,8 +138,6 @@ const homePage = {
 			return menu.drawAtCursor(evt);
 		}
 
-		if(evt.target.classList.contains('link')) homePage.goTo(evt.target.href);
-
 		if(!evt.target.parentElement || evt.target.parentElement.id !== 'menu') menu.close();
 	},
 	menuSelection: function(evt){
@@ -151,7 +149,7 @@ const homePage = {
 
 		menu.close();
 	},
-	goTo: function(name){
+	goTo: function(name, newTab){
 		var cleanName = homePage.fixLink(name).replace('http://google.com/search?q=', '');
 		if(!homePage.history.includes(cleanName) && !	homePage.bookmarks.__links.includes(cleanName)){
 			homePage.history.push(cleanName);
@@ -161,7 +159,8 @@ const homePage = {
 
 		name = homePage.fixLink(name);
 
-		location.href = name;
+		if(newTab) window.open(name, '_blank');
+		else location.href = name;
 	},
 	fixLink: function(url){
 		if(homePage.websiteRegex.test(url) || homePage.ipRegex.test(url) || homePage.localhostRegex.test(url)){
@@ -177,7 +176,16 @@ const homePage = {
 
 		url = homePage.fixLink(url);
 
-		return dom.createElem('span', { className: 'link', title: name, textContent: name, href: url, style: { backgroundColor: color } });
+		return dom.createElem('span', {
+			className: 'link',
+			title: name,
+			textContent: name,
+			href: url,
+			style: { backgroundColor: color },
+			onPointerPress: (evt) => {
+				homePage.goTo(evt.target.href, evt.which === 2);
+			}
+		});
 	},
 	updateBookmarks: function(bookmarks){
 		homePage.bookmarks = bookmarks;
