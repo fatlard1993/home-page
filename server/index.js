@@ -1,12 +1,7 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-
 const yargs = require('yargs');
 const rootFolder = require('find-root')(__dirname);
-
-function rootPath(){ return path.join(rootFolder, ...arguments); }
 
 process.chdir(rootFolder);
 
@@ -38,4 +33,4 @@ const log = new (require('log'))({ tag: 'home-page', color: true, verbosity: opt
 
 log(1)('Options', opts);
 
-(require('./homePage')).init(opts);
+require('./homePage').init(opts);
