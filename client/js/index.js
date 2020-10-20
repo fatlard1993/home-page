@@ -8,7 +8,7 @@ import colorPicker from 'color-picker';
 import Sortable from 'sortablejs';
 import socketClient from 'socket-client';
 
-const log = new Log();
+const log = new Log({ verbosity: parseInt(dom.storage.get('logVerbosity') || 0) });
 
 const homePage = {
 	websiteRegex: /^(https?:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/,
@@ -77,6 +77,8 @@ const homePage = {
 		homePage.loadHistory();
 
 		setTimeout(() => { homePage.searchBar.focus(); }, 500);
+
+		log.info()('Loaded');
 	},
 	keyUp: function(evt){
 		var selectedLink = document.getElementsByClassName('link selected')[0];
