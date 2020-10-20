@@ -5,6 +5,10 @@ const rootFolder = require('find-root')(__dirname);
 
 process.chdir(rootFolder);
 
+yargs.parserConfiguration({
+	'camel-case-expansion': false
+});
+
 yargs.alias({
 	h: 'help',
 	v: 'verbosity',
