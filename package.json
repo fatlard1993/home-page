@@ -39,9 +39,6 @@
 		"socket-client": "github:fatlard1993/socket-client#2.x.x",
 		"sortablejs": "1.10.2",
 		"websocket-server": "github:fatlard1993/websocket-server#2.x.x",
-		"yargs": "^16.1.0",
-		"@babel/plugin-proposal-class-properties": "^7.12.1",
-		"@babel/core": "^7.12.3",
-		"@babel/preset-env": "^7.12.1"
+		"yargs": "^16.1.0"
 	}
 }
