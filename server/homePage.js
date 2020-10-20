@@ -22,6 +22,8 @@ const homePage = {
 		app.get('/home', (req, res, next) => { res.sendPage('index'); });
 
 		this.socketServer.registerEndpoints(this.socketEndpoints);
+
+		log.info('Loaded');
 	},
 	editBookmark: function(bookmark){
 		var old = homePage.bookmarks.current[bookmark.old];
