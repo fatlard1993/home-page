@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 const client = {
 	http: require('http'),
@@ -10,6 +11,8 @@ const SocketServer = require('websocket-server');
 
 const homePage = {
 	init: function(opts){
+		this.rootPath = function rootPath(){ return path.join(opts.rootFolder, ...arguments); };
+
 		this.bookmarks = new Config(path.join(opts.rootFolder, 'bookmarks.json'), { __sortOrder: [] });
 
 		const { app, staticServer } = require('http-server').init(opts.port, opts.rootFolder);
@@ -18,6 +21,9 @@ const homePage = {
 
 		app.use('/resources', staticServer(path.join(opts.rootFolder, 'client/resources')));
 		app.use('/fonts', staticServer(path.join(opts.rootFolder, 'client/fonts')));
+
+		if(fs.existsSync(this.rootPath('node_modules/font-awesome/fonts'))) app.use('/fonts', staticServer(this.rootPath('node_modules/font-awesome/fonts')));
+		else if(fs.existsSync(this.rootPath('../node_modules/font-awesome/fonts'))) app.use('/fonts', staticServer(this.rootPath('../node_modules/font-awesome/fonts')));
 
 		app.get('/home', (req, res, next) => { res.sendPage('index'); });
 
