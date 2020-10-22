@@ -33,7 +33,7 @@ const args = yargs.argv;
 
 const opts = Object.assign(args, { args: Object.assign({}, args), rootFolder, verbosity: Number(args.verbosity) });
 
-const log = new (require('log'))({ tag: 'home-page', color: true, verbosity: opts.verbosity });
+const log = new (require('log'))({ tag: 'home-page', color: true, defaultVerbosity: opts.verbosity });
 
 log(1)('Options', opts);
 
