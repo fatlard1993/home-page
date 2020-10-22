@@ -65,7 +65,7 @@ div#wrapper {
 			text-decoration: none;
 
 			&:before {
-				@extend .fas;
+				@mixin fontAwesome;
 
 				position: absolute;
 				font-size: .7em;
