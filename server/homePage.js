@@ -22,8 +22,9 @@ const homePage = {
 		app.use('/resources', staticServer(path.join(opts.rootFolder, 'client/resources')));
 		app.use('/fonts', staticServer(path.join(opts.rootFolder, 'client/fonts')));
 
-		if(fs.existsSync(this.rootPath('node_modules/font-awesome/fonts'))) app.use('/fonts', staticServer(this.rootPath('node_modules/font-awesome/fonts')));
-		else if(fs.existsSync(this.rootPath('../node_modules/font-awesome/fonts'))) app.use('/fonts', staticServer(this.rootPath('../node_modules/font-awesome/fonts')));
+		const fontAwesomePath = this.rootPath('node_modules/@fortawesome/fontawesome-free/webfonts');
+
+		if(fs.existsSync(fontAwesomePath)) app.use('/webfonts', staticServer(fontAwesomePath));
 
 		app.get('/home', (req, res, next) => { res.sendPage('index'); });
 
