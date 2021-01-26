@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 const argi = require('argi');
-const rootFolder = require('find-root')(__dirname);
 
 argi.parse({
 	verbosity: {
