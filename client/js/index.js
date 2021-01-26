@@ -17,6 +17,20 @@ const homePage = {
 	init: function(){
 		var content = dom.getElemById('content');
 
+		dom.onPointerPress(content, (evt) => {
+			log()(evt);
+
+			if(evt.which === 3){
+				delete homePage.targetedLink;
+
+				menu.open('main');
+
+				menu.drawAtCursor(evt);
+			}
+
+			else menu.close();
+		});
+
 		homePage.searchBar = dom.createElem('input', dom.basicTextElem({ id: 'search', placeholder: 'Search', appendTo: content }));
 		homePage.linkContainer = dom.createElem('div', { className: 'linkContainer', appendTo: content });
 
@@ -70,8 +84,6 @@ const homePage = {
 			if(evt.target.parentElement && evt.target.parentElement.parentElement && evt.target.parentElement.parentElement === dom.colorPickerDialog) homePage.usingColorPicker = true;
 		});
 
-		dom.interact.on('pointerUp', homePage.pointerUp);
-
 		dom.interact.on('keyUp', homePage.keyUp);
 
 		homePage.loadHistory();
@@ -119,29 +131,6 @@ const homePage = {
 
 		else if(evt.keyPressed === 'SLASH' && document.activeElement !== homePage.searchBar && !dialog.active) homePage.searchBar.focus();
 	},
-	pointerUp: function(evt){
-		if(evt.which === 3){
-			evt.preventDefault();
-
-			if(evt.target.classList.contains('bookmark')){
-				homePage.targetedLink = evt.target;
-
-				menu.open('single');
-			}
-
-			else{
-				homePage.clickTarget = evt.target;
-
-				delete homePage.targetedLink;
-
-				menu.open('main');
-			}
-
-			return menu.drawAtCursor(evt);
-		}
-
-		if(!evt.target.parentElement || evt.target.parentElement.id !== 'menu') menu.close();
-	},
 	menuSelection: function(evt){
 		if(evt.item === 'Add Bookmark') homePage.addBookmark();
 
@@ -185,7 +174,19 @@ const homePage = {
 			href: url,
 			style: { backgroundColor: color },
 			onPointerPress: (evt) => {
-				homePage.goTo(evt.target.href, evt.which === 2);
+				log()(evt);
+
+				if(evt.which === 3){
+					evt.preventDefault();
+
+					homePage.targetedLink = evt.target;
+
+					menu.open('single');
+
+					menu.drawAtCursor(evt);
+				}
+
+				else homePage.goTo(evt.target.href, evt.which === 2);
 			}
 		});
 	},
