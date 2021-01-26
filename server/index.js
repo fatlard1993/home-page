@@ -1,40 +1,31 @@
 #!/usr/bin/env node
 
-const yargs = require('yargs');
+const argi = require('argi');
 const rootFolder = require('find-root')(__dirname);
+
+argi.parse({
+	verbosity: {
+		type: 'int',
+		alias: 'v',
+		defaultValue: 1
+	},
+	rootFolder: {
+		type: 'string',
+		alias: 'r',
+		defaultValue: rootFolder
+	},
+	port: {
+		type: 'int',
+		alias: 'p',
+		defaultValue: 80
+	}
+});
 
 process.chdir(rootFolder);
 
-yargs.parserConfiguration({
-	'camel-case-expansion': false
-});
+const options = argi.options.named;
+const log = new (require('log'))({ tag: 'home-page', color: true, defaultVerbosity: options.verbosity });
 
-yargs.alias({
-	h: 'help',
-	v: 'verbosity',
-	p: 'port'
-});
+log(1)('Options', options);
 
-yargs.boolean(['h', 'ver', 's']);
-
-yargs.default({
-	v: 1,
-	p: 80
-});
-
-yargs.describe({
-	v: '<level>',
-	p: '<port>'
-});
-
-const args = yargs.argv;
-
-['_', '$0', 'v', 'p'].forEach((item) => { delete args[item]; });
-
-const opts = Object.assign(args, { args: Object.assign({}, args), rootFolder, verbosity: Number(args.verbosity) });
-
-const log = new (require('log'))({ tag: 'home-page', color: true, defaultVerbosity: opts.verbosity });
-
-log(1)('Options', opts);
-
-require('./homePage').init(opts);
+require('./homePage').init(options);
