@@ -35,7 +35,11 @@ const homePage = {
 		homePage.linkContainer = dom.createElem('div', { className: 'linkContainer', appendTo: content });
 
 		homePage.searchBar.onblur = () => { homePage.searchBar.placeholder = 'Search (Press / to focus)';	};
-		homePage.searchBar.onfocus = () => { homePage.searchBar.placeholder = 'Search';	};
+		homePage.searchBar.onfocus = () => {
+			if(menu.isOpen) menu.close();
+
+			homePage.searchBar.placeholder = 'Search';
+		};
 
 		Sortable.create(homePage.linkContainer, {
 			animation: 200,
