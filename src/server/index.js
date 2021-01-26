@@ -9,19 +9,12 @@ argi.parse({
 		alias: 'v',
 		defaultValue: 1
 	},
-	rootFolder: {
-		type: 'string',
-		alias: 'r',
-		defaultValue: rootFolder
-	},
 	port: {
 		type: 'int',
 		alias: 'p',
 		defaultValue: 80
 	}
 });
-
-process.chdir(rootFolder);
 
 const options = argi.options.named;
 const log = new (require('log'))({ tag: 'home-page', color: true, defaultVerbosity: options.verbosity });

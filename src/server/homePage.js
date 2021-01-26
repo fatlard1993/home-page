@@ -11,18 +11,16 @@ const SocketServer = require('websocket-server');
 
 const homePage = {
 	init: function(opts){
-		this.rootPath = function rootPath(){ return path.join(opts.rootFolder, ...arguments); };
-
-		this.bookmarks = new Config(path.join(opts.rootFolder, 'bookmarks.json'), { __sortOrder: [] });
+		this.bookmarks = new Config(path.resolve('./bookmarks.json'), { __sortOrder: [] });
 
 		const { app, staticServer } = require('http-server').init(opts.port, opts.rootFolder);
 
 		this.socketServer = new SocketServer({ server: app.server });
 
-		app.use('/resources', staticServer(path.join(opts.rootFolder, 'client/resources')));
-		app.use('/fonts', staticServer(path.join(opts.rootFolder, 'client/fonts')));
+		app.use('/resources', staticServer(path.resolve('./src/client/resources')));
+		app.use('/fonts', staticServer(path.resolve('./src/client/fonts')));
 
-		const fontAwesomePath = this.rootPath('node_modules/@fortawesome/fontawesome-free/webfonts');
+		const fontAwesomePath = path.resolve('./node_modules/@fortawesome/fontawesome-free/webfonts');
 
 		if(fs.existsSync(fontAwesomePath)) app.use('/webfonts', staticServer(fontAwesomePath));
 
