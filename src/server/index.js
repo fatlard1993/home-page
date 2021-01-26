@@ -16,7 +16,7 @@ argi.parse({
 });
 
 const options = argi.options.named;
-const log = new (require('log'))({ tag: 'home-page', color: true, defaultVerbosity: options.verbosity });
+const log = new (require('log'))({ tag: 'home-page', defaults: { verbosity: options.verbosity, color: true } });
 
 log(1)('Options', options);
 
