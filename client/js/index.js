@@ -4,9 +4,9 @@ import dom from 'dom';
 import menu from 'menu';
 import dialog from 'dialog';
 import relevancy from 'relevancy';
-import colorPicker from 'color-picker';
 import Sortable from 'sortablejs';
 import socketClient from 'socket-client';
+import 'color-picker';
 
 const log = new Log({ verbosity: parseInt(dom.storage.get('logVerbosity') || 0) });
 
@@ -15,7 +15,7 @@ const homePage = {
 	ipRegex: /^(https?:\/\/)?(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(:[0-9]{1,5})?(\/.*)?$/,
 	localhostRegex: /^(https?:\/\/)?localhost(:[0-9]{1,5})?(\/.*)?$/,
 	init: function(){
-		var content = dom.getElemById('content');
+		const content = dom.getElemById('content');
 
 		dom.onPointerPress(content, (evt) => {
 			log()(evt);
@@ -39,7 +39,7 @@ const homePage = {
 
 		Sortable.create(homePage.linkContainer, {
 			animation: 200,
-			onSort: function(evt){
+			onSort: (evt) => {
 				log()('drag sort', evt);
 
 				if(homePage.searchBar.value) return;
@@ -59,16 +59,15 @@ const homePage = {
 
 		socketClient.on('bookmarks', homePage.updateBookmarks);
 
-		socketClient.on('search', function(search){
+		socketClient.on('search', (search) => {
 			dom.empty(homePage.linkContainer);
 
-			var suggestions = search.suggestions.slice(0, 5);
-
-			var relativeOrder = relevancy.sort(homePage.bookmarks.__sortOrder, search.keyword).slice(0, 1).concat(relevancy.sort(suggestions.concat(homePage.history)).slice(0, 5));
+			const suggestions = search.suggestions.slice(0, 5);
+			const relativeOrder = relevancy.sort(homePage.bookmarks.__sortOrder, search.keyword).slice(0, 1).concat(relevancy.sort(suggestions.concat(homePage.history)).slice(0, 5));
 
 			log(1)('search', search.keyword, relativeOrder);
 
-			for(var x = 0, count = relativeOrder.length, bookmark, link; x < count; ++x){
+			for(let x = 0, count = relativeOrder.length, bookmark, link; x < count; ++x){
 				bookmark = homePage.bookmarks[relativeOrder[x]];
 				link = homePage.createLink(relativeOrder[x], bookmark ? bookmark.url : `http://google.com/search?q=${relativeOrder[x]}`, bookmark ? bookmark.color : 'hsl(209, 55%, 45%)');
 
@@ -92,22 +91,22 @@ const homePage = {
 
 		log.info()('Loaded');
 	},
-	keyUp: function(evt){
-		var selectedLink = document.getElementsByClassName('link selected')[0];
+	keyUp: function({ target, keyPressed }){
+		const selectedLink = document.getElementsByClassName('link selected')[0];
 
-		if({ 'UP': 1, 'DOWN': 1, 'LEFT': 1, 'RIGHT': 1 }[evt.keyPressed]){
-			log()('link nav', evt.keyPressed, selectedLink);
+		if({ 'UP': 1, 'DOWN': 1, 'LEFT': 1, 'RIGHT': 1 }[keyPressed]){
+			log()('link nav', keyPressed, selectedLink);
 
 			if(selectedLink) selectedLink.classList.remove('selected');
 
 			if(homePage.linkContainer.children.length){
-				if({ 'UP': 1, 'LEFT': 1 }[evt.keyPressed]){
+				if({ 'UP': 1, 'LEFT': 1 }[keyPressed]){
 					if(!selectedLink) homePage.linkContainer.children[homePage.linkContainer.children.length - 1].classList.add('selected');
 
 					else if(selectedLink.previousElementSibling) selectedLink.previousElementSibling.classList.add('selected');
 				}
 
-				else if({ 'DOWN': 1, 'RIGHT': 1 }[evt.keyPressed]){
+				else if({ 'DOWN': 1, 'RIGHT': 1 }[keyPressed]){
 					if(!selectedLink) homePage.linkContainer.children[0].classList.add('selected');
 
 					else if(selectedLink.nextElementSibling) selectedLink.nextElementSibling.classList.add('selected');
@@ -115,33 +114,34 @@ const homePage = {
 			}
 		}
 
-		else if(evt.keyPressed === 'ENTER' && selectedLink) return homePage.goTo(selectedLink.href);
+		else if(keyPressed === 'ENTER' && selectedLink) return homePage.goTo(selectedLink.href);
 
-		else if(evt.target === homePage.searchBar){
-			log()('search keyup', evt);
+		else if(target === homePage.searchBar){
+			log()('Search keyup', keyPressed);
 
-			var keyword = homePage.searchBar.value;
+			const keyword = homePage.searchBar.value;
 
-			if(evt.keyPressed === 'ENTER' && keyword.length) homePage.goTo(keyword);
+			if(keyPressed === 'ENTER' && keyword.length) homePage.goTo(keyword);
 
 			if(!keyword.length) return homePage.updateBookmarks(homePage.bookmarks);
 
 			homePage.search(keyword);
 		}
 
-		else if(evt.keyPressed === 'SLASH' && document.activeElement !== homePage.searchBar && !dialog.active) homePage.searchBar.focus();
+		else if(keyPressed === 'SLASH' && document.activeElement !== homePage.searchBar && !dialog.active) homePage.searchBar.focus();
 	},
-	menuSelection: function(evt){
-		if(evt.item === 'Add Bookmark') homePage.addBookmark();
+	menuSelection: function({ item }){
+		if(item === 'Add Bookmark') homePage.addBookmark();
 
-		else if(evt.item === 'Edit') homePage.editBookmark();
+		else if(item === 'Edit') homePage.editBookmark();
 
-		else if(evt.item === 'Delete') homePage.deleteBookmark();
+		else if(item === 'Delete') homePage.deleteBookmark();
 
 		menu.close();
 	},
 	goTo: function(name, newTab){
-		var cleanName = homePage.fixLink(name).replace('http://google.com/search?q=', '');
+		const cleanName = homePage.fixLink(name).replace('http://google.com/search?q=', '');
+
 		if(!homePage.history.includes(cleanName) && !	homePage.bookmarks.__links.includes(cleanName)){
 			homePage.history.push(cleanName);
 
@@ -197,7 +197,7 @@ const homePage = {
 
 		dom.empty(homePage.linkContainer);
 
-		for(var x = 0, count = homePage.bookmarks.__sortOrder.length, bookmark; x < count; ++x){
+		for(let x = 0, count = homePage.bookmarks.__sortOrder.length, bookmark; x < count; ++x){
 			bookmark = bookmarks[homePage.bookmarks.__sortOrder[x]];
 
 			bookmark.url = homePage.fixLink(bookmark.url);
@@ -232,7 +232,7 @@ const homePage = {
 		socketClient.reply('getSearchSuggestions', keyword);
 	},
 	addBookmark: function(){
-		dialog.form('Add Bookmark', { name: '$required$', url: '$required$', color: 'hsl(209, 55%, 45%)' }, 2, function(choice, changes){
+		dialog.form('Add Bookmark', { name: '$required$', url: '$required$', color: 'hsl(209, 55%, 45%)' }, 2, (choice, changes) => {
 			if(choice !== 'OK') return;
 
 			socketClient.reply('addBookmark', changes);
@@ -241,9 +241,9 @@ const homePage = {
 	editBookmark: function(){
 		if(!homePage.targetedLink) return log.error()('No targeted link to edit');
 
-		var old = { name: homePage.targetedLink.textContent, url: homePage.targetedLink.href, color: homePage.bookmarks[homePage.targetedLink.textContent].color };
+		const old = { name: homePage.targetedLink.textContent, url: homePage.targetedLink.href, color: homePage.bookmarks[homePage.targetedLink.textContent].color };
 
-		dialog.form('Edit Bookmark', old, 2, function(choice, changes){
+		dialog.form('Edit Bookmark', old, 2, (choice, changes) => {
 			if(choice !== 'OK') return;
 
 			socketClient.reply('editBookmark', { old: homePage.targetedLink.textContent, new: changes });
