@@ -118,7 +118,9 @@ const homePage = {
 			}
 		}
 
-		else if(keyPressed === 'ENTER' && selectedLink) return homePage.goTo(selectedLink.href);
+		else if(keyPressed === 'ENTER' && selectedLink) homePage.goTo(selectedLink.href);
+
+		else if(keyPressed === 'ESCAPE' && menu.isOpen) menu.close();
 
 		else if(target === homePage.searchBar){
 			log()('Search keyup', keyPressed);
