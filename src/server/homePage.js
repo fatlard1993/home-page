@@ -13,7 +13,7 @@ const homePage = {
 	init: function(opts){
 		this.bookmarks = new Config(path.resolve('./bookmarks.json'), { __sortOrder: [] });
 
-		const { app, staticServer } = require('http-server').init(opts.port, opts.rootFolder);
+		const { app, staticServer } = require('http-server').init(opts.port, path.resolve('./'));
 
 		this.socketServer = new SocketServer({ server: app.server });
 
