@@ -26,6 +26,7 @@
 	},
 	"dependencies": {
 		"@fortawesome/fontawesome-free": "^5.15.1",
+		"argi": "github:fatlard1993/argi",
 		"color-picker": "github:fatlard1993/color-picker#2.x.x",
 		"config-manager": "github:fatlard1993/config-manager#2.x.x",
 		"dialog": "github:fatlard1993/dialog#2.x.x",
@@ -39,7 +40,6 @@
 		"relevancy": "^0.2.0",
 		"socket-client": "github:fatlard1993/socket-client#2.x.x",
 		"sortablejs": "1.10.2",
-		"websocket-server": "github:fatlard1993/websocket-server#2.x.x",
-		"yargs": "^16.1.0"
+		"websocket-server": "github:fatlard1993/websocket-server#2.x.x"
 	}
 }
