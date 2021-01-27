@@ -17,22 +17,10 @@ const homePage = {
 	init: function(){
 		const content = dom.getElemById('content');
 
-		dom.onPointerPress(content, (evt) => {
-			log()(evt);
-
-			if(evt.which === 3){
-				delete homePage.targetedLink;
-
-				menu.open('main');
-
-				menu.drawAtCursor(evt);
-			}
-
-			else menu.close();
-		});
+		dom.onPointerPress(content, homePage.pointerPress);
 
 		homePage.searchBar = dom.createElem('input', dom.basicTextElem({ id: 'search', placeholder: 'Search', appendTo: content }));
-		homePage.linkContainer = dom.createElem('div', { className: 'linkContainer', appendTo: content });
+		homePage.linkContainer = dom.createElem('div', { className: 'linkContainer', appendTo: content, onPointerPress: homePage.pointerPress });
 
 		homePage.searchBar.onblur = () => { homePage.searchBar.placeholder = 'Search (Press / to focus)';	};
 		homePage.searchBar.onfocus = () => {
@@ -94,6 +82,19 @@ const homePage = {
 		setTimeout(() => { homePage.searchBar.focus(); }, 500);
 
 		log.info()('Loaded');
+	},
+	pointerPress: function(evt){
+		log()(evt);
+
+		if(evt.which === 3){
+			delete homePage.targetedLink;
+
+			menu.open('main');
+
+			menu.drawAtCursor(evt);
+		}
+
+		else menu.close();
 	},
 	keyUp: function({ target, keyPressed }){
 		const selectedLink = document.getElementsByClassName('link selected')[0];
