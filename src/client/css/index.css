@@ -11,7 +11,7 @@ html {
 	}
 
 	* {
-		font: 400 16px "Source Code Pro";
+		font: 600 16px "Source Code Pro";
 		font-family: "Source Code Pro", monospace;
 		touch-action: manipulation;
 		-webkit-text-size-adjust: none;
@@ -55,6 +55,13 @@ div#wrapper {
 			padding: 1px;
 			box-sizing: border-box;
 			height: 32px;
+			text-shadow: 2px 3px 4px #9f9f9f94;
+
+			&:focus {
+				outline: 2px dashed $green;
+				border: 4px solid $black;
+				height: 36px;
+			}
 		}
 
 		div.linkContainer {
@@ -63,15 +70,16 @@ div#wrapper {
 
 		.link {
 			text-decoration: none;
+			text-shadow: 2px 3px 4px #5d5d5d94;
 
 			&:before {
-				@mixin fontAwesome;
+				@mixin fontAwesomeSolid;
 
 				position: absolute;
-				font-size: .7em;
+				font-size: .8em;
 				top: .3em;
 				left: .3em;
-				opacity: 0.6;
+				opacity: 0.7;
 			}
 
 			&.bookmark:before {
