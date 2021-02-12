@@ -23,10 +23,10 @@
 	"devDependencies": {
 		"eslint-config-rules": "github:fatlard1993/eslint-config-rules#2.x.x",
 		"babel-eslint": "^10.1.0",
-		"eslint": "^7.11.0"
+		"eslint": "^7.19.0"
 	},
 	"dependencies": {
-		"@fortawesome/fontawesome-free": "^5.15.1",
+		"@fortawesome/fontawesome-free": "^5.15.2",
 		"argi": "github:fatlard1993/argi",
 		"color-picker": "github:fatlard1993/color-picker#2.x.x",
 		"config-manager": "github:fatlard1993/config-manager#2.x.x",
@@ -39,7 +39,7 @@
 		"page-compiler": "github:fatlard1993/page-compiler#1.x.x",
 		"relevancy": "^0.2.0",
 		"socket-client": "github:fatlard1993/socket-client#2.x.x",
-		"sortablejs": "1.10.2",
+		"sortablejs": "1.13.0",
 		"source-code-pro": "^2.30.2",
 		"websocket-server": "github:fatlard1993/websocket-server#2.x.x"
 	}
