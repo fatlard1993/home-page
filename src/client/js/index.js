@@ -102,6 +102,8 @@ const homePage = {
 		if({ 'UP': 1, 'DOWN': 1, 'LEFT': 1, 'RIGHT': 1 }[keyPressed]){
 			log()('link nav', keyPressed, selectedLink);
 
+			if(document.activeElement) document.activeElement.blur();
+
 			if(selectedLink) selectedLink.classList.remove('selected');
 
 			if(homePage.linkContainer.children.length){
