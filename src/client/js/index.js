@@ -26,6 +26,10 @@ const homePage = {
 		homePage.searchBar.onfocus = () => {
 			if(menu.isOpen) menu.close();
 
+			const selectedLink = document.getElementsByClassName('link selected')[0];
+
+			if(selectedLink) selectedLink.classList.remove('selected');
+
 			homePage.searchBar.placeholder = 'Search';
 		};
 
@@ -102,7 +106,11 @@ const homePage = {
 		if({ 'UP': 1, 'DOWN': 1, 'LEFT': 1, 'RIGHT': 1 }[keyPressed]){
 			log()('link nav', keyPressed, selectedLink);
 
-			if(document.activeElement) document.activeElement.blur();
+			if(document.activeElement === homePage.searchBar){
+				if(keyPressed !== 'DOWN') return;
+
+				document.activeElement.blur();
+			}
 
 			if(selectedLink) selectedLink.classList.remove('selected');
 
