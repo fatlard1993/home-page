@@ -13,10 +13,14 @@
 }
 
 @define-mixin fontAwesomeBrands {
+	@mixin fontAwesome;
+
 	font-family: 'Font Awesome 5 Brands';
 	font-weight: normal;
 }
 
 @define-mixin fontAwesomeSolid {
-	font-weight: 900;
+	@mixin fontAwesome;
+
+	font-weight: 600;
 }
