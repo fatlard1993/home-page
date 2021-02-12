@@ -1,4 +1,5 @@
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const client = {
 	http: require('http'),
@@ -10,22 +11,19 @@ const Config = require('config-manager');
 const SocketServer = require('websocket-server');
 
 const homePage = {
+	rootPath: function(){ return path.join(__dirname, '../..', ...arguments); },
 	init: function(opts){
-		this.bookmarks = new Config(path.resolve('./bookmarks.json'), { __sortOrder: [] });
+		this.configFolder = path.resolve(os.homedir(), '.home-page');
 
-		const { app, staticServer } = require('http-server').init(opts.port, path.resolve('./'));
+		if(!fs.existsSync(this.configFolder)) fs.mkdirSync(this.configFolder);
+
+		this.bookmarks = new Config(path.resolve(this.configFolder, 'bookmarks.json'), { __sortOrder: [] });
+
+		const { app } = require('http-server').init(opts.port, homePage.rootPath(), '/');
+
+		require('./router');
 
 		this.socketServer = new SocketServer({ server: app.server });
-
-		app.use('/resources', staticServer(path.resolve('./src/client/resources')));
-		app.use('/fonts', staticServer(path.resolve('./src/client/fonts')));
-
-		const fontAwesomePath = path.resolve('./node_modules/@fortawesome/fontawesome-free/webfonts');
-
-		if(fs.existsSync(fontAwesomePath)) app.use('/webfonts', staticServer(fontAwesomePath));
-
-		app.get('/home', (req, res, next) => { res.sendPage('index'); });
-
 		this.socketServer.registerEndpoints(this.socketEndpoints);
 
 		log.info('Loaded');
