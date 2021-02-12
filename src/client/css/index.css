@@ -11,8 +11,8 @@ html {
 	}
 
 	* {
-		font: 400 16px "Source Sans Pro";
-		font-family: "Source Sans Pro", sans-serif;
+		font: 400 16px "Source Code Pro";
+		font-family: "Source Code Pro", monospace;
 		touch-action: manipulation;
 		-webkit-text-size-adjust: none;
 	}
