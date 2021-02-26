@@ -1,4 +1,3 @@
-const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const client = {
@@ -13,11 +12,7 @@ const SocketServer = require('websocket-server');
 const homePage = {
 	rootPath: function(){ return path.join(__dirname, '../..', ...arguments); },
 	init: function(opts){
-		this.configFolder = path.resolve(os.homedir(), '.home-page');
-
-		if(!fs.existsSync(this.configFolder)) fs.mkdirSync(this.configFolder);
-
-		this.bookmarks = new Config(path.resolve(this.configFolder, 'bookmarks.json'), { __sortOrder: [] });
+		this.bookmarks = new Config(path.resolve(os.homedir(), 'home-page.json'), { __sortOrder: [] });
 
 		const { app } = require('http-server').init(opts.port, homePage.rootPath(), '/');
 
