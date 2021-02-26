@@ -12,7 +12,7 @@ const SocketServer = require('websocket-server');
 const homePage = {
 	rootPath: function(){ return path.join(__dirname, '../..', ...arguments); },
 	init: function(opts){
-		this.bookmarks = new Config(path.resolve(os.homedir(), 'home-page.json'), { __sortOrder: [] });
+		this.bookmarks = new Config(path.resolve(os.homedir(), '.home-page.json'), { __sortOrder: [] });
 
 		const { app } = require('http-server').init(opts.port, homePage.rootPath(), '/');
 
