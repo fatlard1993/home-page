@@ -11,9 +11,10 @@ import 'color-picker';
 const log = new Log({ verbosity: parseInt(dom.storage.get('logVerbosity') || 0) });
 
 const homePage = {
-	websiteRegex: /^(https?:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/,
-	ipRegex: /^(https?:\/\/)?(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(:[0-9]{1,5})?(\/.*)?$/,
-	localhostRegex: /^(https?:\/\/)?localhost(:[0-9]{1,5})?(\/.*)?$/,
+	websiteRegex: /^(.+:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/,
+	ipRegex: /^(.+:\/\/)?(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(:[0-9]{1,5})?(\/.*)?$/,
+	hostnameRegex: /^(.+:\/\/)[^:]+?(:[0-9]{1,5})?(\/.*)?$/,
+	localhostRegex: /^(.+:\/\/)?localhost(:[0-9]{1,5})?(\/.*)?$/,
 	init: function(){
 		const content = dom.getElemById('content');
 
@@ -171,8 +172,8 @@ const homePage = {
 		else location.href = name;
 	},
 	fixLink: function(url){
-		if(homePage.websiteRegex.test(url) || homePage.ipRegex.test(url) || homePage.localhostRegex.test(url)){
-			if(!/http:\/\/|https:\/\//.test(url)) url = `http://${url}`;
+		if(homePage.websiteRegex.test(url) || homePage.ipRegex.test(url) || homePage.localhostRegex.test(url) || homePage.hostnameRegex.test(url)){
+			if(!/.+:\/\//.test(url)) url = `http://${url}`;
 		}
 
 		else url = `http://google.com/search?q=${url}`;
