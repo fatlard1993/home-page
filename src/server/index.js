@@ -2,22 +2,21 @@
 
 const argi = require('argi');
 
-argi.parse({
+const { options } = argi.parse({
 	verbosity: {
-		type: 'int',
+		type: 'number',
+		defaultValue: 1,
 		alias: 'v',
-		defaultValue: 1
 	},
 	port: {
-		type: 'int',
+		type: 'number',
+		defaultValue: 5033,
 		alias: 'p',
-		defaultValue: 5033
 	}
 });
 
-const options = argi.options.named;
 const log = new (require('log'))({ tag: 'home-page', defaults: { verbosity: options.verbosity, color: true } });
 
-log(1)('Options', options);
+log()('Options', options);
 
 require('./homePage').init(options);
