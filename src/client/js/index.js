@@ -185,7 +185,7 @@ const homePage = {
 
 		url = homePage.fixLink(url);
 
-		return dom.createElem('span', {
+		return dom.createElem('a', {
 			className: 'link',
 			title: name,
 			textContent: name,
@@ -203,8 +203,6 @@ const homePage = {
 
 					menu.drawAtCursor(evt);
 				}
-
-				else homePage.goTo(evt.target.href, evt.which === 2);
 			}
 		});
 	},
