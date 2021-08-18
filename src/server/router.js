@@ -7,6 +7,20 @@ const { rootPath } = require('./homePage');
 const localFileRoots = [];
 
 app.use(function(req, res, next){
+	if(req.path !== '/load-file' || req.method !== 'GET') return next();
+
+	localFileRoots.push(req.query.file.replace(/[^/]+\..+$/, ''));
+
+	res.sendFile(req.query.file);
+});
+
+app.use(function(req, res, next){
+	if(req.path !== '/' || req.method !== 'GET') return next();
+
+	res.sendPage('home-page');
+});
+
+app.use(function(req, res, next){
 	if(req.path === '/load-file' || !localFileRoots) return next();
 
 	const filePath = req.path.replace(/\?.+$/, '');
@@ -25,20 +39,6 @@ app.use(
 
 app.use(function(req, res, next){
 	next(req.path !== '/load-file' && res.reqType === 'file' ? { code: 404, detail: `Could not find ${req.originalUrl}` } : null);
-});
-
-app.use(function(req, res, next){
-	if(req.path !== '/load-file' || req.method !== 'GET') return next();
-
-	localFileRoots.push(req.query.file.replace(/[^/]+\..+$/, ''));
-
-	res.sendFile(req.query.file);
-});
-
-app.use(function(req, res, next){
-	if(req.path !== '/' || req.method !== 'GET') return next();
-
-	res.sendPage('home-page');
 });
 
 app.use(function(req, res, next){
