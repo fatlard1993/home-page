@@ -172,7 +172,9 @@ const homePage = {
 		else location.href = name;
 	},
 	fixLink: function(url){
-		if(homePage.websiteRegex.test(url) || homePage.ipRegex.test(url) || homePage.localhostRegex.test(url) || homePage.hostnameRegex.test(url)){
+		if(url.startsWith('file://')) url = url.replace('file://', `${window.location.href}load-file?file=`);
+
+		else if(homePage.websiteRegex.test(url) || homePage.ipRegex.test(url) || homePage.localhostRegex.test(url) || homePage.hostnameRegex.test(url)){
 			if(!/.+:\/\//.test(url)) url = `http://${url}`;
 		}
 

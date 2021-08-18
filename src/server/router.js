@@ -1,6 +1,21 @@
+const fs = require('fs');
+const path = require('path');
 const { app, staticServer } = require('http-server');
 
 const { rootPath } = require('./homePage');
+
+const localFileRoots = [];
+
+app.use(function(req, res, next){
+	if(req.path === '/load-file' || !localFileRoots) return next();
+
+	const filePath = req.path.replace(/\?.+$/, '');
+	const fileRoot = localFileRoots.find(localFileRoot => fs.existsSync(path.join(localFileRoot, filePath)));
+
+	if(!fileRoot) return next();
+
+	res.sendFile(path.join(fileRoot, filePath));
+});
 
 app.use(
 	staticServer(rootPath('src/client/resources')),
@@ -9,7 +24,15 @@ app.use(
 );
 
 app.use(function(req, res, next){
-	next(res.reqType === 'file' ? { code: 404, detail: `Could not find ${req.originalUrl}` } : null);
+	next(req.path !== '/load-file' && res.reqType === 'file' ? { code: 404, detail: `Could not find ${req.originalUrl}` } : null);
+});
+
+app.use(function(req, res, next){
+	if(req.path !== '/load-file' || req.method !== 'GET') return next();
+
+	localFileRoots.push(req.query.file.replace(/[^/]+\..+$/, ''));
+
+	res.sendFile(req.query.file);
 });
 
 app.use(function(req, res, next){
