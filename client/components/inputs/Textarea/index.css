@@ -1,5 +1,0 @@
-@import '../input.css';
-
-textarea.textarea {
-	@mixin Input;
-}

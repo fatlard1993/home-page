@@ -43,6 +43,7 @@
 		"socket-client": "github:fatlard1993/socket-client",
 		"sortablejs": "1.13.0",
 		"source-code-pro": "^2.30.2",
+		"vanilla-bean-components": "github:fatlard1993/vanilla-bean-components",
 		"websocket-server": "github:fatlard1993/websocket-server#main"
 	},
 	"devDependencies": {

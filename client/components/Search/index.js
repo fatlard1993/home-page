@@ -2,9 +2,9 @@ import './index.css';
 
 import socketClient from 'socket-client';
 
-import { TextInput } from '../TextInput';
+import { TextInput } from 'vanilla-bean-components';
 
-export class Search extends TextInput {
+export default class Search extends TextInput {
 	constructor({ className, ...rest } = {}) {
 		super({
 			className: ['search', className],

@@ -1,5 +1,0 @@
-@import '../input.css';
-
-select.select {
-	@mixin Input;
-}
