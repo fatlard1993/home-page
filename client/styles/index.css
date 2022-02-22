@@ -1,0 +1,88 @@
+@import 'augmented-ui';
+
+@import './colors';
+@import './fonts';
+@import './scrollbar';
+
+html {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+
+	* {
+		font: 400 16px 'Source Code Pro';
+		font-family: 'Source Code Pro', monospace;
+		touch-action: manipulation;
+		-webkit-text-size-adjust: none;
+	}
+	*:not(input):not(textarea) {
+		-webkit-tap-highlight-color: $transparent;
+		-webkit-touch-callout: none;
+		user-select: none;
+	}
+	*:not(input):not(textarea):not(button) {
+		cursor: default;
+	}
+
+	.selectable {
+		cursor: text;
+		-webkit-tap-highlight-color: initial;
+		user-select: text;
+	}
+}
+
+body {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+	overflow: hidden;
+	line-height: 1;
+	background: $black;
+	color: $white;
+	margin: 0;
+}
+
+div#app {
+	height: 100%;
+}
+
+input[type='checkbox'],
+input[type='radio'] {
+	cursor: pointer;
+	position: relative;
+	top: 2px;
+}
+
+input:disabled {
+	color: $black;
+	background-color: $grey-darker;
+}
+
+ol,
+ul {
+	list-style: none;
+	padding: 0;
+}
+
+button,
+select {
+	text-transform: none;
+	cursor: pointer;
+	border-radius: 3px;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+	height: auto;
+}
+
+@viewport {
+	width: device-width;
+	zoom: 1;
+	min-zoom: 1;
+	max-zoom: 1;
+}

@@ -1,0 +1,16 @@
+@import '../../styles/colors';
+
+div.label {
+	position: relative;
+	display: block;
+	font-size: 1em;
+	width: 80%;
+	margin: 0 auto 12px;
+	border-left: 3px solid $grey-lightest;
+	padding: 3px 12px 12px;
+	background-color: $grey-darkest;
+
+	div.label-text {
+		margin: 12px 0;
+	}
+}

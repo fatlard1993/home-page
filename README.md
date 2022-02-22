@@ -5,4 +5,4 @@ A simple bookmark display and management webserver.
 
 ## Screenshot
 
-![homePage](./etc/scrot.png)
+![homePage](./img/scrot.png)

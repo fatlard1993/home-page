@@ -1,0 +1,17 @@
+@import '../../../styles/colors';
+
+div.view.bookmarks {
+	div.toolbar {
+		display: flex;
+		flex-direction: row;
+	}
+
+	input.search {
+		flex: 1;
+		width: auto;
+	}
+
+	.bookmarksContainer {
+		margin: 0 1%;
+	}
+}

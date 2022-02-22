@@ -1,0 +1,19 @@
+@import '../../styles/colors';
+
+li.tag {
+	border: 1px solid white;
+	padding: 0 3px;
+	margin: 3px;
+	display: inline-block;
+	float: left;
+	border-radius: 3px;
+	border-top-left-radius: 0;
+	font-size: 24px;
+	background-color: $black;
+
+	&.pointerHold {
+		background-color: $red;
+		transform: scale(2);
+		transition: all 2s;
+	}
+}

@@ -1,0 +1,6 @@
+@import '../../styles/colors';
+@import '../inputs/Button';
+
+a.link {
+	@mixin Button;
+}

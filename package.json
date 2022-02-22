@@ -1,41 +1,63 @@
 {
 	"name": "home-page",
 	"version": "2.4.1",
+	"type": "module",
+	"exports": "./server/index.js",
 	"description": "A simple browser home page",
-	"main": "src/server/index.js",
+	"author": "justfatlard",
+	"license": "ISC",
+	"engines": {
+		"node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+	},
 	"scripts": {
-		"start": "node ./src/server/index.js",
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"dev": "vite",
+		"build": "vite build",
+		"build:preview": "vite preview",
+		"server": "node ./server/index.js",
+		"server:test": "npm run server -- -d ./test/db.json",
+		"lint": "eslint",
+		"lint:fix": "eslint --fix --ext .js .",
+		"pretty": "prettier --write .",
+		"test": "cypress open"
 	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/fatlard1993/home-page.git"
 	},
-	"author": "",
-	"license": "ISC",
 	"bugs": {
 		"url": "https://github.com/fatlard1993/home-page/issues"
 	},
 	"homepage": "https://github.com/fatlard1993/home-page#readme",
-	"devDependencies": {
-		"eslint": "^7.19.0"
-	},
 	"dependencies": {
-		"@fortawesome/fontawesome-free": "^5.15.2",
+		"@fortawesome/fontawesome-free": "^5.15.4",
 		"argi": "github:fatlard1993/argi",
+		"augmented-ui": "^2.0.0",
 		"color-picker": "github:fatlard1993/color-picker#2.x.x",
-		"config-manager": "github:fatlard1993/config-manager#2.x.x",
-		"dialog": "github:fatlard1993/dialog#2.x.x",
-		"dom": "github:fatlard1993/dom#2.x.x",
-		"http-server": "github:fatlard1993/http-server#4.x.x",
-		"js-util": "github:fatlard1993/js-util#2.x.x",
-		"log": "github:fatlard1993/log#3.x.x",
-		"menu": "github:fatlard1993/menu#2.x.x",
-		"page-compiler": "github:fatlard1993/page-compiler#1.x.x",
+		"dom": "github:fatlard1993/dom",
+		"express": "^4.17.1",
+		"js-util": "github:fatlard1993/js-util",
+		"log": "github:fatlard1993/log",
+		"lowdb": "^3.0.0",
+		"nanoid": "^3.1.30",
 		"relevancy": "^0.2.0",
-		"socket-client": "github:fatlard1993/socket-client#2.x.x",
+		"socket-client": "github:fatlard1993/socket-client",
 		"sortablejs": "1.13.0",
 		"source-code-pro": "^2.30.2",
-		"websocket-server": "github:fatlard1993/websocket-server#2.x.x"
+		"websocket-server": "github:fatlard1993/websocket-server#main"
+	},
+	"devDependencies": {
+		"autoprefixer": "^10.4.0",
+		"cypress": "^9.1.1",
+		"eslint": "^8.2.0",
+		"eslint-config-prettier": "^8.3.0",
+		"eslint-plugin-cypress": "^2.12.1",
+		"eslint-plugin-prettier": "^4.0.0",
+		"husky": "^7.0.4",
+		"lint-staged": "^12.0.1",
+		"postcss-mixins": "^8.1.0",
+		"postcss-nested": "^5.0.6",
+		"postcss-simple-vars": "^6.0.3",
+		"prettier": "2.4.1",
+		"vite": "^2.6.14"
 	}
 }
