@@ -1,0 +1,5 @@
+@import '../../styles/colors';
+
+div.noData {
+	margin: 12px auto;
+}

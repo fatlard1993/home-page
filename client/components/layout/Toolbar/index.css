@@ -1,0 +1,30 @@
+@import '../../../styles/colors';
+@import '../../../styles/fonts';
+
+div.toolbar {
+	background-image: linear-gradient(to bottom, $grey-darkest 90%, rgb(0 0 0 / 0%));
+	min-height: 3.5em;
+	position: relative;
+
+	&:after {
+		content: '';
+		clear: both;
+		display: table;
+	}
+
+	h1, button {
+		font-size: 1.3em;
+		margin: 0.4rem;
+		height: 2.4rem;
+	}
+
+	button {
+		float: left;
+		position: relative;
+		padding: 0;
+
+		&.right {
+			float: right;
+		}
+	}
+}
