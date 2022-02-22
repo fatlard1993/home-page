@@ -33,7 +33,7 @@ const socketEndpoints = {
 			search(keyword, (err, suggestions) => {
 				if (err) return socketEndpoints.log.error(err);
 
-				reply('search', { keyword, suggestions });
+				reply('state', { ...bookmark.read(), searchResults: { keyword, suggestions } });
 			});
 		},
 	},

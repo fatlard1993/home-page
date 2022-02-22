@@ -1,6 +1,6 @@
 import './index.css';
 
-import DomElem from '../../DomElem';
+import { DomElem } from 'vanilla-bean-components';
 
 export class Toolbar extends DomElem {
 	constructor({ className, ...rest }) {

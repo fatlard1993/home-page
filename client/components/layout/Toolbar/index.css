@@ -1,5 +1,4 @@
-@import '../../../styles/colors';
-@import '../../../styles/fonts';
+@import 'vanilla-bean-components/styles/colors.css';
 
 div.toolbar {
 	background-image: linear-gradient(to bottom, $grey-darkest 90%, rgb(0 0 0 / 0%));

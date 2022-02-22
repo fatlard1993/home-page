@@ -1,5 +1,3 @@
-import './styles/index.css';
-
 import dom from 'dom';
 import socketClient from 'socket-client';
 

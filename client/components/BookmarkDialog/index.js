@@ -1,14 +1,12 @@
 import socketClient from 'socket-client';
 import dom from 'dom';
 
-import ModalDialog from '../ModalDialog';
-import LabeledTextInput from '../../LabeledTextInput';
-import { Button, ColorPicker } from '../../inputs';
+import { ModalDialog, Label, TextInput, Button, ColorPicker } from 'vanilla-bean-components';
 
 export default class BookmarkDialog extends ModalDialog {
 	constructor({ bookmark, ...rest }) {
-		const { label: nameLabel, textInput: nameInput } = new LabeledTextInput({ label: 'Name' });
-		const { label: urlLabel, textInput: urlInput } = new LabeledTextInput({ label: 'URL' });
+		const nameInput = new TextInput({ label: 'Name' });
+		const urlInput = new TextInput({ label: 'URL' });
 		const colorPicker = new ColorPicker({ value: 'random' });
 		const { label: colorLabel, value: color, set: setColor } = colorPicker;
 
@@ -24,7 +22,7 @@ export default class BookmarkDialog extends ModalDialog {
 		super({
 			size: 'large',
 			header: `${bookmark ? 'Edit' : 'Create'} Bookmark`,
-			content: [nameLabel, urlLabel, colorLabel],
+			content: [new Label({ label: 'Name', appendChild: nameInput }), new Label({ label: 'URL', appendChild: urlInput }), colorLabel],
 			buttons: ['Save', ...(bookmark ? ['Delete'] : []), 'Cancel'],
 			onDismiss: ({ button, closeDialog }) => {
 				if (button === 'Save') {

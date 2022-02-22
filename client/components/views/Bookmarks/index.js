@@ -2,13 +2,11 @@ import './index.css';
 
 import socketClient from 'socket-client';
 
+import { DomElem, View, IconButton, NoData, Link } from 'vanilla-bean-components';
+
 import { Toolbar } from '../../layout';
-import { IconButton, Search } from '../../inputs';
-import View from '../View';
-import NoData from '../../NoData';
-import Link from '../../Link';
-import BookmarkDialog from '../../dialogs/BookmarkDialog';
-import DomElem from '../../DomElem';
+import Search from '../../Search';
+import BookmarkDialog from '../../BookmarkDialog';
 import { fixLink } from './util';
 
 export class Bookmarks extends View {
@@ -17,9 +15,7 @@ export class Bookmarks extends View {
 
 		this.options = { className, ...rest };
 
-		socketClient.on('state', newState => this.render({ className, serverState: newState, ...rest }));
-
-		socketClient.on('search', ({ suggestions: searchResults }) => this.render({ className, serverState: { ...serverState, searchResults }, ...rest }));
+		socketClient.on('state', newState => this.render({ className, ...rest, serverState: newState }));
 
 		this.render({ className, serverState, ...rest });
 	}

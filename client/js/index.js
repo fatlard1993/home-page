@@ -8,6 +8,8 @@ import Sortable from 'sortablejs';
 import socketClient from 'socket-client';
 import 'color-picker';
 
+const { getElementById } = document;
+
 const log = new Log({ verbosity: parseInt(dom.storage.get('logVerbosity') || 0) });
 
 const homePage = {
@@ -17,7 +19,7 @@ const homePage = {
 	hostnameRegex: /^(.+:\/\/)[^:]+?(:[0-9]{1,5})?(\/.*)?$/,
 	localhostRegex: /^(.+:\/\/)?localhost(:[0-9]{1,5})?(\/.*)?$/,
 	init: function () {
-		const content = dom.getElemById('content');
+		const content = getElementById('content');
 
 		dom.onPointerPress(content, homePage.pointerPress);
 
