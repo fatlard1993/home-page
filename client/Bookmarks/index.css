@@ -1,0 +1,18 @@
+.DomElem.View.Bookmarks {
+	.bookmarksContainer {
+		margin: 0 1%;
+	}
+
+	.DomElem.Search {
+		width: auto;
+		flex: 1;
+		margin: 6px;
+		height: 2.4rem;
+	}
+
+	.DomElem.IconButton {
+		margin: 6px;
+		font-size: 1.3em;
+		height: 2.4rem;
+	}
+}

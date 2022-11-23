@@ -8,8 +8,6 @@ const utils = {
 
 		if (reload === 'soft' && socketClient.triedSoftReload) reload = 'hard';
 
-		socketClient.log()(`Reload: ${reload}`);
-
 		if (reload === 'hard') return window.location.reload(false);
 
 		socketClient.reconnect();

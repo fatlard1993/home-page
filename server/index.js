@@ -3,11 +3,15 @@
 import os from 'os';
 import path from 'path';
 
-import { Log } from 'log';
+import express from 'express';
+
 import argi from 'argi';
 
-import homePage from './homePage.js';
+import database from './database.js';
+import router from './router.js';
 import exit from './exit.js';
+
+import { PORT } from '../constants.js';
 
 const { options } = argi.parse({
 	verbosity: {
@@ -30,14 +34,18 @@ const { options } = argi.parse({
 	port: {
 		type: 'number',
 		alias: 'p',
-		defaultValue: 5033,
+		defaultValue: PORT,
 	},
 });
 
-const log = new Log({ tag: 'home-page', defaults: { verbosity: options.verbosity, color: true }, colorMap: { 'home-page': '\x1b[36m' } });
+console.log('Options', options);
 
-log(1)('Options', options);
+const app = express();
 
-homePage.init({ log, options });
+app.listen(options.port, () => console.log(`Server listening on port: ${options.port}`));
 
-exit.init({ log });
+router.init({ express, app });
+
+database.init({ persistent: options.persistent, path: options.database });
+
+exit.init();

@@ -1,47 +1,56 @@
-import fs from 'fs';
-import path from 'path';
+import bookmark from './bookmark.js';
+import search from './search.js';
 
 const router = {
 	init({ express, app }) {
-		app.use(express.static('../client/dist'));
+		app.use(express.static('client/dist'));
 
-		const localFileRoots = [];
+		app.use(express.json());
 
-		app.use((req, res, next) => {
-			if (req.path !== '/load-file' || req.method !== 'GET') return next();
-
-			localFileRoots.push(req.query.file.replace(/[^/]+\..+$/, ''));
-
-			res.sendFile(req.query.file);
+		app.get('/bookmarks', function (req, res) {
+			res.json(bookmark.read());
 		});
 
-		app.use((req, res, next) => {
-			if (req.path !== '/' || req.method !== 'GET') return next();
+		app.post('/bookmarks', function (req, res) {
+			console.log(`Create bookmark: ${req.body.name}`);
 
-			res.sendPage('home-page');
+			const id = bookmark.create(req.body);
+
+			res.json({ id });
 		});
 
-		app.use((req, res, next) => {
-			if (req.path === '/load-file' || !localFileRoots) return next();
+		app.put('/bookmarks/:id', function (req, res) {
+			console.log(`Update bookmark: ${req.params.id}`);
 
-			const filePath = req.path.replace(/\?.+$/, '');
-			const fileRoot = localFileRoots.find(localFileRoot => fs.existsSync(path.join(localFileRoot, filePath)));
+			bookmark.update({ id: req.params.id, update: req.body });
 
-			if (!fileRoot) return next();
-
-			res.sendFile(path.join(fileRoot, filePath));
+			res.json({ id: req.params.id });
 		});
 
-		// app.use(staticServer(rootPath('src/client/resources')), staticServer(rootPath('node_modules/@fortawesome/fontawesome-free')), staticServer(rootPath('node_modules/source-code-pro')));
+		app.delete('/bookmarks/:id', function (req, res) {
+			console.log(`Delete bookmark: ${req.params.id}`);
 
-		app.use((req, res, next) => {
-			next(req.path !== '/load-file' && res.reqType === 'file' ? { code: 404, detail: `Could not find ${req.originalUrl}` } : null);
+			bookmark.remove({ id: req.params.id });
+
+			res.json({ id: req.params.id });
 		});
 
-		app.use((req, res, next) => {
-			if (res.reqType !== 'page') return next();
+		app.get('/search/:term', function (req, res) {
+			console.log(`Search: ${req.params.term}`);
 
-			res.redirect(307, '/');
+			search(req.params.term, (error, suggestions) => {
+				if (error) return res.status(500).json({ error });
+
+				res.json({ suggestions });
+			});
+		});
+
+		app.use(function (req, res) {
+			res.status(404);
+
+			if (req.accepts('json')) return res.json({ error: 'Not found' });
+
+			res.type('txt').send('Not found');
 		});
 	},
 };

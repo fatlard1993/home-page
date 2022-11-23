@@ -1,4 +1,9 @@
-// includes colors dom
+@import 'vanilla-bean-components/styles/index.css';
+
+.DomElem.Page {
+	color: $grey-lightest;
+	background-color: $grey-darkest;
+}
 
 input[type="text"], input[type="password"], input[type="number"], select {
 	background: $white;
