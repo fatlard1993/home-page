@@ -1,24 +1,28 @@
-import dom from 'dom';
-import socketClient from 'socket-client';
+import './styles/index.css';
 
-import { port } from '../constants.js';
-import utils from './utils';
-import router from './router';
+import { Page, Router } from 'vanilla-bean-components';
 
-dom.onLoad(() => {
-	dom.mobile.detect();
+import { Bookmarks } from './Bookmarks';
 
-	socketClient.init('/api', port);
+// dom.onLoad(() => {
+// 	dom.interact.on('keyDown', utils.stayConnected);
 
-	dom.interact.on('keyDown', utils.stayConnected);
+// 	dom.interact.on('pointerDown', utils.stayConnected);
 
-	dom.interact.on('pointerDown', utils.stayConnected);
+// 	document.oncontextmenu = evt => evt.preventDefault();
 
-	router.init();
+// 	document.addEventListener('visibilitychange', () => {
+// 		if (document.visibilityState) utils.stayConnected();
+// 	});
+// });
 
-	document.oncontextmenu = evt => evt.preventDefault();
+const paths = { bookmarks: '/Bookmarks' };
+const views = { [paths.bookmarks]: Bookmarks };
 
-	document.addEventListener('visibilitychange', () => {
-		if (document.visibilityState) utils.stayConnected();
-	});
+new Page({
+	appendTo: document.getElementById('app'),
+	appendChild: new Router({ views }),
+	onRender: () => {
+		console.log('Page Render');
+	},
 });

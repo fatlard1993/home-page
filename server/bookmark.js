@@ -3,10 +3,10 @@ import { nanoid } from 'nanoid';
 import database from './database.js';
 
 const bookmark = {
-	create({ update }) {
-		const id = nanoid(5);
+	create(data) {
+		const id = nanoid(6);
 
-		database.db.data.bookmarks[id] = Object.assign({ id, name: '', url: '', color: '' }, update);
+		database.db.data.bookmarks[id] = Object.assign({ id, name: '', url: '', color: '' }, data);
 
 		database.db.write();
 

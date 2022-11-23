@@ -7,18 +7,20 @@
 	"author": "justfatlard",
 	"license": "ISC",
 	"engines": {
-		"node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+		"node": ">=16.0.0"
 	},
 	"scripts": {
-		"dev": "vite",
-		"build": "vite build",
-		"build:preview": "vite preview",
+		"start": "cd client ; npm run dev",
+		"dev": "cd client ; vite",
+		"build": "cd client ; vite build",
+		"build:preview": "cd client ; vite preview",
 		"server": "node ./server/index.js",
 		"server:test": "npm run server -- -d ./test/db.json",
 		"lint": "eslint",
 		"lint:fix": "eslint --fix --ext .js .",
 		"pretty": "prettier --write .",
-		"test": "cypress open"
+		"test": "vitest run",
+		"test:dev": "vitest"
 	},
 	"repository": {
 		"type": "git",
@@ -29,36 +31,27 @@
 	},
 	"homepage": "https://github.com/fatlard1993/home-page#readme",
 	"dependencies": {
-		"@fortawesome/fontawesome-free": "^5.15.4",
 		"argi": "github:fatlard1993/argi",
 		"augmented-ui": "^2.0.0",
-		"color-picker": "github:fatlard1993/color-picker#2.x.x",
-		"dom": "github:fatlard1993/dom",
-		"express": "^4.17.1",
-		"js-util": "github:fatlard1993/js-util",
-		"log": "github:fatlard1993/log",
-		"lowdb": "^3.0.0",
-		"nanoid": "^3.1.30",
+		"express": "^4.18.2",
+		"lowdb": "^5.0.5",
+		"nanoid": "^4.0.0",
 		"relevancy": "^0.2.0",
-		"socket-client": "github:fatlard1993/socket-client",
-		"sortablejs": "1.13.0",
-		"source-code-pro": "^2.30.2",
-		"vanilla-bean-components": "github:fatlard1993/vanilla-bean-components",
-		"websocket-server": "github:fatlard1993/websocket-server#main"
+		"sortablejs": "1.15.0",
+		"vanilla-bean-components": "github:fatlard1993/vanilla-bean-components#main"
 	},
 	"devDependencies": {
-		"autoprefixer": "^10.4.0",
-		"cypress": "^9.1.1",
-		"eslint": "^8.2.0",
-		"eslint-config-prettier": "^8.3.0",
-		"eslint-plugin-cypress": "^2.12.1",
-		"eslint-plugin-prettier": "^4.0.0",
-		"husky": "^7.0.4",
-		"lint-staged": "^12.0.1",
-		"postcss-mixins": "^8.1.0",
-		"postcss-nested": "^5.0.6",
-		"postcss-simple-vars": "^6.0.3",
-		"prettier": "2.4.1",
-		"vite": "^2.6.14"
+		"@testing-library/dom": "^8.19.0",
+		"autoprefixer": "^10.4.13",
+		"eslint": "^8.28.0",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-plugin-prettier": "^4.2.1",
+		"jsdom": "^20.0.3",
+		"postcss-mixins": "^9.0.4",
+		"postcss-nested": "^6.0.0",
+		"postcss-simple-vars": "^7.0.1",
+		"prettier": "2.7.1",
+		"vite": "^3.2.4",
+		"vitest": "^0.25.2"
 	}
 }

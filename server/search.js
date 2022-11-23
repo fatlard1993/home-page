@@ -1,14 +1,9 @@
 import http from 'http';
-import https from 'https';
 
-export default function search(keyword, done) {
-	// log(3)(`Requesting suggestions for ${keyword}`);
-
-	const client = { http, https };
-
+export default function search(term, done) {
 	try {
-		client.http
-			.get(`http://suggestqueries.google.com/complete/search?client=chrome&q=${keyword}`, res => {
+		http
+			.get(`http://suggestqueries.google.com/complete/search?client=chrome&q=${term}`, res => {
 				if (res.statusCode !== 200) {
 					res.resume();
 

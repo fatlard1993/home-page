@@ -1,0 +1,10 @@
+@import 'vanilla-bean-components/styles/colors.css';
+
+.DomElem.Toolbar {
+	display: flex;
+	flex-direction: row;
+	background-image: linear-gradient(to bottom, $grey-darkest 90%, rgb(0 0 0 / 0%));
+	min-height: 3.5em;
+	position: relative;
+	margin: 12px;
+}

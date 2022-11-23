@@ -1,17 +1,17 @@
 const exit = {
-	init({ log }) {
+	init() {
 		process.on('exit', code => {
-			log.error('EXIT', code);
+			console.error('EXIT', code);
 		});
 
 		process.on('SIGINT', () => {
-			log.warn('Clean Exit');
+			console.warn('Clean Exit');
 
 			process.exit(130);
 		});
 
 		process.on('uncaughtException', err => {
-			log.error('Uncaught Exception', err.stack);
+			console.error('Uncaught Exception', err.stack);
 
 			process.exit(99);
 		});
