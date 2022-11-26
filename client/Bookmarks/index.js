@@ -2,21 +2,39 @@ import './index.css';
 
 import { mostReadable } from '@ctrl/tinycolor';
 
-import { DomElem, View, IconButton, NoData, Link, Search } from 'vanilla-bean-components';
+import { DomElem, View, IconButton, NoData, Link, Search, Overlay, Menu } from 'vanilla-bean-components';
 
 import { Content, Toolbar } from '../layout';
 import BookmarkDialog from '../BookmarkDialog';
 import { fixLink } from './util';
+import state from '../state';
 
 export class Bookmarks extends View {
 	constructor(options) {
-		console.log('new Bookmarks', options);
-		super(options);
+		super({
+			onContextMenu: evt => {
+				evt.stop();
+
+				console.log('page', evt, this);
+
+				this.showContextMenu({
+					x: evt.clientX,
+					y: evt.clientY,
+					items: [
+						{
+							textContent: 'Add Bookmark',
+							onPointerPress: () => new BookmarkDialog({ appendTo: this.elem }),
+						},
+					],
+				});
+			},
+			...options,
+		});
+
+		this.onPointerUp(this.hideContextMenu);
 	}
 
 	render({ serverState, ...options } = this.options) {
-		console.log('Bookmarks render', { serverState, ...options });
-
 		if (!serverState) {
 			fetch('/bookmarks')
 				.then(response => response.json())
@@ -26,8 +44,6 @@ export class Bookmarks extends View {
 		}
 
 		this.serverState = serverState;
-
-		console.log('render', serverState);
 
 		super.render(options);
 
@@ -53,7 +69,6 @@ export class Bookmarks extends View {
 				search,
 				new IconButton({
 					icon: 'plus',
-					className: 'right',
 					onPointerPress: () => new BookmarkDialog({ appendTo }),
 				}),
 			],
@@ -78,13 +93,75 @@ export class Bookmarks extends View {
 				appendChildren: [
 					new DomElem({ tag: 'h2', textContent: 'Bookmarks' }),
 					...bookmarkIds.map(id => {
-						const { name: textContent, url: href, color: backgroundColor } = bookmarks[id];
+						const bookmark = bookmarks[id];
+						const { name: textContent, url: href, color: backgroundColor } = bookmark;
 
-						return new Link({ textContent, href, style: { backgroundColor, color: mostReadable(backgroundColor, ['hsl(0, 0%, 10%)', 'hsl(0, 0%, 90%)']) } });
+						const link = new Link({
+							textContent,
+							href,
+							onContextMenu: evt => {
+								evt.stop();
+
+								console.log('link', evt, this);
+
+								this.showContextMenu({
+									x: evt.clientX,
+									y: evt.clientY,
+									items: [
+										{
+											textContent: `Edit ${textContent}`,
+											onPointerPress: () => new BookmarkDialog({ appendTo, bookmark }),
+										},
+										{
+											textContent: `Delete ${textContent}`,
+											onPointerPress: () => {
+												fetch(`/bookmarks/${bookmark.id}`, {
+													method: 'DELETE',
+													headers: { 'Content-Type': 'application/json' },
+												})
+													.then(response => response.json())
+													.then(data => {
+														console.log('Success:', data);
+														state.router.renderView();
+													})
+													.catch(error => {
+														console.error('Error:', error);
+													});
+											},
+										},
+									],
+								});
+							},
+							style: { backgroundColor, color: mostReadable(backgroundColor, ['hsl(0, 0%, 10%)', 'hsl(0, 0%, 90%)']) },
+						});
+
+						return link;
 					}),
 				],
 			});
 		}
+	}
+
+	showContextMenu({ x, y, items }) {
+		this.hideContextMenu();
+
+		this.openingContextMenu = true;
+		this.contextMenu = new Overlay({
+			appendTo: this.elem,
+			style: { top: `${y}px`, left: `${x}px` },
+			appendChild: new Menu({ items }),
+		});
+
+		setTimeout(() => (this.openingContextMenu = false), 300);
+	}
+
+	hideContextMenu() {
+		if (this.openingContextMenu) {
+			this.openingContextMenu = false;
+			return;
+		}
+
+		this.contextMenu?.cleanup();
 	}
 
 	cleanup() {

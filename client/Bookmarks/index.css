@@ -11,6 +11,7 @@
 	}
 
 	.DomElem.IconButton {
+		padding: 0;
 		margin: 6px;
 		font-size: 1.3em;
 		height: 2.4rem;
