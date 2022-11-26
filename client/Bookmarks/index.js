@@ -2,7 +2,7 @@ import './index.css';
 
 import { mostReadable } from '@ctrl/tinycolor';
 
-import { DomElem, View, IconButton, NoData, Link, Search, Overlay, Menu } from 'vanilla-bean-components';
+import { DomElem, View, IconButton, NoData, Link, Search, Overlay, Menu, debounceCb } from 'vanilla-bean-components';
 
 import { Content, Toolbar } from '../layout';
 import BookmarkDialog from '../BookmarkDialog';
@@ -14,8 +14,6 @@ export class Bookmarks extends View {
 		super({
 			onContextMenu: evt => {
 				evt.stop();
-
-				console.log('page', evt, this);
 
 				this.showContextMenu({
 					x: evt.clientX,
@@ -34,32 +32,16 @@ export class Bookmarks extends View {
 		this.onPointerUp(this.hideContextMenu);
 	}
 
-	render({ serverState, ...options } = this.options) {
-		if (!serverState) {
-			fetch('/bookmarks')
-				.then(response => response.json())
-				.then(data => this.render({ ...options, serverState: data }));
-
-			return undefined;
-		}
-
-		this.serverState = serverState;
-
+	render(options = this.options) {
 		super.render(options);
 
 		const appendTo = this.elem;
-		const { bookmarkIds, bookmarks, searchResults } = serverState;
 
 		const search = new Search({
 			onKeyUp: ({ key }) => {
-				// todo debounced search
+				debounceCb(() => this.search(search.elem.value), 700);
 
-				if (key === 'Enter') {
-					// todo search
-					fetch(`/search/${search.elem.value}`)
-						.then(response => response.json())
-						.then(({ suggestions }) => this.render({ ...options, serverState: { ...serverState, searchResults: suggestions } }));
-				}
+				if (key === 'Enter') this.search(search.elem.value);
 			},
 		});
 
@@ -74,21 +56,29 @@ export class Bookmarks extends View {
 			],
 		});
 
-		const content = new Content({ appendTo });
+		this.content = new Content({ appendTo });
+
+		this.update();
+	}
+
+	renderContent() {
+		const { bookmarkIds, bookmarks, searchResults } = state.serverState;
+
+		this.content.empty();
 
 		if (!bookmarkIds?.length) {
-			new NoData({ appendTo: content, textContent: 'No bookmarks yet .. Create them with the + button above' });
+			new NoData({ appendTo: this.content, textContent: 'No bookmarks yet .. Create them with the + button above' });
 		} else {
 			if (searchResults) {
 				new DomElem({
-					appendTo: content,
+					appendTo: this.content,
 					className: 'bookmarksContainer search',
 					appendChildren: [new DomElem('h2', { textContent: 'Search' }), ...searchResults.map(search => new Link({ textContent: search, href: fixLink(search) }))],
 				});
 			}
 
 			new DomElem({
-				appendTo: content,
+				appendTo: this.content,
 				className: 'bookmarksContainer',
 				appendChildren: [
 					new DomElem({ tag: 'h2', textContent: 'Bookmarks' }),
@@ -102,15 +92,13 @@ export class Bookmarks extends View {
 							onContextMenu: evt => {
 								evt.stop();
 
-								console.log('link', evt, this);
-
 								this.showContextMenu({
 									x: evt.clientX,
 									y: evt.clientY,
 									items: [
 										{
 											textContent: `Edit ${textContent}`,
-											onPointerPress: () => new BookmarkDialog({ appendTo, bookmark }),
+											onPointerPress: () => new BookmarkDialog({ appendTo: this.elem, bookmark }),
 										},
 										{
 											textContent: `Delete ${textContent}`,
@@ -142,6 +130,20 @@ export class Bookmarks extends View {
 		}
 	}
 
+	update(serverState) {
+		if (!serverState) {
+			fetch('/bookmarks')
+				.then(response => response.json())
+				.then(serverState => this.update(serverState));
+
+			return undefined;
+		}
+
+		state.serverState = serverState;
+
+		this.renderContent();
+	}
+
 	showContextMenu({ x, y, items }) {
 		this.hideContextMenu();
 
@@ -162,6 +164,14 @@ export class Bookmarks extends View {
 		}
 
 		this.contextMenu?.cleanup();
+	}
+
+	search(term) {
+		if (!term) return this.update({ ...state.serverState, searchResults: [] });
+
+		fetch(`/search/${term}`)
+			.then(response => response.json())
+			.then(({ suggestions }) => this.update({ ...state.serverState, searchResults: suggestions }));
 	}
 
 	cleanup() {

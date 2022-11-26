@@ -1,6 +1,6 @@
 context('Listi - Items :: Read', () => {
 	before(() => {
-		//todo inject db doc
+		// TODO:  inject db doc
 	});
 
 	beforeEach(() => {
@@ -8,7 +8,7 @@ context('Listi - Items :: Read', () => {
 	});
 
 	after(() => {
-		//todo cleanup db doc
+		// TODO:  cleanup db doc
 	});
 
 	it('Opens the New Item View via URL', () => {
