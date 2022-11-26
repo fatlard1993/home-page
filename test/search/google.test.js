@@ -4,7 +4,7 @@ context('Listi - Items :: Create', () => {
 	});
 
 	after(() => {
-		//todo cleanup db doc
+		// TODO:  cleanup db doc
 	});
 
 	it('Creates a new item', () => {

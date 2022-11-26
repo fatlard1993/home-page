@@ -2,11 +2,11 @@ context('Listi - Items :: Update', () => {
 	before(() => {
 		cy.visit('#/list');
 
-		//todo inject db doc
+		// TODO:  inject db doc
 	});
 
 	after(() => {
-		//todo cleanup db doc
+		// TODO:  cleanup db doc
 	});
 
 	it('Adds a tag to an item', () => {
