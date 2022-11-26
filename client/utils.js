@@ -1,23 +1,4 @@
-import socketClient from 'socket-client';
-
 const utils = {
-	stayConnected() {
-		if (socketClient.status === 'open') return;
-
-		let reload = 'soft';
-
-		if (reload === 'soft' && socketClient.triedSoftReload) reload = 'hard';
-
-		if (reload === 'hard') return window.location.reload(false);
-
-		socketClient.reconnect();
-
-		socketClient.triedSoftReload = true;
-
-		socketClient.resetSoftReset_TO = setTimeout(() => {
-			socketClient.triedSoftReload = false;
-		}, 4000);
-	},
 	isEditingText() {
 		const activeElem = document.activeElement,
 			activeNode = activeElem.nodeName;

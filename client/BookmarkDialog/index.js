@@ -1,5 +1,7 @@
 import { ModalDialog, Label, TextInput, Button, ColorPicker } from 'vanilla-bean-components';
 
+import state from '../state';
+
 export default class BookmarkDialog extends ModalDialog {
 	constructor({ bookmark, ...rest }) {
 		const nameInput = new TextInput({ label: 'Name', value: bookmark?.name });
@@ -26,17 +28,31 @@ export default class BookmarkDialog extends ModalDialog {
 				if (button === 'Save') {
 					// todo field validation
 
-					fetch(`/bookmark/${bookmark.id}`, {
+					fetch(bookmark ? `/bookmarks/${bookmark?.id}` : '/bookmarks', {
 						method: bookmark ? 'PUT' : 'POST',
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify({ name: nameInput.elem.value, url: urlInput.elem.value, color: colorPicker.value }),
 					})
 						.then(response => response.json())
 						.then(data => {
-							console.log('Create Success:', data);
+							console.log('Success:', data);
+							state.router.renderView();
 						})
 						.catch(error => {
-							console.error('Create Error:', error);
+							console.error('Error:', error);
+						});
+				} else if (button === 'Delete') {
+					fetch(`/bookmarks/${bookmark.id}`, {
+						method: 'DELETE',
+						headers: { 'Content-Type': 'application/json' },
+					})
+						.then(response => response.json())
+						.then(data => {
+							console.log('Success:', data);
+							state.router.renderView();
+						})
+						.catch(error => {
+							console.error('Error:', error);
 						});
 				}
 

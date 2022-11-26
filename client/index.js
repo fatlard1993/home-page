@@ -1,8 +1,10 @@
-import './styles/index.css';
+import './styles.css';
 
 import { Page, Router } from 'vanilla-bean-components';
 
 import { Bookmarks } from './Bookmarks';
+
+import state from './state';
 
 // dom.onLoad(() => {
 // 	dom.interact.on('keyDown', utils.stayConnected);
@@ -19,10 +21,9 @@ import { Bookmarks } from './Bookmarks';
 const paths = { bookmarks: '/Bookmarks' };
 const views = { [paths.bookmarks]: Bookmarks };
 
+state.router = new Router({ views });
+
 new Page({
 	appendTo: document.getElementById('app'),
-	appendChild: new Router({ views }),
-	onRender: () => {
-		console.log('Page Render');
-	},
+	appendChild: state.router,
 });
