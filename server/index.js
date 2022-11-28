@@ -7,8 +7,8 @@ import express from 'express';
 
 import argi from 'argi';
 
-import database from './database.js';
-import router from './router.js';
+import database from './database/index.js';
+import router from './router/index.js';
 import exit from './exit.js';
 
 import { PORT } from '../constants.js';

@@ -6,6 +6,7 @@ import { DomElem, View, IconButton, NoData, Link, Search, Overlay, Menu, debounc
 
 import { Content, Toolbar } from '../layout';
 import BookmarkDialog from '../BookmarkDialog';
+import CategoryDialog from '../CategoryDialog';
 import { fixLink } from './util';
 import state from '../state';
 
@@ -22,6 +23,10 @@ export class Bookmarks extends View {
 						{
 							textContent: 'Add Bookmark',
 							onPointerPress: () => new BookmarkDialog({ appendTo: this.elem }),
+						},
+						{
+							textContent: 'Add Category',
+							onPointerPress: () => new CategoryDialog({ appendTo: this.elem }),
 						},
 					],
 				});
@@ -62,7 +67,7 @@ export class Bookmarks extends View {
 	}
 
 	renderContent() {
-		const { bookmarkIds, bookmarks, searchResults } = state.serverState;
+		const { bookmarkIds, bookmarks, searchResults, categories } = state.serverState;
 
 		this.content.empty();
 
@@ -73,60 +78,157 @@ export class Bookmarks extends View {
 				new DomElem({
 					appendTo: this.content,
 					className: 'bookmarksContainer search',
-					appendChildren: [new DomElem('h2', { textContent: 'Search' }), ...searchResults.map(search => new Link({ textContent: search, href: fixLink(search) }))],
+					appendChildren: [new DomElem({ tag: 'h2', textContent: 'Search Results' }), ...searchResults.map(search => new Link({ textContent: search, href: fixLink(search) }))],
 				});
 			}
 
-			new DomElem({
-				appendTo: this.content,
-				className: 'bookmarksContainer',
-				appendChildren: [
-					new DomElem({ tag: 'h2', textContent: 'Bookmarks' }),
-					...bookmarkIds.map(id => {
-						const bookmark = bookmarks[id];
-						const { name: textContent, url: href, color: backgroundColor } = bookmark;
+			console.log({ categories, bookmarks });
 
-						const link = new Link({
-							textContent,
-							href,
-							onContextMenu: evt => {
-								evt.stop();
+			this.content.appendChildren(
+				[undefined, ...Object.keys(categories)].map(categoryId => {
+					const category = categories[categoryId] || { name: 'Bookmarks' };
 
-								this.showContextMenu({
-									x: evt.clientX,
-									y: evt.clientY,
-									items: [
-										{
-											textContent: `Edit ${textContent}`,
-											onPointerPress: () => new BookmarkDialog({ appendTo: this.elem, bookmark }),
+					return new DomElem({
+						appendTo: this.content,
+						className: 'bookmarksContainer',
+						appendChildren: [
+							new DomElem({
+								tag: 'h2',
+								textContent: category.name,
+								onContextMenu: categoryId
+									? evt => {
+											evt.stop();
+
+											this.showContextMenu({
+												x: evt.clientX,
+												y: evt.clientY,
+												items: [
+													{
+														textContent: `Edit ${category.name}`,
+														onPointerPress: () => new CategoryDialog({ appendTo: this.elem, category }),
+													},
+													{
+														textContent: `Delete ${category.name}`,
+														onPointerPress: () => {
+															fetch(`/bookmarks/categories/${categoryId}`, {
+																method: 'DELETE',
+																headers: { 'Content-Type': 'application/json' },
+															})
+																.then(response => response.json())
+																.then(data => {
+																	console.log('Success:', data);
+																	state.router.renderView();
+																})
+																.catch(error => {
+																	console.error('Error:', error);
+																});
+														},
+													},
+												],
+											});
+									  }
+									: undefined,
+							}),
+							...bookmarkIds
+								.filter(id => bookmarks[id].category === categoryId || (!categoryId && !categories[bookmarks[id].category]))
+								.map(id => {
+									const bookmark = bookmarks[id];
+									const { name: textContent, url: href, color: backgroundColor } = bookmark;
+
+									const link = new Link({
+										textContent,
+										href,
+										onContextMenu: evt => {
+											evt.stop();
+
+											this.showContextMenu({
+												x: evt.clientX,
+												y: evt.clientY,
+												items: [
+													{
+														textContent: `Edit ${textContent}`,
+														onPointerPress: () => new BookmarkDialog({ appendTo: this.elem, bookmark }),
+													},
+													{
+														textContent: `Delete ${textContent}`,
+														onPointerPress: () => {
+															fetch(`/bookmarks/${id}`, {
+																method: 'DELETE',
+																headers: { 'Content-Type': 'application/json' },
+															})
+																.then(response => response.json())
+																.then(data => {
+																	console.log('Success:', data);
+																	state.router.renderView();
+																})
+																.catch(error => {
+																	console.error('Error:', error);
+																});
+														},
+													},
+												],
+											});
 										},
-										{
-											textContent: `Delete ${textContent}`,
-											onPointerPress: () => {
-												fetch(`/bookmarks/${bookmark.id}`, {
-													method: 'DELETE',
-													headers: { 'Content-Type': 'application/json' },
-												})
-													.then(response => response.json())
-													.then(data => {
-														console.log('Success:', data);
-														state.router.renderView();
-													})
-													.catch(error => {
-														console.error('Error:', error);
-													});
-											},
-										},
-									],
-								});
-							},
-							style: { backgroundColor, color: mostReadable(backgroundColor, ['hsl(0, 0%, 10%)', 'hsl(0, 0%, 90%)']) },
-						});
+										style: { backgroundColor, color: mostReadable(backgroundColor, ['hsl(0, 0%, 10%)', 'hsl(0, 0%, 90%)']) },
+									});
 
-						return link;
-					}),
-				],
-			});
+									return link;
+								}),
+						],
+					});
+				}),
+			);
+
+			// new DomElem({
+			// 	appendTo: this.content,
+			// 	className: 'bookmarksContainer',
+			// 	appendChildren: [
+			// 		new DomElem({ tag: 'h2', textContent: 'Bookmarks' }),
+			// 		...bookmarkIds.map(id => {
+			// 			const bookmark = bookmarks[id];
+			// 			const { name: textContent, url: href, color: backgroundColor } = bookmark;
+
+			// 			const link = new Link({
+			// 				textContent,
+			// 				href,
+			// 				onContextMenu: evt => {
+			// 					evt.stop();
+
+			// 					this.showContextMenu({
+			// 						x: evt.clientX,
+			// 						y: evt.clientY,
+			// 						items: [
+			// 							{
+			// 								textContent: `Edit ${textContent}`,
+			// 								onPointerPress: () => new BookmarkDialog({ appendTo: this.elem, bookmark }),
+			// 							},
+			// 							{
+			// 								textContent: `Delete ${textContent}`,
+			// 								onPointerPress: () => {
+			// 									fetch(`/bookmarks/${bookmark.id}`, {
+			// 										method: 'DELETE',
+			// 										headers: { 'Content-Type': 'application/json' },
+			// 									})
+			// 										.then(response => response.json())
+			// 										.then(data => {
+			// 											console.log('Success:', data);
+			// 											state.router.renderView();
+			// 										})
+			// 										.catch(error => {
+			// 											console.error('Error:', error);
+			// 										});
+			// 								},
+			// 							},
+			// 						],
+			// 					});
+			// 				},
+			// 				style: { backgroundColor, color: mostReadable(backgroundColor, ['hsl(0, 0%, 10%)', 'hsl(0, 0%, 90%)']) },
+			// 			});
+
+			// 			return link;
+			// 		}),
+			// 	],
+			// });
 		}
 	}
 
@@ -147,10 +249,21 @@ export class Bookmarks extends View {
 	showContextMenu({ x, y, items }) {
 		this.hideContextMenu();
 
+		const maxWidth = 240;
+		const itemHeight = 36;
+		const pastRight = x + maxWidth >= document.body.clientWidth;
+		const pastBottom = y + items.length * itemHeight >= document.body.clientHeight;
+
 		this.openingContextMenu = true;
 		this.contextMenu = new Overlay({
 			appendTo: this.elem,
-			style: { top: `${y}px`, left: `${x}px` },
+			style: {
+				maxWidth: `${maxWidth}px`,
+				top: pastBottom ? 'unset' : `${y}px`,
+				bottom: pastBottom ? `${document.body.clientHeight - y}px` : 'unset',
+				left: pastRight ? 'unset' : `${x}px`,
+				right: pastRight ? `${document.body.clientWidth - x}px` : 'unset',
+			},
 			appendChild: new Menu({ items }),
 		});
 
