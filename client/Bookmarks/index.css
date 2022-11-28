@@ -1,8 +1,4 @@
 .DomElem.View.Bookmarks {
-	.bookmarksContainer {
-		margin: 0 1%;
-	}
-
 	.DomElem.Toolbar {
 		.DomElem.Search {
 			width: auto;
@@ -17,6 +13,37 @@
 			font-size: 1.3em;
 			height: 2.4rem;
 			width: 2.4rem;
+		}
+	}
+
+	.DomElem.Overlay {
+		.DomElem.Menu {
+			li {
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+		}
+	}
+
+	.DomElem.Content {
+		margin-top: 0;
+	}
+
+	.bookmarksContainer {
+		margin: 0 1%;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+
+		h2 {
+			margin: 6px 6px 0;
+			flex-basis: 100%;
+		}
+
+		.DomElem.Link {
+			margin: 0;
+			flex: 1 0 auto;
 		}
 	}
 }

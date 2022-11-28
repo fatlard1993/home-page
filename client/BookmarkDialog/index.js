@@ -1,4 +1,4 @@
-import { ModalDialog, Label, TextInput, Button, IconButton, ColorPicker, storage } from 'vanilla-bean-components';
+import { ModalDialog, TextInput, Button, IconButton, ColorPicker, Select, storage } from 'vanilla-bean-components';
 
 import state from '../state';
 
@@ -6,6 +6,19 @@ export default class BookmarkDialog extends ModalDialog {
 	constructor({ bookmark, ...rest }) {
 		const nameInput = new TextInput({ label: 'Name', value: bookmark?.name, validations: [[/.+/, 'Required']] });
 		const urlInput = new TextInput({ label: 'URL', value: bookmark?.url, validations: [[/.+/, 'Required']] });
+		const newCategoryInput = new TextInput({
+			label: { label: 'New Category', style: { display: 'none' } },
+			validations: [
+				[/.+/, 'Required'],
+				[value => value !== 'New' && value !== 'Default', value => `Must not be reserved name: ${value}`],
+			],
+		});
+		const categorySelect = new Select({
+			label: 'Category',
+			options: ['Default', 'New', ...Object.keys(state.serverState.categories).map(id => ({ label: state.serverState.categories[id].name, value: id }))],
+			value: bookmark?.category || 'Default',
+			onChange: ({ value }) => (newCategoryInput.label.elem.style.display = value === 'New' ? 'block' : 'none'),
+		});
 		const colorPicker = new ColorPicker({
 			label: 'Color',
 			value: bookmark?.color || 'random',
@@ -18,11 +31,11 @@ export default class BookmarkDialog extends ModalDialog {
 		super({
 			size: 'large',
 			header: `${bookmark ? 'Edit' : 'Create'} Bookmark${bookmark ? ` | ${bookmark.name}` : ''}`,
-			content: [new Label({ label: 'Name', appendChild: nameInput }), new Label({ label: 'URL', appendChild: urlInput }), colorPicker.label.elem],
+			content: [nameInput.label.elem, urlInput.label.elem, categorySelect.label.elem, newCategoryInput.label.elem, colorPicker.label.elem],
 			buttons: ['Save', ...(bookmark ? ['Delete'] : []), 'Cancel'],
 			onButtonPress: ({ button, closeDialog }) => {
 				if (button === 'Save') {
-					const validationErrors = [...nameInput.validate(), ...urlInput.validate()];
+					const validationErrors = [...nameInput.validate(), ...urlInput.validate(), ...(categorySelect.value === 'New' ? newCategoryInput.validate() : [])];
 
 					if (validationErrors.length) return;
 
@@ -33,10 +46,15 @@ export default class BookmarkDialog extends ModalDialog {
 
 					storage.set('recentColors', JSON.stringify(recentColors));
 
+					let category = categorySelect.value;
+
+					if (category === 'Default') category = '';
+					else if (category === 'New') category = newCategoryInput.value;
+
 					fetch(bookmark ? `/bookmarks/${bookmark?.id}` : '/bookmarks', {
 						method: bookmark ? 'PUT' : 'POST',
 						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ name: nameInput.elem.value, url: urlInput.elem.value, color }),
+						body: JSON.stringify({ name: nameInput.elem.value, url: urlInput.elem.value, category, color }),
 					})
 						.then(response => response.json())
 						.then(data => {
