@@ -1,4 +1,5 @@
 import { ModalDialog, TextInput, Button, IconButton, ColorPicker, Select, storage } from 'vanilla-bean-components';
+import { createBookmark, deleteBookmark, updateBookmark } from '../services';
 
 import state from '../state';
 
@@ -51,32 +52,22 @@ export default class BookmarkDialog extends ModalDialog {
 					if (category === 'Default') category = '';
 					else if (category === 'New') category = newCategoryInput.value;
 
-					fetch(bookmark ? `/bookmarks/${bookmark?.id}` : '/bookmarks', {
-						method: bookmark ? 'PUT' : 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ name: nameInput.elem.value, url: urlInput.elem.value, category, color }),
-					})
-						.then(response => response.json())
-						.then(data => {
+					if (bookmark) {
+						updateBookmark(bookmark.id, { body: { name: nameInput.elem.value, url: urlInput.elem.value, category, color } }).then(data => {
 							console.log('Success:', data);
 							state.router.renderView();
-						})
-						.catch(error => {
-							console.error('Error:', error);
 						});
+					} else {
+						createBookmark({ body: { name: nameInput.elem.value, url: urlInput.elem.value, category, color } }).then(data => {
+							console.log('Success:', data);
+							state.router.renderView();
+						});
+					}
 				} else if (button === 'Delete') {
-					fetch(`/bookmarks/${bookmark.id}`, {
-						method: 'DELETE',
-						headers: { 'Content-Type': 'application/json' },
-					})
-						.then(response => response.json())
-						.then(data => {
-							console.log('Success:', data);
-							state.router.renderView();
-						})
-						.catch(error => {
-							console.error('Error:', error);
-						});
+					deleteBookmark(bookmark.id).then(data => {
+						console.log('Success:', data);
+						state.router.renderView();
+					});
 				}
 
 				closeDialog();
