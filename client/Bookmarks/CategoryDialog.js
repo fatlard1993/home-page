@@ -1,4 +1,5 @@
 import { ModalDialog, TextInput, Button, IconButton, ColorPicker, storage } from 'vanilla-bean-components';
+import { createCategory, deleteCategory, updateCategory } from '../services';
 
 import state from '../state';
 
@@ -33,32 +34,22 @@ export default class CategoryDialog extends ModalDialog {
 
 					storage.set('recentColors', JSON.stringify(recentColors));
 
-					fetch(category ? `/bookmarks/categories/${category?.id}` : '/bookmarks/categories', {
-						method: category ? 'PUT' : 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ name: nameInput.elem.value, color }),
-					})
-						.then(response => response.json())
-						.then(data => {
+					if (category) {
+						updateCategory(category.id, { body: { name: nameInput.elem.value, color } }).then(data => {
 							console.log('Success:', data);
 							state.router.renderView();
-						})
-						.catch(error => {
-							console.error('Error:', error);
 						});
+					} else {
+						createCategory({ body: { name: nameInput.elem.value, color } }).then(data => {
+							console.log('Success:', data);
+							state.router.renderView();
+						});
+					}
 				} else if (button === 'Delete') {
-					fetch(`/bookmarks/category/${category.id}`, {
-						method: 'DELETE',
-						headers: { 'Content-Type': 'application/json' },
-					})
-						.then(response => response.json())
-						.then(data => {
-							console.log('Success:', data);
-							state.router.renderView();
-						})
-						.catch(error => {
-							console.error('Error:', error);
-						});
+					deleteCategory(category.id).then(data => {
+						console.log('Success:', data);
+						state.router.renderView();
+					});
 				}
 
 				closeDialog();
