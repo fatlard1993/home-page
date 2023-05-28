@@ -5,9 +5,6 @@ import { defineConfig } from 'vite';
 import { PORT } from './constants';
 
 export default defineConfig({
-	// define: {
-	// 	'process.env': {},
-	// },
 	server: {
 		open: '/client/index.html',
 		port: 9999,
@@ -20,6 +17,9 @@ export default defineConfig({
 		include: ['**/*.test.js'],
 		environment: 'jsdom',
 		globals: true,
+		deps: {
+			inline: ['vanilla-bean-components'],
+		},
 	},
 	resolve: {
 		alias: {

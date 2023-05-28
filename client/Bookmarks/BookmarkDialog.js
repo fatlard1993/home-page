@@ -16,7 +16,7 @@ export default class BookmarkDialog extends ModalDialog {
 		});
 		const categorySelect = new Select({
 			label: 'Category',
-			options: ['Default', 'New', ...Object.keys(state.serverState.categories).map(id => ({ label: state.serverState.categories[id].name, value: id }))],
+			options: ['Default', 'New', ...Object.keys(state.serverState?.categories || {}).map(id => ({ label: state.serverState?.categories?.[id]?.name, value: id }))],
 			value: bookmark?.category || 'Default',
 			onChange: ({ value }) => (newCategoryInput.label.elem.style.display = value === 'New' ? 'block' : 'none'),
 		});
@@ -25,7 +25,17 @@ export default class BookmarkDialog extends ModalDialog {
 			value: bookmark?.color || 'random',
 			appendChildren: [
 				new Button({ textContent: 'Random', onPointerPress: () => colorPicker.set('random') }),
-				...(JSON.parse(storage.get('recentColors')) || []).map(color => new IconButton({ icon: 'fill-drip', style: { backgroundColor: color }, onPointerPress: () => colorPicker.set(color) })),
+				...(JSON.parse(storage.get('recentColors')) || []).map(
+					backgroundColor =>
+						new IconButton({
+							icon: 'fill-drip',
+							styles: ({ colors }) => `
+								background: ${backgroundColor};
+								color: ${colors.mostReadable(backgroundColor, [colors.white, colors.black])}
+							`,
+							onPointerPress: () => colorPicker.set(backgroundColor),
+						}),
+				),
 			],
 		});
 
@@ -55,18 +65,18 @@ export default class BookmarkDialog extends ModalDialog {
 					if (bookmark) {
 						updateBookmark(bookmark.id, { body: { name: nameInput.elem.value, url: urlInput.elem.value, category, color } }).then(data => {
 							console.log('Success:', data);
-							state.router.renderView();
+							state.router?.renderView();
 						});
 					} else {
 						createBookmark({ body: { name: nameInput.elem.value, url: urlInput.elem.value, category, color } }).then(data => {
 							console.log('Success:', data);
-							state.router.renderView();
+							state.router?.renderView();
 						});
 					}
 				} else if (button === 'Delete') {
 					deleteBookmark(bookmark.id).then(data => {
 						console.log('Success:', data);
-						state.router.renderView();
+						state.router?.renderView();
 					});
 				}
 
