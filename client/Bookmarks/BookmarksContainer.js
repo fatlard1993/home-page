@@ -13,11 +13,6 @@ export default class BookmarksContainer extends DomElem {
 					margin: 6px 6px 0;
 					flex-basis: 100%;
 				}
-
-				.DomElem.Link {
-					margin: 0;
-					flex: 1 0 auto;
-				}
 			`,
 			appendChildren: [
 				typeof heading === 'string' ? new DomElem({ tag: 'h2', textContent: heading }) : heading,

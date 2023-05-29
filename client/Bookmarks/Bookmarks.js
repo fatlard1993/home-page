@@ -1,4 +1,4 @@
-import { DomElem, View, NoData, Link, Overlay, Menu } from 'vanilla-bean-components';
+import { DomElem, View, NoData, Link, Overlay, Menu, styled } from 'vanilla-bean-components';
 
 import { Content } from '../layout';
 import CategoryDialog from './CategoryDialog';
@@ -10,6 +10,14 @@ import { deleteBookmark, deleteCategory, getBookmarks, getSearchResults } from '
 import { fixLink } from './util';
 
 import state from '../state';
+
+const BookmarkLink = styled(
+	Link,
+	() => `
+		margin: 0;
+		flex: 1 0 auto;
+	`,
+);
 
 export class Bookmarks extends View {
 	constructor(options) {
@@ -62,7 +70,7 @@ export class Bookmarks extends View {
 				new BookmarksContainer({
 					appendTo: this.content,
 					heading: 'Search Results',
-					appendChildren: searchResults.map(search => new Link({ textContent: search, href: fixLink(search) })),
+					appendChildren: searchResults.map(search => new BookmarkLink({ textContent: search, href: fixLink(search) })),
 				});
 			}
 
@@ -110,7 +118,7 @@ export class Bookmarks extends View {
 								const bookmark = bookmarks[id];
 								const { name: textContent, url: href, color: backgroundColor } = bookmark;
 
-								const link = new Link({
+								const link = new BookmarkLink({
 									styles: ({ colors }) => `
 											background: ${backgroundColor};
 											color: ${colors.mostReadable(backgroundColor, [colors.white, colors.black])}
