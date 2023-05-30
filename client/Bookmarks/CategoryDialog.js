@@ -1,4 +1,4 @@
-import { ModalDialog, TextInput, Button, IconButton, ColorPicker, storage } from 'vanilla-bean-components';
+import { ModalDialog, TextInput, Button, IconButton, ColorPicker } from 'vanilla-bean-components';
 import { createCategory, deleteCategory, updateCategory } from '../services';
 
 import state from '../state';
@@ -12,7 +12,9 @@ export default class CategoryDialog extends ModalDialog {
 			value: category?.color || 'random',
 			appendChildren: [
 				new Button({ textContent: 'Random', onPointerPress: () => colorPicker.set('random') }),
-				...(JSON.parse(storage.get('recentColors')) || []).map(color => new IconButton({ icon: 'fill-drip', style: { backgroundColor: color }, onPointerPress: () => colorPicker.set(color) })),
+				...(JSON.parse(localStorage.getItem('recentColors')) || []).map(
+					color => new IconButton({ icon: 'fill-drip', style: { backgroundColor: color }, onPointerPress: () => colorPicker.set(color) }),
+				),
 			],
 		});
 
@@ -28,11 +30,11 @@ export default class CategoryDialog extends ModalDialog {
 					if (validationErrors.length) return;
 
 					const color = colorPicker.value;
-					let recentColors = [...new Set([color, ...(JSON.parse(storage.get('recentColors')) || [])])];
+					let recentColors = [...new Set([color, ...(JSON.parse(localStorage.getItem('recentColors')) || [])])];
 
 					recentColors.length = Math.min(recentColors.length, 10);
 
-					storage.set('recentColors', JSON.stringify(recentColors));
+					localStorage.setItem('recentColors', JSON.stringify(recentColors));
 
 					if (category) {
 						updateCategory(category.id, { body: { name: nameInput.elem.value, color } }).then(data => {
