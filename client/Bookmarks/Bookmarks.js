@@ -15,7 +15,6 @@ const BookmarkLink = styled(
 	Link,
 	() => `
 		margin: 0;
-		flex: 1 0 auto;
 	`,
 );
 
@@ -205,7 +204,7 @@ export class Bookmarks extends View {
 			return;
 		}
 
-		this.contextMenu?.cleanup();
+		this.contextMenu?.remove();
 	}
 
 	search(term) {
@@ -214,9 +213,9 @@ export class Bookmarks extends View {
 		getSearchResults(term).then(({ suggestions }) => this.update({ ...state.serverState, searchResults: suggestions }));
 	}
 
-	cleanup() {
-		if (this.list?.cleanup) this.list.cleanup();
+	remove() {
+		if (this.list?.remove) this.list.remove();
 
-		super.cleanup();
+		super.remove();
 	}
 }
