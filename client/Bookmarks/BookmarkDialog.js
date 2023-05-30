@@ -1,4 +1,4 @@
-import { ModalDialog, TextInput, Button, IconButton, ColorPicker, Select, storage } from 'vanilla-bean-components';
+import { ModalDialog, TextInput, Button, IconButton, ColorPicker, Select } from 'vanilla-bean-components';
 import { createBookmark, deleteBookmark, updateBookmark } from '../services';
 
 import state from '../state';
@@ -25,7 +25,7 @@ export default class BookmarkDialog extends ModalDialog {
 			value: bookmark?.color || 'random',
 			appendChildren: [
 				new Button({ textContent: 'Random', onPointerPress: () => colorPicker.set('random') }),
-				...(JSON.parse(storage.get('recentColors')) || []).map(
+				...(JSON.parse(localStorage.getItem('recentColors')) || []).map(
 					backgroundColor =>
 						new IconButton({
 							icon: 'fill-drip',
@@ -51,11 +51,11 @@ export default class BookmarkDialog extends ModalDialog {
 					if (validationErrors.length) return;
 
 					const color = colorPicker.value;
-					let recentColors = [...new Set([color, ...(JSON.parse(storage.get('recentColors')) || [])])];
+					let recentColors = [...new Set([color, ...(JSON.parse(localStorage.getItem('recentColors')) || [])])];
 
 					recentColors.length = Math.min(recentColors.length, 10);
 
-					storage.set('recentColors', JSON.stringify(recentColors));
+					localStorage.setItem('recentColors', JSON.stringify(recentColors));
 
 					let category = categorySelect.value;
 
