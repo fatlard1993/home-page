@@ -1,17 +1,28 @@
+const vanillaBeanSpellcheck = require('vanilla-bean-components/.spellcheck.cjs');
+const localSpellcheck = require('./.spellcheck.cjs');
+
 module.exports = {
-	env: {
-		browser: true,
-		es2022: true,
-		node: true,
-		'vitest-globals/env': true,
-	},
-	parserOptions: {
-		sourceType: 'module',
-		ecmaVersion: 2022,
-	},
-	extends: ['eslint:recommended', 'plugin:prettier/recommended', 'plugin:vitest-globals/recommended'],
-	plugins: ['vitest'],
+	extends: ['./node_modules/vanilla-bean-components/.eslintrc.cjs'],
 	rules: {
-		'no-async-promise-executor': 'off',
+		'spellcheck/spell-checker': [
+			'warn',
+			{
+				...vanillaBeanSpellcheck,
+				...localSpellcheck,
+				skipWords: [...vanillaBeanSpellcheck.skipWords, ...localSpellcheck.skipWords],
+			},
+		],
 	},
+	overrides: [
+		{
+			files: ['server/*.js', 'server/**/*.js'],
+			env: {
+				browser: false,
+				node: true,
+			},
+			rules: {
+				'no-console': 'off',
+			},
+		},
+	],
 };

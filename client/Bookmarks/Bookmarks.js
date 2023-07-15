@@ -1,15 +1,15 @@
 import { DomElem, View, NoData, Link, Overlay, Menu, styled } from 'vanilla-bean-components';
 
+import { deleteBookmark, deleteCategory, getBookmarks, getSearchResults } from '../services';
+import state from '../state';
+
 import { Content } from '../layout';
 import CategoryDialog from './CategoryDialog';
 import BookmarkDialog from './BookmarkDialog';
 import BookmarksToolbar from './BookmarksToolbar';
 import BookmarksContainer from './BookmarksContainer';
 
-import { deleteBookmark, deleteCategory, getBookmarks, getSearchResults } from '../services';
 import { fixLink } from './util';
-
-import state from '../state';
 
 const BookmarkLink = styled(
 	Link,
@@ -21,12 +21,12 @@ const BookmarkLink = styled(
 export class Bookmarks extends View {
 	constructor(options) {
 		super({
-			onContextMenu: evt => {
-				evt.stop();
+			onContextMenu: event => {
+				event.stop();
 
 				this.showContextMenu({
-					x: evt.clientX,
-					y: evt.clientY,
+					x: event.clientX,
+					y: event.clientY,
 					items: [
 						{
 							textContent: 'Add Bookmark',
@@ -58,7 +58,7 @@ export class Bookmarks extends View {
 	}
 
 	renderContent() {
-		const { bookmarkIds, bookmarks, searchResults, categories } = state.serverState;
+		const { bookmarkIds, bookmarks, searchResults, categories, term } = state.serverState;
 
 		this.content.empty();
 
@@ -73,8 +73,6 @@ export class Bookmarks extends View {
 				});
 			}
 
-			console.log({ categories, bookmarks });
-
 			this.content.appendChildren(
 				[undefined, ...Object.keys(categories)].map(categoryId => {
 					const category = categories[categoryId] || { name: 'Bookmarks' };
@@ -87,13 +85,17 @@ export class Bookmarks extends View {
 							textContent: category.name,
 							onContextMenu:
 								categoryId &&
-								(evt => {
-									evt.stop();
+								(event => {
+									event.stop();
 
 									this.showContextMenu({
-										x: evt.clientX,
-										y: evt.clientY,
+										x: event.clientX,
+										y: event.clientY,
 										items: [
+											{
+												textContent: `Add Bookmark to ${category.name}`,
+												onPointerPress: () => new BookmarkDialog({ category, appendTo: this.elem }),
+											},
 											{
 												textContent: `Edit ${category.name}`,
 												onPointerPress: () => new CategoryDialog({ appendTo: this.elem, category }),
@@ -101,8 +103,7 @@ export class Bookmarks extends View {
 											{
 												textContent: `Delete ${category.name}`,
 												onPointerPress: () => {
-													deleteCategory(categoryId).then(data => {
-														console.log('Success:', data);
+													deleteCategory(categoryId).then(() => {
 														state.router.renderView();
 													});
 												},
@@ -113,6 +114,7 @@ export class Bookmarks extends View {
 						}),
 						appendChildren: bookmarkIds
 							.filter(id => bookmarks[id].category === categoryId || (!categoryId && !categories[bookmarks[id].category]))
+							.filter(id => !term || bookmarks[id].name.toLowerCase().includes(term.toLowerCase()))
 							.map(id => {
 								const bookmark = bookmarks[id];
 								const { name: textContent, url: href, color: backgroundColor } = bookmark;
@@ -124,12 +126,12 @@ export class Bookmarks extends View {
 										`,
 									textContent,
 									href,
-									onContextMenu: evt => {
-										evt.stop();
+									onContextMenu: event => {
+										event.stop();
 
 										this.showContextMenu({
-											x: evt.clientX,
-											y: evt.clientY,
+											x: event.clientX,
+											y: event.clientY,
 											items: [
 												{
 													textContent: `Edit ${textContent}`,
@@ -138,8 +140,7 @@ export class Bookmarks extends View {
 												{
 													textContent: `Delete ${textContent}`,
 													onPointerPress: () => {
-														deleteBookmark(id).then(data => {
-															console.log('Success:', data);
+														deleteBookmark(id).then(() => {
 															state.router.renderView();
 														});
 													},
@@ -208,9 +209,9 @@ export class Bookmarks extends View {
 	}
 
 	search(term) {
-		if (!term) return this.update({ ...state.serverState, searchResults: [] });
+		if (!term) return this.update({ ...state.serverState, term, searchResults: [] });
 
-		getSearchResults(term).then(({ suggestions }) => this.update({ ...state.serverState, searchResults: suggestions }));
+		getSearchResults(term).then(({ suggestions }) => this.update({ ...state.serverState, term, searchResults: suggestions }));
 	}
 
 	remove() {

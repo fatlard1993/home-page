@@ -1,36 +1,36 @@
 import bookmarks from '../database/bookmarks.js';
 
 const bookmarksRouter = ({ app }) => {
-	app.get('/bookmarks', function (req, res) {
-		res.json(bookmarks.read());
+	app.get('/bookmarks', function (request, response) {
+		response.json(bookmarks.read());
 	});
 
-	app.get('/bookmarks/:id', function (req, res) {
-		res.json(bookmarks.read({ id: req.params.id }));
+	app.get('/bookmarks/:id', function (request, response) {
+		response.json(bookmarks.read({ id: request.params.id }));
 	});
 
-	app.post('/bookmarks', function (req, res) {
-		console.log(`Create bookmark: ${req.body.name}`, req.body);
+	app.post('/bookmarks', function (request, response) {
+		console.log(`Create bookmark: ${request.body.name}`, request.body);
 
-		const id = bookmarks.create(req.body);
+		const id = bookmarks.create(request.body);
 
-		res.json({ id });
+		response.json({ id });
 	});
 
-	app.put('/bookmarks/:id', function (req, res) {
-		console.log(`Update bookmark: ${req.params.id}`, req.body);
+	app.put('/bookmarks/:id', function (request, response) {
+		console.log(`Update bookmark: ${request.params.id}`, request.body);
 
-		bookmarks.update({ id: req.params.id, update: req.body });
+		bookmarks.update({ id: request.params.id, update: request.body });
 
-		res.json({ id: req.params.id });
+		response.json({ id: request.params.id });
 	});
 
-	app.delete('/bookmarks/:id', function (req, res) {
-		console.log(`Delete bookmark: ${req.params.id}`);
+	app.delete('/bookmarks/:id', function (request, response) {
+		console.log(`Delete bookmark: ${request.params.id}`);
 
-		bookmarks.delete({ id: req.params.id });
+		bookmarks.delete({ id: request.params.id });
 
-		res.json({ id: req.params.id });
+		response.json({ id: request.params.id });
 	});
 };
 

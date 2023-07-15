@@ -3,37 +3,37 @@ import http from 'http';
 export default function search(term, done) {
 	try {
 		http
-			.get(`http://suggestqueries.google.com/complete/search?client=chrome&q=${term}`, res => {
-				if (res.statusCode !== 200) {
-					res.resume();
+			.get(`http://suggestqueries.google.com/complete/search?client=chrome&q=${term}`, response => {
+				if (response.statusCode !== 200) {
+					response.resume();
 
-					return console.error(`Suggestion request failed with code: ${res.statusCode}`);
+					return console.error(`Suggestion request failed with code: ${response.statusCode}`);
 				}
 
 				let data = '';
 
-				res.setEncoding('utf8');
+				response.setEncoding('utf8');
 
-				res.on('data', chunk => {
+				response.on('data', chunk => {
 					data += chunk;
 				});
 
-				res.on('end', () => {
+				response.on('end', () => {
 					try {
 						data = JSON.parse(data)[1].slice(0, 3);
-					} catch (err) {
-						return done(err);
+					} catch (error) {
+						return done(error);
 					}
 
-					done(null, data);
+					done(undefined, data);
 				});
 			})
-			.on('error', err => {
-				console.error('Resource request error: ', err);
+			.on('error', error => {
+				console.error('Resource request error:', error);
 			});
-	} catch (err) {
-		console.error('Suggestion request failed', err);
+	} catch (error) {
+		console.error('Suggestion request failed', error);
 
-		done(err);
+		done(error);
 	}
 }

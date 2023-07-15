@@ -5,6 +5,18 @@ import BookmarkDialog from './BookmarkDialog';
 
 const container = new JSDOM().window.document.body;
 
+HTMLDialogElement.prototype.show = () => {
+	this.open = true;
+};
+
+HTMLDialogElement.prototype.showModal = () => {
+	this.open = true;
+};
+
+HTMLDialogElement.prototype.close = () => {
+	this.open = false;
+};
+
 describe('BookmarkDialog', () => {
 	test('must render new bookmark form', async () => {
 		new BookmarkDialog({ appendTo: container });

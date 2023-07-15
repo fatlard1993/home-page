@@ -1,4 +1,4 @@
-import { IconButton, Search, debounceCb } from 'vanilla-bean-components';
+import { IconButton, Search, debounceCallback } from 'vanilla-bean-components';
 
 import { Toolbar } from '../layout';
 import BookmarkDialog from './BookmarkDialog';
@@ -15,7 +15,7 @@ export default class BookmarksToolbar extends Toolbar {
 						height: 2.4rem;
 					`,
 					onKeyUp: ({ key, target: { value } }) => {
-						debounceCb(() => search(value), 700);
+						debounceCallback(() => search(value), 700);
 
 						if (key === 'Enter') search(value);
 					},

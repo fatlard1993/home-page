@@ -12,6 +12,12 @@
 	"engines": {
 		"node": ">=16.0.0"
 	},
+	"browserslist": [
+		"last 1 version",
+		"> 1%",
+		"not dead",
+		"not op_mini all"
+	],
 	"scripts": {
 		"prepare": "npm run build",
 		"start": "npm run dev",
@@ -25,7 +31,9 @@
 		"pretty": "prettier .",
 		"pretty:fix": "prettier --write .",
 		"fix": "npm run lint:fix ; npm run pretty:fix",
-		"test": "vitest run",
+		"test": "npm run lint && vitest run",
+		"test:fix": "npm run fix && vitest run",
+		"test:force": "vitest run",
 		"test:dev": "vitest"
 	},
 	"repository": {
@@ -41,7 +49,7 @@
 		"argi": "github:fatlard1993/argi",
 		"augmented-ui": "^2.0.0",
 		"express": "^4.18.2",
-		"lowdb": "^5.1.0",
+		"lowdb": "^6.0.1",
 		"nanoid": "^4.0.2",
 		"process": "^0.11.10",
 		"relevancy": "^0.2.0",
@@ -50,15 +58,22 @@
 		"vanilla-bean-components": "github:fatlard1993/vanilla-bean-components#main"
 	},
 	"devDependencies": {
-		"@testing-library/dom": "^9.3.0",
-		"eslint": "^8.41.0",
+		"@testing-library/dom": "^9.3.1",
+		"@vitejs/plugin-legacy": "^4.1.0",
+		"eslint": "^8.44.0",
 		"eslint-config-prettier": "^8.8.0",
-		"eslint-plugin-prettier": "^4.2.1",
-		"eslint-plugin-vitest": "0.2.5",
-		"eslint-plugin-vitest-globals": "^1.3.1",
-		"jsdom": "^21.1.2",
-		"prettier": "2.8.8",
-		"vite": "^4.3.9",
-		"vitest": "^0.31.1"
+		"eslint-plugin-compat": "^4.1.4",
+		"eslint-plugin-import": "^2.27.5",
+		"eslint-plugin-prettier": "^5.0.0",
+		"eslint-plugin-spellcheck": "0.0.20",
+		"eslint-plugin-testing-library": "^5.11.0",
+		"eslint-plugin-unicorn": "^47.0.0",
+		"eslint-plugin-vitest": "0.2.6",
+		"eslint-plugin-vitest-globals": "^1.4.0",
+		"eslint-plugin-write-good-comments": "^0.2.0",
+		"jsdom": "^22.1.0",
+		"prettier": "3.0.0",
+		"vite": "^4.4.3",
+		"vitest": "^0.33.0"
 	}
 }
