@@ -4,8 +4,7 @@ const hostnameRegex = /^(.+:\/\/)[^:]+?(:\d{1,5})?(\/.*)?$/;
 const localhostRegex = /^(.+:\/\/)?localhost(:\d{1,5})?(\/.*)?$/;
 
 export const fixLink = url => {
-	if (url.startsWith('file://')) url = url.replace('file://', `${window.location.href}load-file?file=`);
-	else if (websiteRegex.test(url) || ipRegex.test(url) || localhostRegex.test(url) || hostnameRegex.test(url)) {
+	if (websiteRegex.test(url) || ipRegex.test(url) || localhostRegex.test(url) || hostnameRegex.test(url)) {
 		if (!/.+:\/\//.test(url)) url = `http://${url}`;
 	} else url = `http://google.com/search?q=${url}`;
 
