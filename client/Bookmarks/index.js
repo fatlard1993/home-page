@@ -1,4 +1,1 @@
-import { Bookmarks } from './Bookmarks';
-
-export { Bookmarks };
-export default Bookmarks;
+export { Bookmarks } from './Bookmarks';

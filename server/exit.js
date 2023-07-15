@@ -10,8 +10,8 @@ const exit = {
 			process.exit(130);
 		});
 
-		process.on('uncaughtException', err => {
-			console.error('Uncaught Exception', err.stack);
+		process.on('uncaughtException', error => {
+			console.error('Uncaught Exception', error.stack);
 
 			process.exit(99);
 		});

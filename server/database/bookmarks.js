@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid';
 
-import database from './index.js';
 import categories from './categories.js';
+import database from './index.js';
 
 const bookmarks = {
 	create(data) {

@@ -14,8 +14,8 @@ state.router = new Router({ views });
 
 new Page({
 	styles: ({ colors }) => `
-		color: ${colors.lightest(colors.grey)};
-		background-color: ${colors.darkest(colors.grey)};
+		color: ${colors.lightest(colors.gray)};
+		background-color: ${colors.darkest(colors.gray)};
 	`,
 	appendTo: document.getElementById('app'),
 	appendChild: state.router,

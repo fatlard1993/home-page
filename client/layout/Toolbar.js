@@ -6,7 +6,7 @@ export class Toolbar extends DomElem {
 			styles: ({ colors, ...theme }) => `
 				display: flex;
 				flex-direction: row;
-				background-image: linear-gradient(to bottom, ${colors.darkest(colors.grey)} 90%, rgb(0 0 0 / 0%));
+				background-image: linear-gradient(to bottom, ${colors.darkest(colors.gray)} 90%, rgb(0 0 0 / 0%));
 				position: relative;
 				margin: 12px 12px 0 12px;
 

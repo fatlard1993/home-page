@@ -14,12 +14,12 @@ const router = {
 
 		searchRouter({ express, app });
 
-		app.use(function (req, res) {
-			res.status(404);
+		app.use(function (request, response) {
+			response.status(404);
 
-			if (req.accepts('json')) return res.json({ error: 'Not found' });
+			if (request.accepts('json')) return response.json({ error: 'Not found' });
 
-			res.type('txt').send('Not found');
+			response.type('text').send('Not found');
 		});
 	},
 };

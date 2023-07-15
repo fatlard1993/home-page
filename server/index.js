@@ -7,11 +7,11 @@ import express from 'express';
 
 import argi from 'argi';
 
+import { PORT } from '../constants.js';
+
 import database from './database/index.js';
 import router from './router/index.js';
 import exit from './exit.js';
-
-import { PORT } from '../constants.js';
 
 const { options } = argi.parse({
 	verbosity: {

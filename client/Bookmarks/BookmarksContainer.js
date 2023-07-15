@@ -1,7 +1,7 @@
 import { DomElem } from 'vanilla-bean-components';
 
 export default class BookmarksContainer extends DomElem {
-	constructor({ heading = '', appendChild, appendChildren, ...options }) {
+	constructor({ heading = '', ...options }) {
 		super({
 			styles: () => `
 				margin: 0 1%;
@@ -14,12 +14,9 @@ export default class BookmarksContainer extends DomElem {
 					flex-basis: 100%;
 				}
 			`,
-			appendChildren: [
-				typeof heading === 'string' ? new DomElem({ tag: 'h2', textContent: heading }) : heading,
-				...(appendChildren ? (Array.isArray(appendChildren) ? appendChildren : [appendChildren]) : []),
-				...(appendChild ? [appendChild] : []),
-			],
 			...options,
 		});
+
+		this.prependChild(typeof heading === 'string' ? new DomElem({ tag: 'h2', textContent: heading }) : heading);
 	}
 }

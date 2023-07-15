@@ -1,10 +1,17 @@
 /// <reference types="vitest" />
 
 import { defineConfig } from 'vite';
+import legacy from '@vitejs/plugin-legacy';
 
 import { PORT } from './constants';
 
+// eslint-disable-next-line import/no-unused-modules
 export default defineConfig({
+	plugins: [
+		legacy({
+			modernPolyfills: true,
+		}),
+	],
 	server: {
 		open: '/client/index.html',
 		port: 9999,
