@@ -1,16 +1,16 @@
-import { Dialog, TextInput, Button, IconButton, ColorPicker } from 'vanilla-bean-components';
+import { Dialog, TextInput, Button, IconButton, ColorPicker, conditionalList } from 'vanilla-bean-components';
 import { createCategory, deleteCategory, updateCategory } from '../services';
 
 import state from '../state';
 
 export default class CategoryDialog extends Dialog {
 	constructor({ category, ...rest }) {
-		const nameInput = new TextInput({ label: 'Name', value: category?.name, validations: [[/.+/, 'Required']] });
+		const nameInput = new TextInput({ label: 'Name', value: category?.name || '', validations: [[/.+/, 'Required']] });
 
 		const colorPicker = new ColorPicker({
 			label: 'Color',
 			value: category?.color || 'random',
-			appendChildren: [
+			append: [
 				new Button({ textContent: 'Random', onPointerPress: () => colorPicker.set('random') }),
 				...(JSON.parse(localStorage.getItem('recentColors')) || []).map(
 					color => new IconButton({ icon: 'fill-drip', style: { backgroundColor: color }, onPointerPress: () => colorPicker.set(color) }),
@@ -22,7 +22,7 @@ export default class CategoryDialog extends Dialog {
 			size: 'large',
 			header: `${category ? 'Edit' : 'Create'} Category${category ? ` | ${category.name}` : ''}`,
 			content: [nameInput, colorPicker],
-			buttons: ['Save', ...(category ? ['Delete'] : []), 'Cancel'],
+			buttons: conditionalList([{ alwaysItem: 'Save' }, { if: category, thenItem: 'Delete' }, { alwaysItem: 'Cancel' }]),
 			onButtonPress: ({ button, closeDialog }) => {
 				if (button === 'Save') {
 					const validationErrors = [...nameInput.validate()];
@@ -54,10 +54,6 @@ export default class CategoryDialog extends Dialog {
 				closeDialog();
 			},
 			...rest,
-		});
-
-		document.addEventListener('keyup', ({ key }) => {
-			if (key === 'Escape') this.modal.remove();
 		});
 	}
 }

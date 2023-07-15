@@ -1,4 +1,4 @@
-import { Dialog, TextInput, Button, IconButton, ColorPicker, Select } from 'vanilla-bean-components';
+import { Dialog, TextInput, Button, IconButton, ColorPicker, Select, conditionalList } from 'vanilla-bean-components';
 import { createBookmark, deleteBookmark, updateBookmark } from '../services';
 
 import state from '../state';
@@ -24,7 +24,7 @@ export default class BookmarkDialog extends Dialog {
 		const colorPicker = new ColorPicker({
 			label: 'Color',
 			value: bookmark?.color || 'random',
-			appendChildren: [
+			append: [
 				new Button({ textContent: 'Random', onPointerPress: () => colorPicker.set('random') }),
 				...(JSON.parse(localStorage.getItem('recentColors')) || []).map(
 					backgroundColor =>
@@ -44,7 +44,7 @@ export default class BookmarkDialog extends Dialog {
 			size: 'large',
 			header: `${bookmark ? 'Edit' : 'Create'} Bookmark${bookmark ? ` | ${bookmark.name}` : ''}`,
 			content: [nameInput, urlInput, categorySelect, newCategoryInput, colorPicker],
-			buttons: ['Save', ...(bookmark ? ['Delete'] : []), 'Cancel'],
+			buttons: conditionalList([{ alwaysItem: 'Save' }, { if: category, thenItem: 'Delete' }, { alwaysItem: 'Cancel' }]),
 			onButtonPress: ({ button, closeDialog }) => {
 				if (button === 'Save') {
 					const validationErrors = [...nameInput.validate(), ...urlInput.validate(), ...(categorySelect.value === 'New' ? newCategoryInput.validate() : [])];

@@ -69,11 +69,11 @@ export class Bookmarks extends View {
 				new BookmarksContainer({
 					appendTo: this.content,
 					heading: 'Search Results',
-					appendChildren: searchResults.map(search => new BookmarkLink({ textContent: search, href: fixLink(search) })),
+					append: searchResults.map(search => new BookmarkLink({ textContent: search, href: fixLink(search) })),
 				});
 			}
 
-			this.content.appendChildren(
+			this.content.append(
 				[undefined, ...Object.keys(categories)].map(categoryId => {
 					const category = categories[categoryId] || { name: 'Bookmarks' };
 
@@ -112,7 +112,7 @@ export class Bookmarks extends View {
 									});
 								}),
 						}),
-						appendChildren: bookmarkIds
+						append: bookmarkIds
 							.filter(id => bookmarks[id].category === categoryId || (!categoryId && !categories[bookmarks[id].category]))
 							.filter(id => !term || bookmarks[id].name.toLowerCase().includes(term.toLowerCase()))
 							.map(id => {
@@ -184,7 +184,7 @@ export class Bookmarks extends View {
 				left: pastRight ? 'unset' : `${x}px`,
 				right: pastRight ? `${document.body.clientWidth - x}px` : 'unset',
 			},
-			appendChild: new Menu({
+			append: new Menu({
 				styles: () => `
 					li {
 						white-space: nowrap;

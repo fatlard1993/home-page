@@ -17,6 +17,6 @@ export default class BookmarksContainer extends DomElem {
 			...options,
 		});
 
-		this.prependChild(typeof heading === 'string' ? new DomElem({ tag: 'h2', textContent: heading }) : heading);
+		this.prepend(typeof heading === 'string' ? new DomElem({ tag: 'h2', textContent: heading }) : heading);
 	}
 }

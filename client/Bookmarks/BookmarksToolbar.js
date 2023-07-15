@@ -6,7 +6,7 @@ import BookmarkDialog from './BookmarkDialog';
 export default class BookmarksToolbar extends Toolbar {
 	constructor({ search, ...options }) {
 		super({
-			appendChildren: [
+			append: [
 				new Search({
 					styles: () => `
 						width: auto;
