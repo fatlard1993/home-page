@@ -1,7 +1,8 @@
-import { DomElem } from 'vanilla-bean-components';
+import { DomElem, Link } from 'vanilla-bean-components';
+import { fixLink } from './util';
 
 export default class BookmarksContainer extends DomElem {
-	constructor({ heading = '', ...options }) {
+	constructor({ heading = '', bookmarks = [], ...options }) {
 		super({
 			styles: () => `
 				margin: 0 1%;
@@ -18,5 +19,20 @@ export default class BookmarksContainer extends DomElem {
 		});
 
 		this.prepend(typeof heading === 'string' ? new DomElem({ tag: 'h2', textContent: heading }) : heading);
+
+		this.append(
+			bookmarks.map(
+				({ name, url, color, ...options }) =>
+					new Link({
+						textContent: name,
+						href: fixLink(url),
+						styles: ({ colors }) => `
+							background: ${color || colors.blue};
+							color: ${colors.mostReadable(color || colors.blue, [colors.white, colors.black])}
+						`,
+						...options,
+					}),
+			),
+		);
 	}
 }
