@@ -1,4 +1,4 @@
-import { DomElem, View, NoData, Link, Overlay, Menu, styled } from 'vanilla-bean-components';
+import { DomElem, View, NoData, Overlay, Menu } from 'vanilla-bean-components';
 
 import { deleteBookmark, deleteCategory, getBookmarks, getSearchResults } from '../services';
 import state from '../state';
@@ -8,15 +8,6 @@ import CategoryDialog from './CategoryDialog';
 import BookmarkDialog from './BookmarkDialog';
 import BookmarksToolbar from './BookmarksToolbar';
 import BookmarksContainer from './BookmarksContainer';
-
-import { fixLink } from './util';
-
-const BookmarkLink = styled(
-	Link,
-	() => `
-		margin: 0;
-	`,
-);
 
 export class Bookmarks extends View {
 	constructor(options) {
@@ -69,7 +60,7 @@ export class Bookmarks extends View {
 				new BookmarksContainer({
 					appendTo: this.content,
 					heading: 'Search Results',
-					append: searchResults.map(search => new BookmarkLink({ textContent: search, href: fixLink(search) })),
+					bookmarks: searchResults.map(search => ({ name: search, url: search })),
 				});
 			}
 
@@ -81,7 +72,6 @@ export class Bookmarks extends View {
 						appendTo: this.content,
 						heading: new DomElem({
 							tag: 'h2',
-							styles: () => 'cursor: pointer;',
 							textContent: category.name,
 							onContextMenu:
 								categoryId &&
@@ -112,46 +102,34 @@ export class Bookmarks extends View {
 									});
 								}),
 						}),
-						append: bookmarkIds
+						bookmarks: bookmarkIds
 							.filter(id => bookmarks[id].category === categoryId || (!categoryId && !categories[bookmarks[id].category]))
 							.filter(id => !term || bookmarks[id].name.toLowerCase().includes(term.toLowerCase()))
-							.map(id => {
-								const bookmark = bookmarks[id];
-								const { name: textContent, url: href, color: backgroundColor } = bookmark;
+							.map(id => ({
+								...bookmarks[id],
+								onContextMenu: event => {
+									event.stop();
 
-								const link = new BookmarkLink({
-									styles: ({ colors }) => `
-											background: ${backgroundColor};
-											color: ${colors.mostReadable(backgroundColor, [colors.white, colors.black])}
-										`,
-									textContent,
-									href,
-									onContextMenu: event => {
-										event.stop();
-
-										this.showContextMenu({
-											x: event.clientX,
-											y: event.clientY,
-											items: [
-												{
-													textContent: `Edit ${textContent}`,
-													onPointerPress: () => new BookmarkDialog({ appendTo: this.elem, bookmark }),
+									this.showContextMenu({
+										x: event.clientX,
+										y: event.clientY,
+										items: [
+											{
+												textContent: `Edit ${bookmarks[id].name}`,
+												onPointerPress: () => new BookmarkDialog({ appendTo: this.elem, bookmark: bookmarks[id] }),
+											},
+											{
+												textContent: `Delete ${bookmarks[id].name}`,
+												onPointerPress: () => {
+													deleteBookmark(id).then(() => {
+														state.router.renderView();
+													});
 												},
-												{
-													textContent: `Delete ${textContent}`,
-													onPointerPress: () => {
-														deleteBookmark(id).then(() => {
-															state.router.renderView();
-														});
-													},
-												},
-											],
-										});
-									},
-								});
-
-								return link;
-							}),
+											},
+										],
+									});
+								},
+							})),
 					});
 				}),
 			);
@@ -177,13 +155,13 @@ export class Bookmarks extends View {
 		this.openingContextMenu = true;
 		this.contextMenu = new Overlay({
 			appendTo: this.elem,
-			style: {
-				maxWidth: `${maxWidth}px`,
-				top: pastBottom ? 'unset' : `${y}px`,
-				bottom: pastBottom ? `${document.body.clientHeight - y}px` : 'unset',
-				left: pastRight ? 'unset' : `${x}px`,
-				right: pastRight ? `${document.body.clientWidth - x}px` : 'unset',
-			},
+			styles: () => `
+				max-width: ${maxWidth}px;
+				top: ${pastBottom ? 'unset' : `${y}px`};
+				bottom: ${pastBottom ? `${document.body.clientHeight - y}px` : 'unset'};
+				left: ${pastRight ? 'unset' : `${x}px`};
+				right: ${pastRight ? `${document.body.clientWidth - x}px` : 'unset'};
+			`,
 			append: new Menu({
 				styles: () => `
 					li {
@@ -212,11 +190,5 @@ export class Bookmarks extends View {
 		if (!term) return this.update({ ...state.serverState, term, searchResults: [] });
 
 		getSearchResults(term).then(({ suggestions }) => this.update({ ...state.serverState, term, searchResults: suggestions }));
-	}
-
-	remove() {
-		if (this.list?.remove) this.list.remove();
-
-		super.remove();
 	}
 }
