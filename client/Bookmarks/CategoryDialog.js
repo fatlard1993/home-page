@@ -1,19 +1,26 @@
-import { Dialog, TextInput, Button, IconButton, ColorPicker, conditionalList } from 'vanilla-bean-components';
-import { createCategory, deleteCategory, updateCategory } from '../services';
+import { Dialog, Input, Button, ColorPicker, Label, conditionalList, styled } from 'vanilla-bean-components';
+import { createCategory, deleteCategory, updateCategory } from '../api';
 
 import state from '../state';
 
+const ColorPickerButton = styled(
+	Button,
+	() => `
+		margin-top: 12px;
+	`,
+);
+
 export default class CategoryDialog extends Dialog {
 	constructor({ category, ...rest }) {
-		const nameInput = new TextInput({ label: 'Name', value: category?.name || '', validations: [[/.+/, 'Required']] });
+		const nameInput = new Input({ type: 'text', label: 'Name', value: category?.name || '', validations: [[/.+/, 'Required']] });
 
 		const colorPicker = new ColorPicker({
 			label: 'Color',
 			value: category?.color || 'random',
 			append: [
-				new Button({ textContent: 'Random', onPointerPress: () => colorPicker.set('random') }),
+				new ColorPickerButton({ textContent: 'Random', onPointerPress: () => colorPicker.set('random') }),
 				...(JSON.parse(localStorage.getItem('recentColors')) || []).map(
-					color => new IconButton({ icon: 'fill-drip', style: { backgroundColor: color }, onPointerPress: () => colorPicker.set(color) }),
+					color => new ColorPickerButton({ icon: 'fill-drip', style: { backgroundColor: color }, onPointerPress: () => colorPicker.set(color) }),
 				),
 			],
 		});
@@ -21,9 +28,9 @@ export default class CategoryDialog extends Dialog {
 		super({
 			size: 'large',
 			header: `${category ? 'Edit' : 'Create'} Category${category ? ` | ${category.name}` : ''}`,
-			content: [nameInput, colorPicker],
+			body: [new Label('Name', nameInput), colorPicker],
 			buttons: conditionalList([{ alwaysItem: 'Save' }, { if: category, thenItem: 'Delete' }, { alwaysItem: 'Cancel' }]),
-			onButtonPress: ({ button, closeDialog }) => {
+			onButtonPress: ({ button }) => {
 				if (button === 'Save') {
 					const validationErrors = [...nameInput.validate()];
 
@@ -51,7 +58,7 @@ export default class CategoryDialog extends Dialog {
 					});
 				}
 
-				closeDialog();
+				this.close();
 			},
 			...rest,
 		});

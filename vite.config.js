@@ -6,7 +6,11 @@ import legacy from '@vitejs/plugin-legacy';
 import { PORT } from './constants';
 
 // eslint-disable-next-line import/no-unused-modules
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+	define: {
+		'process.env.NODE_ENV': JSON.stringify(mode),
+		'process.env.AUTOPREFIXER_GRID': 'undefined',
+	},
 	plugins: [
 		legacy({
 			modernPolyfills: true,
@@ -21,6 +25,7 @@ export default defineConfig({
 		},
 	},
 	test: {
+		setupFiles: ['vitest-setup.js'],
 		include: ['**/*.test.js'],
 		environment: 'jsdom',
 		globals: true,
@@ -37,4 +42,4 @@ export default defineConfig({
 			'source-map-js': 'node_modules/source-map-js/source-map.js',
 		},
 	},
-});
+}));

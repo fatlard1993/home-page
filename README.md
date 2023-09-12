@@ -8,6 +8,4 @@ A simple bookmark display and management webserver.
 
 ## TODO
 
-- Bookmark categories
 - Drag to sort
-- Update tests to vitest

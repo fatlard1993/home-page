@@ -1,9 +1,6 @@
 import { findByRole } from '@testing-library/dom';
-import { JSDOM } from 'jsdom';
 
 import BookmarksToolbar from './BookmarksToolbar';
-
-const container = new JSDOM().window.document.body;
 
 describe('BookmarksToolbar', () => {
 	test('must render', async () => {

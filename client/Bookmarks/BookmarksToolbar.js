@@ -1,6 +1,6 @@
-import { IconButton, Search, debounceCallback } from 'vanilla-bean-components';
+import { Button, Search, debounceCallback } from 'vanilla-bean-components';
 
-import { Toolbar } from '../layout';
+import { Toolbar } from '../Layout';
 import BookmarkDialog from './BookmarkDialog';
 
 export default class BookmarksToolbar extends Toolbar {
@@ -20,16 +20,18 @@ export default class BookmarksToolbar extends Toolbar {
 						if (key === 'Enter') search(value);
 					},
 				}),
-				new IconButton({
+				new Button({
 					styles: () => `
-						padding: 0;
-						margin: 6px;
-						font-size: 1.3em;
-						height: 2.4rem;
-						width: 2.4rem;
+						&:empty {
+							padding: 0;
+							margin: 6px;
+							font-size: 1.3em;
+							height: 2.4rem;
+							width: 2.4rem;
+						}
 					`,
 					icon: 'plus',
-					onPointerPress: () => new BookmarkDialog({ appendTo: this.elem }),
+					onPointerPress: () => new BookmarkDialog({ appendTo: document.body }),
 				}),
 			],
 			...options,
