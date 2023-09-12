@@ -1,13 +1,16 @@
-import { DomElem, View, NoData, Overlay, Menu } from 'vanilla-bean-components';
+import { View, NoData, Overlay, Menu } from 'vanilla-bean-components';
 
-import { deleteBookmark, deleteCategory, getBookmarks, getSearchResults } from '../services';
+import { deleteBookmark, deleteCategory, getBookmarks, getSearchResults } from '../api';
+
 import state from '../state';
 
-import { Content } from '../layout';
+import { Content } from '../Layout';
 import CategoryDialog from './CategoryDialog';
 import BookmarkDialog from './BookmarkDialog';
 import BookmarksToolbar from './BookmarksToolbar';
 import BookmarksContainer from './BookmarksContainer';
+
+import { fixLink } from './util';
 
 export class Bookmarks extends View {
 	constructor(options) {
@@ -18,16 +21,6 @@ export class Bookmarks extends View {
 				this.showContextMenu({
 					x: event.clientX,
 					y: event.clientY,
-					items: [
-						{
-							textContent: 'Add Bookmark',
-							onPointerPress: () => new BookmarkDialog({ appendTo: this.elem }),
-						},
-						{
-							textContent: 'Add Category',
-							onPointerPress: () => new CategoryDialog({ appendTo: this.elem }),
-						},
-					],
 				});
 			},
 			...options,
@@ -36,7 +29,7 @@ export class Bookmarks extends View {
 		this.onPointerUp(this.hideContextMenu);
 	}
 
-	render(options = this.options) {
+	async render(options = this.options) {
 		super.render(options);
 
 		const appendTo = this.elem;
@@ -45,22 +38,49 @@ export class Bookmarks extends View {
 
 		this.content = new Content({ appendTo });
 
-		this.update();
+		this.options.bookmarks = await getBookmarks();
 	}
 
-	renderContent() {
-		const { bookmarkIds, bookmarks, searchResults, categories, term } = state.serverState;
+	setOption(key, value) {
+		if (key === 'bookmarks') {
+			this.renderContent(value);
+		} else if (key === 'search') {
+			this.renderContent({ ...this.options.bookmarks, suggestions: value.suggestions, term: value.term });
+		} else super.setOption(key, value);
+	}
+
+	renderContent(serverState = this.options.serverState) {
+		state.serverState = serverState;
+
+		const { bookmarkIds, bookmarks, suggestions, categories, term } = serverState;
 
 		this.content.empty();
 
 		if (!bookmarkIds?.length) {
 			new NoData({ appendTo: this.content, textContent: 'No bookmarks yet .. Create them with the + button above' });
 		} else {
-			if (searchResults?.length) {
+			if (suggestions?.length) {
 				new BookmarksContainer({
 					appendTo: this.content,
 					heading: 'Search Results',
-					bookmarks: searchResults.map(search => ({ name: search, url: search })),
+					bookmarks: suggestions.map(search => ({
+						name: search,
+						url: search,
+						onContextMenu: event => {
+							event.stop();
+
+							this.showContextMenu({
+								x: event.clientX,
+								y: event.clientY,
+								items: [
+									{
+										textContent: `Bookmark ${search}`,
+										onPointerPress: () => new BookmarkDialog({ appendTo: this.elem, bookmark: { name: search, url: fixLink(search) } }),
+									},
+								],
+							});
+						},
+					})),
 				});
 			}
 
@@ -70,38 +90,33 @@ export class Bookmarks extends View {
 
 					return new BookmarksContainer({
 						appendTo: this.content,
-						heading: new DomElem({
-							tag: 'h2',
-							textContent: category.name,
-							onContextMenu:
-								categoryId &&
-								(event => {
-									event.stop();
+						heading: category.name,
+						onContextMenu:
+							categoryId &&
+							(event => {
+								event.stop();
 
-									this.showContextMenu({
-										x: event.clientX,
-										y: event.clientY,
-										items: [
-											{
-												textContent: `Add Bookmark to ${category.name}`,
-												onPointerPress: () => new BookmarkDialog({ category, appendTo: this.elem }),
+								this.showContextMenu({
+									x: event.clientX,
+									y: event.clientY,
+									items: [
+										{
+											textContent: `Add Bookmark to ${category.name}`,
+											onPointerPress: () => new BookmarkDialog({ category, appendTo: this.elem }),
+										},
+										{
+											textContent: `Edit ${category.name}`,
+											onPointerPress: () => new CategoryDialog({ appendTo: this.elem, category }),
+										},
+										{
+											textContent: `Delete ${category.name}`,
+											onPointerPress: () => {
+												deleteCategory(categoryId).then(() => this.render());
 											},
-											{
-												textContent: `Edit ${category.name}`,
-												onPointerPress: () => new CategoryDialog({ appendTo: this.elem, category }),
-											},
-											{
-												textContent: `Delete ${category.name}`,
-												onPointerPress: () => {
-													deleteCategory(categoryId).then(() => {
-														state.router.renderView();
-													});
-												},
-											},
-										],
-									});
-								}),
-						}),
+										},
+									],
+								});
+							}),
 						bookmarks: bookmarkIds
 							.filter(id => bookmarks[id].category === categoryId || (!categoryId && !categories[bookmarks[id].category]))
 							.filter(id => !term || bookmarks[id].name.toLowerCase().includes(term.toLowerCase()))
@@ -121,9 +136,7 @@ export class Bookmarks extends View {
 											{
 												textContent: `Delete ${bookmarks[id].name}`,
 												onPointerPress: () => {
-													deleteBookmark(id).then(() => {
-														state.router.renderView();
-													});
+													deleteBookmark(id).then(() => this.render());
 												},
 											},
 										],
@@ -136,16 +149,19 @@ export class Bookmarks extends View {
 		}
 	}
 
-	async update(serverState) {
-		if (!serverState) serverState = await getBookmarks();
-
-		state.serverState = serverState;
-
-		this.renderContent();
-	}
-
-	showContextMenu({ x, y, items }) {
+	showContextMenu({ x, y, items = [] }) {
 		this.hideContextMenu();
+
+		items.push(
+			{
+				textContent: 'Add Bookmark',
+				onPointerPress: () => new BookmarkDialog({ appendTo: this.elem }),
+			},
+			{
+				textContent: 'Add Category',
+				onPointerPress: () => new CategoryDialog({ appendTo: this.elem }),
+			},
+		);
 
 		const maxWidth = 240;
 		const itemHeight = 36;
@@ -186,9 +202,11 @@ export class Bookmarks extends View {
 		this.contextMenu?.remove();
 	}
 
-	search(term) {
-		if (!term) return this.update({ ...state.serverState, term, searchResults: [] });
+	async search(term) {
+		if (!term) return (this.options.search = { suggestions: [], term });
 
-		getSearchResults(term).then(({ suggestions }) => this.update({ ...state.serverState, term, searchResults: suggestions }));
+		const { suggestions } = await getSearchResults(term);
+
+		this.options.search = { suggestions, term };
 	}
 }

@@ -13,6 +13,7 @@ module.exports = {
 			},
 		],
 	},
+	ignorePatterns: ['package-lock.json', 'node_modules', 'client/dist'],
 	overrides: [
 		{
 			files: ['server/*.js', 'server/**/*.js'],
