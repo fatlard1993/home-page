@@ -12,10 +12,9 @@ const ColorPickerButton = styled(
 
 export default class CategoryDialog extends Dialog {
 	constructor({ category, ...rest }) {
-		const nameInput = new Input({ type: 'text', label: 'Name', value: category?.name || '', validations: [[/.+/, 'Required']] });
+		const nameInput = new Input({ type: 'text', value: category?.name || '', validations: [[/.+/, 'Required']] });
 
 		const colorPicker = new ColorPicker({
-			label: 'Color',
 			value: category?.color || 'random',
 			append: [
 				new ColorPickerButton({ textContent: 'Random', onPointerPress: () => colorPicker.set('random') }),
@@ -28,7 +27,7 @@ export default class CategoryDialog extends Dialog {
 		super({
 			size: 'large',
 			header: `${category ? 'Edit' : 'Create'} Category${category ? ` | ${category.name}` : ''}`,
-			body: [new Label('Name', nameInput), colorPicker],
+			body: [new Label('Name', nameInput), new Label('Color', colorPicker)],
 			buttons: conditionalList([{ alwaysItem: 'Save' }, { if: category, thenItem: 'Delete' }, { alwaysItem: 'Cancel' }]),
 			onButtonPress: ({ button }) => {
 				if (button === 'Save') {

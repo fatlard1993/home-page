@@ -12,11 +12,10 @@ const ColorPickerButton = styled(
 
 export default class BookmarkDialog extends Dialog {
 	constructor({ bookmark, category = {}, ...options }) {
-		const nameInput = new Input({ type: 'text', label: 'Name', value: bookmark?.name || '', validations: [[/.+/, 'Required']] });
-		const urlInput = new Input({ type: 'text', label: 'URL', value: bookmark?.url || '', validations: [[/.+/, 'Required']] });
+		const nameInput = new Input({ type: 'text', value: bookmark?.name || '', validations: [[/.+/, 'Required']] });
+		const urlInput = new Input({ type: 'text', value: bookmark?.url || '', validations: [[/.+/, 'Required']] });
 		const newCategoryInput = new Input({
 			type: 'text',
-			label: 'New Category',
 			style: { display: 'none' },
 			validations: [
 				[/.+/, 'Required'],
@@ -24,13 +23,11 @@ export default class BookmarkDialog extends Dialog {
 			],
 		});
 		const categorySelect = new Select({
-			label: 'Category',
 			options: ['Default', 'New', ...Object.keys(state.serverState?.categories || {}).map(id => ({ label: state.serverState?.categories?.[id]?.name, value: id }))],
 			value: bookmark?.category || category.id || 'Default',
 			onChange: ({ value }) => (newCategoryInput.elem.style.display = value === 'New' ? 'block' : 'none'),
 		});
 		const colorPicker = new ColorPicker({
-			label: 'Color',
 			value: bookmark?.color || 'random',
 			append: [
 				new ColorPickerButton({
@@ -86,7 +83,7 @@ export default class BookmarkDialog extends Dialog {
 		super({
 			size: 'large',
 			header: `${bookmark ? 'Edit' : 'Create'} Bookmark${bookmark ? ` | ${bookmark.name}` : ''}`,
-			body: [new Label('Name', nameInput), new Label('Url', urlInput), new Label('Category', categorySelect, newCategoryInput), colorPicker],
+			body: [new Label('Name', nameInput), new Label('Url', urlInput), new Label('Category', categorySelect, newCategoryInput), new Label('Color', colorPicker)],
 			buttons: conditionalList([{ alwaysItem: 'Save' }, { if: category, thenItem: 'Delete' }, { alwaysItem: 'Cancel' }]),
 			onButtonPress: ({ button }) => {
 				if (button === 'Save') {
