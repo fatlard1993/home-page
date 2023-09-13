@@ -14,7 +14,7 @@ export default class BookmarksToolbar extends Toolbar {
 						margin: 6px;
 						height: 2.4rem;
 					`,
-					onKeyUp: ({ key, target: { value } }) => {
+					onKeyUp: ({ key, value }) => {
 						debounceCallback(() => search(value), 700);
 
 						if (key === 'Enter') search(value);

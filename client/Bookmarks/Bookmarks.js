@@ -199,7 +199,7 @@ export class Bookmarks extends View {
 			return;
 		}
 
-		this.contextMenu?.remove();
+		this.contextMenu?.elem?.remove();
 	}
 
 	async search(term) {
