@@ -1,37 +1,34 @@
-import bookmarks from '../database/bookmarks.js';
+import bookmarks from '../database/bookmarks';
 
-const bookmarksRouter = ({ app }) => {
-	app.get('/bookmarks', function (request, response) {
-		response.json(bookmarks.read());
-	});
+import requestMatch from '../utils/requestMatch';
 
-	app.get('/bookmarks/:id', function (request, response) {
-		response.json(bookmarks.read({ id: request.params.id }));
-	});
+export default async request => {
+	let match;
 
-	app.post('/bookmarks', function (request, response) {
-		console.log(`Create bookmark: ${request.body.name}`, request.body);
+	match = requestMatch('GET', '/bookmarks', request);
+	if (match) return Response.json(bookmarks.read());
 
-		const id = bookmarks.create(request.body);
+	match = requestMatch('POST', '/bookmarks', request);
+	if (match) {
+		const { id } = bookmarks.create(await request.json());
 
-		response.json({ id });
-	});
+		return Response.json({ id });
+	}
 
-	app.put('/bookmarks/:id', function (request, response) {
-		console.log(`Update bookmark: ${request.params.id}`, request.body);
+	match = requestMatch('GET', '/bookmarks/:id', request);
+	if (match) return Response.json(bookmarks.read(match));
 
-		bookmarks.update({ id: request.params.id, update: request.body });
+	match = requestMatch('PUT', '/bookmarks/:id', request);
+	if (match) {
+		bookmarks.update({ ...match, update: await request.json() });
 
-		response.json({ id: request.params.id });
-	});
+		return Response.json(match);
+	}
 
-	app.delete('/bookmarks/:id', function (request, response) {
-		console.log(`Delete bookmark: ${request.params.id}`);
+	match = requestMatch('DELETE', '/bookmarks/:id', request);
+	if (match) {
+		bookmarks.delete(match);
 
-		bookmarks.delete({ id: request.params.id });
-
-		response.json({ id: request.params.id });
-	});
+		return Response.json(match);
+	}
 };
-
-export default bookmarksRouter;

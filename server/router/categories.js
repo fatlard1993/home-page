@@ -1,37 +1,34 @@
-import categories from '../database/categories.js';
+import categories from '../database/categories';
 
-const categoriesRouter = ({ app }) => {
-	app.get('/bookmarks/categories', function (request, response) {
-		response.json(categories.read());
-	});
+import requestMatch from '../utils/requestMatch';
 
-	app.get('/bookmarks/categories/:id', function (request, response) {
-		response.json(categories.read({ id: request.params.id }));
-	});
+export default async request => {
+	let match;
 
-	app.post('/bookmarks/categories', function (request, response) {
-		console.log(`Create category: ${request.body.name}`, request.body);
+	match = requestMatch('GET', '/categories', request);
+	if (match) return Response.json(categories.read());
 
-		const id = categories.create(request.body);
+	match = requestMatch('POST', '/categories', request);
+	if (match) {
+		const { id } = categories.create(await request.json());
 
-		response.json({ id });
-	});
+		return Response.json({ id });
+	}
 
-	app.put('/bookmarks/categories/:id', function (request, response) {
-		console.log(`Update category: ${request.params.id}`, request.body);
+	match = requestMatch('GET', '/categories/:id', request);
+	if (match) return Response.json(categories.read(match));
 
-		categories.update({ id: request.params.id, update: request.body });
+	match = requestMatch('PUT', '/categories/:id', request);
+	if (match) {
+		categories.update({ ...match, update: await request.json() });
 
-		response.json({ id: request.params.id });
-	});
+		return Response.json(match);
+	}
 
-	app.delete('/bookmarks/categories/:id', function (request, response) {
-		console.log(`Delete category${request.params.removeBookmarks ? ' and bookmarks' : ''}: ${request.params.id}`);
+	match = requestMatch('DELETE', '/categories/:id', request);
+	if (match) {
+		categories.delete(match);
 
-		categories.delete({ id: request.params.id, removeBookmarks: request.params.removeBookmarks });
-
-		response.json({ id: request.params.id });
-	});
+		return Response.json(match);
+	}
 };
-
-export default categoriesRouter;

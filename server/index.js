@@ -1,24 +1,17 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
 import os from 'os';
 import path from 'path';
 
-import express from 'express';
-
 import argi from 'argi';
 
-import { PORT } from '../constants.js';
+import database from './database';
+import server from './server';
 
-import database from './database/index.js';
-import router from './router/index.js';
-import exit from './exit.js';
+import './hotReload';
+import './exit';
 
 const { options } = argi.parse({
-	verbosity: {
-		type: 'number',
-		alias: 'v',
-		defaultValue: 1,
-	},
 	persistent: {
 		type: 'boolean',
 		alias: 'P',
@@ -34,18 +27,12 @@ const { options } = argi.parse({
 	port: {
 		type: 'number',
 		alias: 'p',
-		defaultValue: PORT,
+		defaultValue: 11571,
 	},
 });
 
 console.log('Options', options);
 
-const app = express();
-
-app.listen(options.port, () => console.log(`Server listening on port: ${options.port}`));
-
-router.init({ express, app });
-
 database.init({ persistent: options.persistent, path: options.database });
 
-exit.init();
+server.init({ port: options.port });

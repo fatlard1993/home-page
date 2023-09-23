@@ -1,80 +1,62 @@
 {
-	"name": "home-page",
-	"version": "2.4.4",
-	"type": "module",
-	"exports": {
-		"./package.json": "./package.json",
-		".": "./server/index.js"
-	},
-	"description": "A simple browser home page",
-	"author": "justfatlard",
-	"license": "ISC",
-	"engines": {
-		"node": ">=16.0.0"
-	},
-	"browserslist": [
-		"last 1 version",
-		"> 1%",
-		"not dead",
-		"not op_mini all"
-	],
-	"scripts": {
-		"prepare": "npm run build",
-		"start": "npm run dev",
-		"dev": "vite",
-		"build": "vite build client",
-		"build:preview": "vite preview",
-		"server": "node ./server/index.js",
-		"server:test": "npm run server -- -d ./test/db.json",
-		"lint": "eslint --ext .js .",
-		"lint:fix": "eslint --fix --ext .js .",
-		"pretty": "prettier .",
-		"pretty:fix": "prettier --write .",
-		"fix": "npm run lint:fix ; npm run pretty:fix",
-		"test": "npm run lint && vitest run",
-		"test:fix": "npm run fix && vitest run",
-		"test:force": "vitest run",
-		"test:dev": "vitest"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/fatlard1993/home-page.git"
-	},
-	"bugs": {
-		"url": "https://github.com/fatlard1993/home-page/issues"
-	},
-	"homepage": "https://github.com/fatlard1993/home-page#readme",
-	"dependencies": {
-		"@jspm/core": "github:jspm/core",
-		"argi": "github:fatlard1993/argi",
-		"augmented-ui": "^2.0.0",
-		"express": "^4.18.2",
-		"lowdb": "^6.0.1",
-		"nanoid": "^4.0.2",
-		"process": "^0.11.10",
-		"relevancy": "^0.2.0",
-		"sortablejs": "1.15.0",
-		"source-map-js": "^1.0.2",
-		"vanilla-bean-components": "github:fatlard1993/vanilla-bean-components#main"
-	},
-	"devDependencies": {
-		"@testing-library/dom": "^9.3.1",
-		"@testing-library/jest-dom": "^6.1.3",
-		"@vitejs/plugin-legacy": "^4.1.1",
-		"eslint": "^8.49.0",
-		"eslint-config-prettier": "^9.0.0",
-		"eslint-plugin-compat": "^4.2.0",
-		"eslint-plugin-import": "^2.28.1",
-		"eslint-plugin-prettier": "^5.0.0",
-		"eslint-plugin-spellcheck": "0.0.20",
-		"eslint-plugin-testing-library": "^6.0.1",
-		"eslint-plugin-unicorn": "^48.0.1",
-		"eslint-plugin-vitest": "0.3.1",
-		"eslint-plugin-vitest-globals": "^1.4.0",
-		"eslint-plugin-write-good-comments": "^0.2.0",
-		"jsdom": "^22.1.0",
-		"prettier": "3.0.3",
-		"vite": "^4.4.9",
-		"vitest": "^0.34.4"
-	}
+  "name": "home-page",
+  "version": "2.4.4",
+  "type": "module",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./server/index.js"
+  },
+  "description": "A simple browser home page",
+  "author": "justfatlard",
+  "license": "ISC",
+  "browserslist": [
+    "last 1 version",
+    "> 1%",
+    "not dead",
+    "not op_mini all"
+  ],
+  "scripts": {
+    "prepare": "bun run build",
+    "_build": "bun build client/index.js --outdir client/build --define 'process.env.AUTOPREFIXER_GRID=\"undefined\"'",
+    "build": "NODE_ENV=production bun run _build",
+    "build:dev": "bun run _build -- --watch",
+    "start": "NODE_ENV=production bun server/index.js",
+    "dev": "bun --hot server/index.js --port 9999",
+    "lint": "bun --bun eslint --ext .js .",
+    "lint:fix": "bun --bun eslint --fix --ext .js .",
+    "pretty": "bun --bun prettier .",
+    "pretty:fix": "bun --bun prettier --write .",
+    "fix": "bun run lint:fix ; bun run pretty:fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fatlard1993/home-page.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fatlard1993/home-page/issues"
+  },
+  "homepage": "https://github.com/fatlard1993/home-page#readme",
+  "dependencies": {
+    "argi": "github:fatlard1993/argi",
+    "lowdb": "^6.0.1",
+    "nanoid": "^4.0.2",
+    "relevancy": "^0.2.0",
+    "vanilla-bean-components": "github:fatlard1993/vanilla-bean-components#main"
+  },
+  "devDependencies": {
+    "@happy-dom/global-registrator": "^12.1.5",
+    "@testing-library/dom": "^9.3.1",
+    "@testing-library/jest-dom": "^6.1.3",
+    "bun-types": "^1.0.2",
+    "eslint": "^8.49.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-compat": "^4.2.0",
+    "eslint-plugin-import": "^2.28.1",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-spellcheck": "0.0.20",
+    "eslint-plugin-testing-library": "^6.0.1",
+    "eslint-plugin-unicorn": "^48.0.1",
+    "eslint-plugin-write-good-comments": "^0.2.0",
+    "prettier": "3.0.3"
+  }
 }
