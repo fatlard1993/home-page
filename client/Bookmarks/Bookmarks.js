@@ -63,7 +63,7 @@ export class Bookmarks extends View {
 				new BookmarksContainer({
 					appendTo: this.content,
 					heading: 'Search Results',
-					bookmarks: suggestions.map(search => ({
+					bookmarks: suggestions.slice(0, 5).map(search => ({
 						name: search,
 						url: search,
 						onContextMenu: event => {
