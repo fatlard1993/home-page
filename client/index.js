@@ -10,6 +10,14 @@ window.process = process;
 
 state.router = router;
 
+document.addEventListener('keypress', event => {
+	if (!state.searchElem) state.search += event.key;
+	else if (event.key === '/') {
+		event.preventDefault();
+		state.searchElem.focus();
+	}
+});
+
 new Page({
 	styles: ({ colors }) => `
 		color: ${colors.lightest(colors.gray)};
