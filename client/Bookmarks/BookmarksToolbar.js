@@ -30,6 +30,7 @@ export default class BookmarksToolbar extends Toolbar {
 		setTimeout(() => {
 			this.search.value = state.search;
 			this.search.elem.focus();
+			if (state.search.length > 0) options.search(state.search);
 			state.searchElem = this.search.elem;
 		}, 100);
 

@@ -12,7 +12,7 @@ state.router = router;
 
 document.addEventListener('keypress', event => {
 	if (!state.searchElem) state.search += event.key;
-	else if (event.key === '/') {
+	else if (event.key === '/' && document.activeElement !== state.searchElem) {
 		event.preventDefault();
 		state.searchElem.focus();
 	}

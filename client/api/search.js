@@ -1,3 +1,3 @@
 import { GET } from './util';
 
-export const getSearchResults = async (term, options) => await GET(`/search/${term}`, options);
+export const getSearchResults = async (term, options) => await GET(`/search/${encodeURIComponent(term)}`, options);
