@@ -27,7 +27,7 @@ const { options } = argi.parse({
 	port: {
 		type: 'number',
 		alias: 'p',
-		defaultValue: 11571,
+		defaultValue: 8033,
 	},
 });
 

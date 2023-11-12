@@ -84,7 +84,7 @@ export default class BookmarkDialog extends Dialog {
 			size: 'large',
 			header: `${bookmark ? 'Edit' : 'Create'} Bookmark${bookmark ? ` | ${bookmark.name}` : ''}`,
 			body: [new Label('Name', nameInput), new Label('Url', urlInput), new Label('Category', categorySelect, newCategoryInput), new Label('Color', colorPicker)],
-			buttons: conditionalList([{ alwaysItem: 'Save' }, { if: category, thenItem: 'Delete' }, { alwaysItem: 'Cancel' }]),
+			buttons: conditionalList([{ alwaysItem: 'Save' }, { if: bookmark, thenItem: 'Delete' }, { alwaysItem: 'Cancel' }]),
 			onButtonPress: ({ button }) => {
 				if (button === 'Save') {
 					const validationErrors = [...nameInput.validate(), ...urlInput.validate(), ...(categorySelect.value === 'New' ? newCategoryInput.validate() : [])];
