@@ -11,7 +11,7 @@ const ColorPickerButton = styled(
 );
 
 export default class CategoryDialog extends Dialog {
-	constructor({ category, ...rest }) {
+	constructor({ category, ...options } = {}) {
 		const nameInput = new Input({ type: 'text', value: category?.name || '', validations: [[/.+/, 'Required']] });
 
 		const colorPicker = new ColorPicker({
@@ -59,7 +59,7 @@ export default class CategoryDialog extends Dialog {
 
 				this.close();
 			},
-			...rest,
+			...options,
 		});
 	}
 }

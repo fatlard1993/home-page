@@ -1,5 +1,5 @@
 import uFuzzy from '@leeoniya/ufuzzy';
-import { View, NoData, Overlay, Menu } from 'vanilla-bean-components';
+import { View, NoData } from 'vanilla-bean-components';
 
 import { deleteBookmark, deleteCategory, getBookmarks, getSearchResults } from '../api';
 
@@ -10,6 +10,7 @@ import CategoryDialog from './CategoryDialog';
 import BookmarkDialog from './BookmarkDialog';
 import BookmarksToolbar from './BookmarksToolbar';
 import BookmarksContainer from './BookmarksContainer';
+import ContextMenu from './ContextMenu';
 
 import { fixLink, copyToClipboard } from './util';
 
@@ -18,28 +19,25 @@ const fuzzy = new uFuzzy({ intraMode: 1, intraIns: 3, intraSub: 1, intraTrn: 1, 
 export class Bookmarks extends View {
 	constructor(options) {
 		super({
-			onContextMenu: event => {
-				event.stop();
-
-				this.showContextMenu({
-					x: event.clientX,
-					y: event.clientY,
-				});
-			},
+			onContextMenu: event => this.showContextMenu({ event }),
 			...options,
 		});
 
-		this.onPointerUp(this.hideContextMenu);
+		this.onPointerUp(() => {
+			this.toolbar?.contextMenu?.hide();
+
+			if (this.contextMenu?.opened) this.contextMenu?.hide();
+
+			this.contextMenu.opened = true;
+		});
 	}
 
 	async render(options = this.options) {
 		super.render(options);
 
-		const appendTo = this.elem;
+		this.toolbar = new BookmarksToolbar({ appendTo: this.elem, search: this.search.bind(this) });
 
-		this.toolbar = new BookmarksToolbar({ appendTo, search: this.search.bind(this) });
-
-		this.content = new Content({ appendTo });
+		this.content = new Content({ appendTo: this.elem });
 
 		this.options.bookmarks = await getBookmarks();
 	}
@@ -69,20 +67,16 @@ export class Bookmarks extends View {
 					bookmarks: suggestions.slice(0, 5).map(search => ({
 						name: search,
 						url: search,
-						onContextMenu: event => {
-							event.stop();
-
+						onContextMenu: event =>
 							this.showContextMenu({
-								x: event.clientX,
-								y: event.clientY,
+								event,
 								items: [
 									{
 										textContent: `Bookmark ${search}`,
-										onPointerPress: () => new BookmarkDialog({ appendTo: this.elem, bookmark: { name: search, url: fixLink(search) } }),
+										onPointerPress: () => new BookmarkDialog({ bookmark: { name: search, url: fixLink(search) } }),
 									},
 								],
-							});
-						},
+							}),
 					})),
 				});
 			}
@@ -105,20 +99,17 @@ export class Bookmarks extends View {
 						heading: category.name,
 						onContextMenu:
 							categoryId &&
-							(event => {
-								event.stop();
-
+							(event =>
 								this.showContextMenu({
-									x: event.clientX,
-									y: event.clientY,
+									event,
 									items: [
 										{
 											textContent: `Add Bookmark to ${category.name}`,
-											onPointerPress: () => new BookmarkDialog({ category, appendTo: this.elem }),
+											onPointerPress: () => new BookmarkDialog({ category }),
 										},
 										{
 											textContent: `Edit ${category.name}`,
-											onPointerPress: () => new CategoryDialog({ appendTo: this.elem, category }),
+											onPointerPress: () => new CategoryDialog({ category }),
 										},
 										{
 											textContent: `Delete ${category.name}`,
@@ -127,22 +118,18 @@ export class Bookmarks extends View {
 											},
 										},
 									],
-								});
-							}),
+								})),
 						bookmarks: filteredBookmarks
 							.filter(id => bookmarks[id].category === categoryId || (!categoryId && !categories[bookmarks[id].category]))
 							.map(id => ({
 								...bookmarks[id],
-								onContextMenu: event => {
-									event.stop();
-
+								onContextMenu: event =>
 									this.showContextMenu({
-										x: event.clientX,
-										y: event.clientY,
+										event,
 										items: [
 											{
 												textContent: `Edit ${bookmarks[id].name}`,
-												onPointerPress: () => new BookmarkDialog({ appendTo: this.elem, bookmark: bookmarks[id] }),
+												onPointerPress: () => new BookmarkDialog({ bookmark: bookmarks[id] }),
 											},
 											{
 												textContent: `Delete ${bookmarks[id].name}`,
@@ -157,8 +144,7 @@ export class Bookmarks extends View {
 												},
 											},
 										],
-									});
-								},
+									}),
 							})),
 					});
 				}),
@@ -166,57 +152,30 @@ export class Bookmarks extends View {
 		}
 	}
 
-	showContextMenu({ x, y, items = [] }) {
-		this.hideContextMenu();
+	showContextMenu({ items = [], event, ...options }) {
+		event.preventDefault();
+		event.stopPropagation();
+
+		this.contextMenu?.hide();
 
 		items.push(
 			{
 				textContent: 'Add Bookmark',
-				onPointerPress: () => new BookmarkDialog({ appendTo: this.elem }),
+				onPointerPress: () => new BookmarkDialog(),
 			},
 			{
 				textContent: 'Add Category',
-				onPointerPress: () => new CategoryDialog({ appendTo: this.elem }),
+				onPointerPress: () => new CategoryDialog(),
 			},
 		);
 
-		const maxWidth = 240;
-		const itemHeight = 36;
-		const pastRight = x + maxWidth >= document.body.clientWidth;
-		const pastBottom = y + items.length * itemHeight >= document.body.clientHeight;
-
-		this.openingContextMenu = true;
-		this.contextMenu = new Overlay({
+		this.contextMenu = new ContextMenu({
 			appendTo: this.elem,
-			styles: () => `
-				max-width: ${maxWidth}px;
-				top: ${pastBottom ? 'unset' : `${y}px`};
-				bottom: ${pastBottom ? `${document.body.clientHeight - y}px` : 'unset'};
-				left: ${pastRight ? 'unset' : `${x}px`};
-				right: ${pastRight ? `${document.body.clientWidth - x}px` : 'unset'};
-			`,
-			append: new Menu({
-				styles: () => `
-					li {
-						white-space: nowrap;
-						overflow: hidden;
-						text-overflow: ellipsis;
-					}
-				`,
-				items,
-			}),
+			x: event.clientX,
+			y: event.clientY,
+			...options,
+			items,
 		});
-
-		setTimeout(() => (this.openingContextMenu = false), 300);
-	}
-
-	hideContextMenu() {
-		if (this.openingContextMenu) {
-			this.openingContextMenu = false;
-			return;
-		}
-
-		this.contextMenu?.elem?.remove();
 	}
 
 	async search(term) {
