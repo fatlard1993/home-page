@@ -11,7 +11,7 @@ const ColorPickerButton = styled(
 );
 
 export default class BookmarkDialog extends Dialog {
-	constructor({ bookmark, category = {}, ...options }) {
+	constructor({ bookmark, category = {}, ...options } = {}) {
 		const nameInput = new Input({ type: 'text', value: bookmark?.name || '', validations: [[/.+/, 'Required']] });
 		const urlInput = new Input({ type: 'text', value: bookmark?.url || '', validations: [[/.+/, 'Required']] });
 		const newCategoryInput = new Input({
