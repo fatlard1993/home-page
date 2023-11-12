@@ -10,3 +10,11 @@ export const fixLink = url => {
 
 	return url;
 };
+
+export const copyToClipboard = text => {
+	if (!isSecureContext) return false;
+
+	navigator.clipboard.writeText(text);
+
+	return true;
+};

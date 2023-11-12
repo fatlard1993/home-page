@@ -1,3 +1,4 @@
+import uFuzzy from '@leeoniya/ufuzzy';
 import { View, NoData, Overlay, Menu } from 'vanilla-bean-components';
 
 import { deleteBookmark, deleteCategory, getBookmarks, getSearchResults } from '../api';
@@ -10,7 +11,9 @@ import BookmarkDialog from './BookmarkDialog';
 import BookmarksToolbar from './BookmarksToolbar';
 import BookmarksContainer from './BookmarksContainer';
 
-import { fixLink } from './util';
+import { fixLink, copyToClipboard } from './util';
+
+const fuzzy = new uFuzzy({ intraMode: 1, intraIns: 3, intraSub: 1, intraTrn: 1, intraDel: 1 });
 
 export class Bookmarks extends View {
 	constructor(options) {
@@ -52,7 +55,7 @@ export class Bookmarks extends View {
 	renderContent(serverState = this.options.serverState) {
 		state.serverState = serverState;
 
-		const { bookmarkIds, bookmarks, suggestions, categories, term } = serverState;
+		const { bookmarkIds, bookmarks, suggestions, categories, term = '' } = serverState;
 
 		this.content.empty();
 
@@ -83,6 +86,15 @@ export class Bookmarks extends View {
 					})),
 				});
 			}
+
+			const filteredNames = new Set(
+				fuzzy.filter(
+					bookmarkIds.map(id => bookmarks[id].name),
+					term,
+				),
+			);
+
+			const filteredBookmarks = bookmarkIds.filter((id, index) => !term || filteredNames.has(index));
 
 			this.content.append(
 				[undefined, ...Object.keys(categories)].map(categoryId => {
@@ -117,9 +129,8 @@ export class Bookmarks extends View {
 									],
 								});
 							}),
-						bookmarks: bookmarkIds
+						bookmarks: filteredBookmarks
 							.filter(id => bookmarks[id].category === categoryId || (!categoryId && !categories[bookmarks[id].category]))
-							.filter(id => !term || bookmarks[id].name.toLowerCase().includes(term.toLowerCase()))
 							.map(id => ({
 								...bookmarks[id],
 								onContextMenu: event => {
@@ -137,6 +148,12 @@ export class Bookmarks extends View {
 												textContent: `Delete ${bookmarks[id].name}`,
 												onPointerPress: () => {
 													deleteBookmark(id).then(() => this.render());
+												},
+											},
+											{
+												textContent: 'Copy To Clipboard',
+												onPointerPress: () => {
+													copyToClipboard(bookmarks[id].url);
 												},
 											},
 										],

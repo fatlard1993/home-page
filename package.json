@@ -21,7 +21,7 @@
     "build": "NODE_ENV=production bun run _build",
     "build:dev": "bun run _build -- --watch",
     "start": "NODE_ENV=production bun server/index.js",
-    "dev": "bun --hot server/index.js --port 9999",
+    "dev": "bun --hot server/index.js",
     "lint": "bun --bun eslint --ext .js .",
     "lint:fix": "bun --bun eslint --fix --ext .js .",
     "pretty": "bun --bun prettier .",
@@ -37,10 +37,10 @@
   },
   "homepage": "https://github.com/fatlard1993/home-page#readme",
   "dependencies": {
+    "@leeoniya/ufuzzy": "^1.0.10",
     "argi": "github:fatlard1993/argi",
     "lowdb": "^6.0.1",
     "nanoid": "^4.0.2",
-    "relevancy": "^0.2.0",
     "vanilla-bean-components": "github:fatlard1993/vanilla-bean-components#main"
   },
   "devDependencies": {
