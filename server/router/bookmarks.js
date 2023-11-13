@@ -9,26 +9,22 @@ export default async request => {
 	if (match) return Response.json(bookmarks.read());
 
 	match = requestMatch('POST', '/bookmarks', request);
-	if (match) {
-		const { id } = bookmarks.create(await request.json());
-
-		return Response.json({ id });
-	}
+	if (match) return Response.json(bookmarks.create(await request.json()), { status: 201 });
 
 	match = requestMatch('GET', '/bookmarks/:id', request);
-	if (match) return Response.json(bookmarks.read(match));
+	if (match) {
+		const item = bookmarks.read(match);
+
+		return item ? Response.json(item) : new Response(null, { status: 404 });
+	}
 
 	match = requestMatch('PUT', '/bookmarks/:id', request);
 	if (match) {
-		bookmarks.update({ ...match, update: await request.json() });
+		const item = bookmarks.update({ ...match, update: await request.json() });
 
-		return Response.json(match);
+		return item ? Response.json(item) : new Response(null, { status: 404 });
 	}
 
 	match = requestMatch('DELETE', '/bookmarks/:id', request);
-	if (match) {
-		bookmarks.delete(match);
-
-		return Response.json(match);
-	}
+	if (match) return new Response(null, { status: bookmarks.delete(match) ? 204 : 404 });
 };

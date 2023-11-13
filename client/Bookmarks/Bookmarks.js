@@ -1,9 +1,7 @@
 import uFuzzy from '@leeoniya/ufuzzy';
 import { View, NoData } from 'vanilla-bean-components';
 
-import { deleteBookmark, deleteCategory, getBookmarks, getSearchResults } from '../api';
-
-import state from '../state';
+import { deleteBookmark, deleteCategory, getBookmarks, getCategories, getSearchResults } from '../api';
 
 import { Content } from '../Layout';
 import CategoryDialog from './CategoryDialog';
@@ -14,9 +12,9 @@ import ContextMenu from './ContextMenu';
 
 import { fixLink, copyToClipboard } from './util';
 
-const fuzzy = new uFuzzy({ intraMode: 1, intraIns: 3, intraSub: 1, intraTrn: 1, intraDel: 1 });
+const fuzzy = new uFuzzy({ intraMode: 1, intraIns: 5, intraSub: 1, intraTrn: 1, intraDel: 1 });
 
-export class Bookmarks extends View {
+export default class Bookmarks extends View {
 	constructor(options) {
 		super({
 			onContextMenu: event => this.showContextMenu({ event }),
@@ -26,7 +24,9 @@ export class Bookmarks extends View {
 		this.onPointerUp(() => {
 			this.toolbar?.contextMenu?.hide();
 
-			if (this.contextMenu?.opened) this.contextMenu?.hide();
+			if (!this.contextMenu) return;
+
+			if (this.contextMenu.opened) this.contextMenu.hide();
 
 			this.contextMenu.opened = true;
 		});
@@ -39,21 +39,23 @@ export class Bookmarks extends View {
 
 		this.content = new Content({ appendTo: this.elem });
 
-		this.options.bookmarks = await getBookmarks();
+		this.renderContent();
 	}
 
 	setOption(key, value) {
-		if (key === 'bookmarks') {
-			this.renderContent(value);
+		if (key === 'categories' || key === 'bookmarks') {
+			return;
 		} else if (key === 'search') {
-			this.renderContent({ ...this.options.bookmarks, suggestions: value.suggestions, term: value.term });
+			this.renderContent();
 		} else super.setOption(key, value);
 	}
 
-	renderContent(serverState = this.options.serverState) {
-		state.serverState = serverState;
+	async renderContent() {
+		const categories = (await getCategories({ onRefetch: this.renderContent.bind(this) })).body;
+		const bookmarks = (await getBookmarks({ onRefetch: this.renderContent.bind(this) })).body;
 
-		const { bookmarkIds, bookmarks, suggestions, categories, term = '' } = serverState;
+		const { suggestions, term = '' } = this.options?.search || {};
+		const bookmarkIds = Object.keys(bookmarks);
 
 		this.content.empty();
 
@@ -181,7 +183,9 @@ export class Bookmarks extends View {
 	async search(term) {
 		if (!term) return (this.options.search = { suggestions: [], term });
 
-		const { suggestions } = await getSearchResults(term);
+		const {
+			body: { suggestions },
+		} = await getSearchResults(term);
 
 		this.options.search = { suggestions, term };
 	}

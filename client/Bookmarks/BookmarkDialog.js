@@ -1,7 +1,5 @@
 import { Dialog, Input, Button, ColorPicker, Select, Label, conditionalList, styled } from 'vanilla-bean-components';
-import { createBookmark, deleteBookmark, updateBookmark } from '../api';
-
-import state from '../state';
+import { createBookmark, deleteBookmark, updateBookmark, getCategories } from '../api';
 
 const ColorPickerButton = styled(
 	Button,
@@ -11,10 +9,53 @@ const ColorPickerButton = styled(
 );
 
 export default class BookmarkDialog extends Dialog {
-	constructor({ bookmark, category = {}, ...options } = {}) {
-		const nameInput = new Input({ type: 'text', value: bookmark?.name || '', validations: [[/.+/, 'Required']] });
-		const urlInput = new Input({ type: 'text', value: bookmark?.url || '', validations: [[/.+/, 'Required']] });
-		const newCategoryInput = new Input({
+	constructor(options = {}) {
+		super({
+			size: 'large',
+			header: `${options.bookmark ? 'Edit' : 'Create'} Bookmark${options.bookmark ? ` | ${options.bookmark.name}` : ''}`,
+			buttons: conditionalList([{ alwaysItem: 'Save' }, { if: options.bookmark, thenItem: 'Delete' }, { alwaysItem: 'Cancel' }]),
+			onButtonPress: ({ button }) => {
+				if (button === 'Save') {
+					const validationErrors = [...this.nameInput.validate(), ...this.urlInput.validate(), ...(this.categorySelect.value === 'New' ? this.newCategoryInput.validate() : [])];
+
+					if (validationErrors.length > 0) return;
+
+					const color = this.colorPicker.value;
+					const recentColors = [...new Set([color, ...(JSON.parse(localStorage.getItem('recentColors')) || [])])];
+
+					recentColors.length = Math.min(recentColors.length, 10);
+
+					localStorage.setItem('recentColors', JSON.stringify(recentColors));
+
+					let category = this.categorySelect.value;
+
+					if (category === 'Default') category = '';
+					else if (category === 'New') category = this.newCategoryInput.value;
+
+					if (this.options.bookmark) {
+						updateBookmark(this.options.bookmark.id, { body: { name: this.nameInput.elem.value, url: this.urlInput.elem.value, category, color } });
+					} else {
+						createBookmark({ body: { name: this.nameInput.elem.value, url: this.urlInput.elem.value, category, color } });
+					}
+				} else if (button === 'Delete') {
+					deleteBookmark(this.options.bookmark.id);
+				}
+
+				this.close();
+			},
+			...options,
+		});
+	}
+
+	async render(options = this.options) {
+		super.render(options);
+
+		const { body: categories } = await getCategories();
+		const { bookmark, category } = this.options;
+
+		this.nameInput = new Input({ type: 'text', value: bookmark?.name || '', validations: [[/.+/, 'Required']] });
+		this.urlInput = new Input({ type: 'text', value: bookmark?.url || '', validations: [[/.+/, 'Required']] });
+		this.newCategoryInput = new Input({
 			type: 'text',
 			style: { display: 'none' },
 			validations: [
@@ -22,12 +63,12 @@ export default class BookmarkDialog extends Dialog {
 				[value => value !== 'New' && value !== 'Default', value => `Must not be reserved name: ${value}`],
 			],
 		});
-		const categorySelect = new Select({
-			options: ['Default', 'New', ...Object.keys(state.serverState?.categories || {}).map(id => ({ label: state.serverState?.categories?.[id]?.name, value: id }))],
-			value: bookmark?.category || category.id || 'Default',
-			onChange: ({ value }) => (newCategoryInput.elem.style.display = value === 'New' ? 'block' : 'none'),
+		this.categorySelect = new Select({
+			options: ['Default', 'New', ...Object.keys(categories).map(id => ({ label: categories?.[id]?.name, value: id }))],
+			value: bookmark?.category || category?.id || 'Default',
+			onChange: ({ value }) => (this.newCategoryInput.elem.style.display = value === 'New' ? 'block' : 'none'),
 		});
-		const colorPicker = new ColorPicker({
+		this.colorPicker = new ColorPicker({
 			value: bookmark?.color || 'random',
 			append: [
 				new ColorPickerButton({
@@ -64,7 +105,7 @@ export default class BookmarkDialog extends Dialog {
 							}
 						}
 					`,
-					onPointerPress: () => colorPicker.set('random'),
+					onPointerPress: () => this.colorPicker.set('random'),
 				}),
 				...(JSON.parse(localStorage.getItem('recentColors')) || []).map(
 					backgroundColor =>
@@ -74,53 +115,12 @@ export default class BookmarkDialog extends Dialog {
 								background: ${backgroundColor};
 								color: ${colors.mostReadable(backgroundColor, [colors.white, colors.black])}
 							`,
-							onPointerPress: () => colorPicker.set(backgroundColor),
+							onPointerPress: () => this.colorPicker.set(backgroundColor),
 						}),
 				),
 			],
 		});
 
-		super({
-			size: 'large',
-			header: `${bookmark ? 'Edit' : 'Create'} Bookmark${bookmark ? ` | ${bookmark.name}` : ''}`,
-			body: [new Label('Name', nameInput), new Label('Url', urlInput), new Label('Category', categorySelect, newCategoryInput), new Label('Color', colorPicker)],
-			buttons: conditionalList([{ alwaysItem: 'Save' }, { if: bookmark, thenItem: 'Delete' }, { alwaysItem: 'Cancel' }]),
-			onButtonPress: ({ button }) => {
-				if (button === 'Save') {
-					const validationErrors = [...nameInput.validate(), ...urlInput.validate(), ...(categorySelect.value === 'New' ? newCategoryInput.validate() : [])];
-
-					if (validationErrors.length > 0) return;
-
-					const color = colorPicker.value;
-					const recentColors = [...new Set([color, ...(JSON.parse(localStorage.getItem('recentColors')) || [])])];
-
-					recentColors.length = Math.min(recentColors.length, 10);
-
-					localStorage.setItem('recentColors', JSON.stringify(recentColors));
-
-					let category = categorySelect.value;
-
-					if (category === 'Default') category = '';
-					else if (category === 'New') category = newCategoryInput.value;
-
-					if (bookmark) {
-						updateBookmark(bookmark.id, { body: { name: nameInput.elem.value, url: urlInput.elem.value, category, color } }).then(() => {
-							state.router?.renderView();
-						});
-					} else {
-						createBookmark({ body: { name: nameInput.elem.value, url: urlInput.elem.value, category, color } }).then(() => {
-							state.router?.renderView();
-						});
-					}
-				} else if (button === 'Delete') {
-					deleteBookmark(bookmark.id).then(() => {
-						state.router?.renderView();
-					});
-				}
-
-				this.close();
-			},
-			...options,
-		});
+		this._body.content([new Label('Name', this.nameInput), new Label('Url', this.urlInput), new Label('Category', this.categorySelect, this.newCategoryInput), new Label('Color', this.colorPicker)]);
 	}
 }

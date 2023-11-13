@@ -1,44 +1,51 @@
 import { nanoid } from 'nanoid';
 
 import categories from './categories.js';
-import database from './index.js';
+import database from '.';
 
 const bookmarks = {
+	get data() {
+		return database.db.data.bookmarks;
+	},
 	create(data) {
 		const id = nanoid(6);
 
-		if (data.category && !database.db.data.categories[data.category]) {
+		if (data.category && !categories.data[data.category]) {
 			data.category = categories.create({ name: data.category });
 		}
 
-		database.db.data.bookmarks[id] = Object.assign({ id, name: '', url: '', color: '', category: '' }, data);
+		const newBookmark = { name: '', url: '', color: '', category: '', ...data, id };
+
+		bookmarks.data[id] = newBookmark;
 
 		database.db.write();
 
-		return id;
+		return newBookmark;
 	},
 	read({ id } = {}) {
-		if (id) return database.db.data.bookmarks[id];
+		if (id) return bookmarks.data[id] || false;
 
-		return {
-			bookmarkIds: Object.keys(database.db.data.bookmarks),
-			bookmarks: database.db.data.bookmarks,
-			categories: database.db.data.categories,
-		};
+		return bookmarks.data;
 	},
 	update({ id, update }) {
-		if (update.category && !database.db.data.categories[update.category]) {
+		if (!bookmarks.data[id]) return false;
+
+		if (update.category && !categories.data[update.category]) {
 			update.category = categories.create({ name: update.category });
 		}
 
-		database.db.data.bookmarks[id] = Object.assign(database.db.data.bookmarks[id], update);
+		const newBookmark = { ...bookmarks.data[id], ...update };
+
+		bookmarks.data[id] = newBookmark;
 
 		database.db.write();
 
-		return id;
+		return newBookmark;
 	},
 	delete({ id }) {
-		delete database.db.data.bookmarks[id];
+		if (!bookmarks.data[id]) return false;
+
+		delete bookmarks.data[id];
 
 		database.db.write();
 
