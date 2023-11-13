@@ -1,31 +1,41 @@
 import { nanoid } from 'nanoid';
 
-import database from './index.js';
+import database from '.';
 
 const categories = {
-	create(data) {
-		const id = nanoid(6);
-
-		database.db.data.categories[id] = Object.assign({ id, name: '', color: '' }, data);
-
-		database.db.write();
-
-		return id;
-	},
-	read({ id } = {}) {
-		if (id) return database.db.data.categories[id];
-
+	get data() {
 		return database.db.data.categories;
 	},
-	update({ id, update }) {
-		database.db.data.categories[id] = Object.assign(database.db.data.categories[id], update);
+	create(data) {
+		const id = nanoid(6);
+		const newCategory = { name: '', color: '', ...data, id };
+
+		categories.data[id] = newCategory;
 
 		database.db.write();
 
-		return id;
+		return newCategory;
+	},
+	read({ id } = {}) {
+		if (id) return categories.data[id] || false;
+
+		return categories.data;
+	},
+	update({ id, update }) {
+		if (!categories.data[id]) return false;
+
+		const newCategory = { ...categories.data[id], ...update };
+
+		categories.data[id] = newCategory;
+
+		database.db.write();
+
+		return newCategory;
 	},
 	delete({ id, removeBookmarks = false }) {
-		delete database.db.data.categories[id];
+		if (!categories.data[id]) return false;
+
+		delete categories.data[id];
 
 		Object.keys(database.db.data.bookmarks).forEach(bookmarkId => {
 			if (database.db.data.bookmarks[bookmarkId].category === id) {

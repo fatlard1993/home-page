@@ -6,29 +6,25 @@ export default async request => {
 	let match;
 
 	match = requestMatch('GET', '/categories', request);
-	if (match) return Response.json(categories.read());
+	if (match) return Response.json(categories.read(match));
 
 	match = requestMatch('POST', '/categories', request);
-	if (match) {
-		const { id } = categories.create(await request.json());
-
-		return Response.json({ id });
-	}
+	if (match) return Response.json(categories.create(await request.json()), { status: 201 });
 
 	match = requestMatch('GET', '/categories/:id', request);
-	if (match) return Response.json(categories.read(match));
+	if (match) {
+		const item = categories.read(match);
+
+		return item ? Response.json(item) : new Response(null, { status: 404 });
+	}
 
 	match = requestMatch('PUT', '/categories/:id', request);
 	if (match) {
-		categories.update({ ...match, update: await request.json() });
+		const item = categories.update({ ...match, update: await request.json() });
 
-		return Response.json(match);
+		return item ? Response.json(item) : new Response(null, { status: 404 });
 	}
 
 	match = requestMatch('DELETE', '/categories/:id', request);
-	if (match) {
-		categories.delete(match);
-
-		return Response.json(match);
-	}
+	if (match) return new Response(null, { status: categories.delete(match) ? 204 : 404 });
 };
