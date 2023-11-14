@@ -1,3 +1,3 @@
 module.exports = {
-	skipWords: ['localhost', 'ip', 'nanoid', 'argi', 'os', 'homedir', 'usr'],
+	skipWords: ['localhost', 'ip', 'nanoid', 'argi', 'os', 'homedir', 'usr', 'intra', 'Trn'],
 };
