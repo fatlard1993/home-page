@@ -18,7 +18,7 @@ export default async request => {
 		return item ? Response.json(item) : new Response(null, { status: 404 });
 	}
 
-	match = requestMatch('PUT', '/bookmarks/:id', request);
+	match = requestMatch('PATCH', '/bookmarks/:id', request);
 	if (match) {
 		const item = bookmarks.update({ ...match, update: await request.json() });
 

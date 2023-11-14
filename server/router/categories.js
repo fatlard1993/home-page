@@ -18,7 +18,7 @@ export default async request => {
 		return item ? Response.json(item) : new Response(null, { status: 404 });
 	}
 
-	match = requestMatch('PUT', '/categories/:id', request);
+	match = requestMatch('PATCH', '/categories/:id', request);
 	if (match) {
 		const item = categories.update({ ...match, update: await request.json() });
 
