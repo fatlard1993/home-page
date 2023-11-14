@@ -1,6 +1,6 @@
 import { findByRole } from '@testing-library/dom';
 
-import { Bookmarks } from './Bookmarks';
+import Bookmarks from './Bookmarks';
 
 describe.skip('Bookmarks', () => {
 	test('must render', async () => {
