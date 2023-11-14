@@ -89,4 +89,6 @@ export const POST = async (url, options = {}) => await request(url, { method: 'P
 
 export const PUT = async (url, options = {}) => await request(url, { method: 'PUT', ...options });
 
+export const PATCH = async (url, options = {}) => await request(url, { method: 'PATCH', ...options });
+
 export const DELETE = async (url, options = {}) => await request(url, { method: 'DELETE', ...options });
