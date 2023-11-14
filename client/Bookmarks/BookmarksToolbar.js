@@ -1,4 +1,4 @@
-import { Button, Search, debounceCallback } from 'vanilla-bean-components';
+import { Button, Search, debounce } from 'vanilla-bean-components';
 
 import state from '../state';
 
@@ -11,6 +11,8 @@ export default class BookmarksToolbar extends Toolbar {
 	async render(options = this.options) {
 		super.render(options);
 
+		const debouncedSearch = debounce(this.search.bind(this));
+
 		this.search = new Search({
 			appendTo: this.elem,
 			styles: () => `
@@ -21,7 +23,7 @@ export default class BookmarksToolbar extends Toolbar {
 			`,
 			value: state.search,
 			onKeyUp: ({ key, value }) => {
-				debounceCallback(() => options.search(value), 500);
+				debouncedSearch(value);
 
 				if (key === 'Enter') options.search(value);
 			},

@@ -35,7 +35,7 @@ export default class Bookmarks extends View {
 	async render(options = this.options) {
 		super.render(options);
 
-		this.toolbar = new BookmarksToolbar({ appendTo: this.elem, search: this.search.bind(this) });
+		this.toolbar = new BookmarksToolbar({ appendTo: this.elem, search: term => (this.options.search = term) });
 
 		this.content = new Content({ appendTo: this.elem });
 
@@ -51,10 +51,12 @@ export default class Bookmarks extends View {
 	}
 
 	async renderContent() {
+		const searchTerm = this.options.search;
+
 		const categories = (await getCategories({ onRefetch: this.renderContent.bind(this) })).body;
 		const bookmarks = (await getBookmarks({ onRefetch: this.renderContent.bind(this) })).body;
+		const suggestions = (await getSearchResults(searchTerm, { onRefetch: this.renderContent.bind(this) })).body;
 
-		const { suggestions, term = '' } = this.options?.search || {};
 		const bookmarkIds = Object.keys(bookmarks);
 
 		this.content.empty();
@@ -83,14 +85,16 @@ export default class Bookmarks extends View {
 				});
 			}
 
-			const filteredNames = new Set(
-				fuzzy.filter(
-					bookmarkIds.map(id => bookmarks[id].name),
-					term,
-				),
-			);
+			const filteredNames =
+				searchTerm &&
+				new Set(
+					fuzzy.filter(
+						bookmarkIds.map(id => bookmarks[id].name),
+						searchTerm,
+					),
+				);
 
-			const filteredBookmarks = bookmarkIds.filter((id, index) => !term || filteredNames.has(index));
+			const filteredBookmarks = searchTerm ? bookmarkIds.filter((id, index) => filteredNames.has(index)) : bookmarkIds;
 
 			this.content.append(
 				[undefined, ...Object.keys(categories)].map(categoryId => {
@@ -178,15 +182,5 @@ export default class Bookmarks extends View {
 			...options,
 			items,
 		});
-	}
-
-	async search(term) {
-		if (!term) return (this.options.search = { suggestions: [], term });
-
-		const {
-			body: { suggestions },
-		} = await getSearchResults(term);
-
-		this.options.search = { suggestions, term };
 	}
 }
