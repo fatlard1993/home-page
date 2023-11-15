@@ -83,7 +83,7 @@ export default class Bookmarks extends View {
 								event,
 								items: [
 									{
-										textContent: `Bookmark ${search}`,
+										textContent: `Bookmark "${search}"`,
 										onPointerPress: () => new BookmarkDialog({ bookmark: { name: search, url: fixLink(search) } }),
 									},
 								],
