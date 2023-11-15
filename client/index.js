@@ -1,20 +1,18 @@
 import process from 'process';
 import { Page } from 'vanilla-bean-components';
 
-import state from './state';
+import context from './context';
 import router from './router';
 
 import './hotReload';
 
 window.process = process;
 
-state.router = router;
-
 document.addEventListener('keypress', event => {
-	if (!state.searchElem) state.search += event.key;
-	else if (event.key === '/' && document.activeElement !== state.searchElem) {
+	if (!context.searchElem) context.preRenderSearch += event.key;
+	else if (event.key === '/' && document.activeElement !== context.searchElem) {
 		event.preventDefault();
-		state.searchElem.focus();
+		context.searchElem.focus();
 	}
 });
 
@@ -24,5 +22,5 @@ new Page({
 		background-color: ${colors.darkest(colors.gray)};
 	`,
 	appendTo: document.getElementById('app'),
-	append: state.router,
+	append: router,
 });
