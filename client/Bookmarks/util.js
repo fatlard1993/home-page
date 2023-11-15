@@ -3,13 +3,9 @@ const ipRegex = /^(.+:\/\/)?(25[0-5]|2[0-4]\d|[01]?\d{1,2})\.(25[0-5]|2[0-4]\d|[
 const hostnameRegex = /^(.+:\/\/)[^:]+?(:\d{1,5})?(\/.*)?$/;
 const localhostRegex = /^(.+:\/\/)?localhost(:\d{1,5})?(\/.*)?$/;
 
-export const fixLink = url => {
-	if (websiteRegex.test(url) || ipRegex.test(url) || localhostRegex.test(url) || hostnameRegex.test(url)) {
-		if (!/.+:\/\//.test(url)) url = `http://${url}`;
-	} else url = `http://google.com/search?q=${url}`;
+export const isLink = url => websiteRegex.test(url) || ipRegex.test(url) || localhostRegex.test(url) || hostnameRegex.test(url);
 
-	return url;
-};
+export const fixLink = url => (isLink(url) && !/.+:\/\//.test(url) ? `http://${url}` : `http://google.com/search?q=${url}`);
 
 export const copyToClipboard = text => {
 	if (!isSecureContext) return false;
