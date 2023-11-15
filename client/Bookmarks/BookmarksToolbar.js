@@ -26,6 +26,7 @@ export default class BookmarksToolbar extends Toolbar {
 
 				options.search(value);
 			}),
+			onSearch: debounce(({ value }) => options.search(value)),
 		});
 
 		setTimeout(() => {
