@@ -1,5 +1,5 @@
 import uFuzzy from '@leeoniya/ufuzzy';
-import { View, NoData } from 'vanilla-bean-components';
+import { View, NoData, Dialog, Checkbox } from 'vanilla-bean-components';
 
 import { deleteBookmark, deleteCategory, getBookmarks, getCategories, getSearchResults } from '../api';
 
@@ -128,7 +128,20 @@ export default class Bookmarks extends View {
 										{
 											textContent: `Delete ${category.name}`,
 											onPointerPress: () => {
-												deleteCategory(categoryId).then(() => this.render());
+												const checkbox = new Checkbox({ style: { marginTop: '90px' }, name: 'Keep bookmarks', value: true });
+
+												new Dialog({
+													header: `Delete ${category.name}`,
+													body: [`Are you sure you want to delete "${category.name}"`, checkbox],
+													buttons: ['Delete', 'Cancel'],
+													onButtonPress: ({ button, closeDialog }) => {
+														if (button === 'Delete') {
+															deleteCategory(categoryId, checkbox.value ? {} : { searchParams: { recursive: true } });
+														}
+
+														closeDialog();
+													},
+												});
 											},
 										},
 									],
@@ -147,15 +160,11 @@ export default class Bookmarks extends View {
 											},
 											{
 												textContent: `Delete ${bookmarks[id].name}`,
-												onPointerPress: () => {
-													deleteBookmark(id).then(() => this.render());
-												},
+												onPointerPress: () => deleteBookmark(id),
 											},
 											{
 												textContent: 'Copy To Clipboard',
-												onPointerPress: () => {
-													copyToClipboard(bookmarks[id].url);
-												},
+												onPointerPress: () => copyToClipboard(bookmarks[id].url),
 											},
 										],
 									}),

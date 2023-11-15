@@ -9,9 +9,20 @@ export const cache = {};
 export const subscriptions = {};
 
 export const request = async (url, options = {}) => {
-	const { invalidateAfter = cacheOptions.staleTime, invalidates, cache: useCache = invalidates ? false : cacheOptions.enabled, isRefetch, onRefetch, enabled = true, ...fetchOptions } = options;
+	const {
+		invalidateAfter = cacheOptions.staleTime,
+		invalidates,
+		cache: useCache = invalidates ? false : cacheOptions.enabled,
+		isRefetch,
+		onRefetch,
+		enabled = true,
+		searchParams,
+		...fetchOptions
+	} = options;
 
 	if (!enabled) return {};
+
+	if (searchParams) url = `${url}?${new URLSearchParams(searchParams)}`;
 
 	const id = options.id || options.method + url;
 
