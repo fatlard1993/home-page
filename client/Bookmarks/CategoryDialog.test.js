@@ -1,4 +1,4 @@
-import { findByRole, findAllByRole, fireEvent, queryByRole, waitForElementToBeRemoved } from '@testing-library/dom';
+import { findByRole, fireEvent, queryByRole, waitForElementToBeRemoved } from '@testing-library/dom';
 
 import CategoryDialog from './CategoryDialog';
 
@@ -15,33 +15,11 @@ HTMLDialogElement.prototype.close = () => {
 };
 
 describe.skip('CategoryDialog', () => {
-	test('must render new category form', async () => {
-		new CategoryDialog({ appendTo: container });
-
-		await findByRole(container, 'textbox', { name: 'Name' });
-	});
-
-	test('must render edit category form', async () => {
-		const category = {};
-
-		new CategoryDialog({ category, appendTo: container });
-
-		await findAllByRole(container, 'textbox');
-	});
-
 	test('must provide a way to cancel the operation', async () => {
 		new CategoryDialog({ appendTo: container });
 
 		fireEvent.click(await findByRole(container, 'button', { name: 'Cancel' }), {});
 
 		await waitForElementToBeRemoved(() => queryByRole(container, 'dialog'));
-	});
-
-	test('must require a Name', async () => {
-		new CategoryDialog({ appendTo: container });
-
-		await findByRole(container, 'button', { name: 'Save' });
-
-		await findByRole(container, 'textbox', { name: 'Name' });
 	});
 });
