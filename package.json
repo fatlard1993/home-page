@@ -41,7 +41,7 @@
     "argi": "github:fatlard1993/argi",
     "lowdb": "^6.1.1",
     "nanoid": "^5.0.3",
-    "vanilla-bean-components": "github:fatlard1993/vanilla-bean-components#main"
+    "vanilla-bean-components": "github:fatlard1993/vanilla-bean-components#8a86bc0"
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "^12.1.5",

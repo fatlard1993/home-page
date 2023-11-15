@@ -1,6 +1,6 @@
 import { Button, Search, debounce } from 'vanilla-bean-components';
 
-import state from '../state';
+import context from '../context';
 
 import { Toolbar } from '../Layout';
 import BookmarkDialog from './BookmarkDialog';
@@ -11,8 +11,6 @@ export default class BookmarksToolbar extends Toolbar {
 	async render(options = this.options) {
 		super.render(options);
 
-		const debouncedSearch = debounce(options.search);
-
 		this.search = new Search({
 			appendTo: this.elem,
 			styles: () => `
@@ -21,19 +19,15 @@ export default class BookmarksToolbar extends Toolbar {
 				margin: 6px;
 				height: 2.4rem;
 			`,
-			value: state.search,
-			onKeyUp: ({ key, value }) => {
-				debouncedSearch(value);
-
-				if (key === 'Enter') options.search(value);
-			},
+			value: context.preRenderSearch,
+			onKeyUp: debounce(({ value }) => options.search(value)),
 		});
 
 		setTimeout(() => {
-			this.search.value = state.search;
+			this.search.value = context.preRenderSearch;
 			this.search.elem.focus();
-			if (state.search.length > 0) options.search(state.search);
-			state.searchElem = this.search.elem;
+			if (context.preRenderSearch.length > 0) options.search(context.preRenderSearch);
+			context.searchElem = this.search.elem;
 		}, 100);
 
 		new Button({

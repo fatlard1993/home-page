@@ -35,7 +35,14 @@ export default class Bookmarks extends View {
 	async render(options = this.options) {
 		super.render(options);
 
-		this.toolbar = new BookmarksToolbar({ appendTo: this.elem, search: term => (this.options.search = term) });
+		this.toolbar = new BookmarksToolbar({
+			appendTo: this.elem,
+			search: term => {
+				if (this.options.search === term) return;
+
+				this.options.search = term;
+			},
+		});
 
 		this.content = new Content({ appendTo: this.elem });
 
@@ -43,14 +50,16 @@ export default class Bookmarks extends View {
 	}
 
 	setOption(key, value) {
-		if (key === 'categories' || key === 'bookmarks') {
-			return;
-		} else if (key === 'search') {
+		if (key === 'categories' || key === 'bookmarks') return;
+
+		if (key === 'search') {
 			this.renderContent();
 		} else super.setOption(key, value);
 	}
 
 	async renderContent() {
+		console.log('render', this.options.search);
+
 		const searchTerm = this.options.search;
 
 		const categories = (await getCategories({ onRefetch: this.renderContent.bind(this) })).body;

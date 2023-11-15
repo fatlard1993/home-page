@@ -1,8 +1,6 @@
 import { Dialog, Input, Button, ColorPicker, Label, conditionalList, styled } from 'vanilla-bean-components';
 import { createCategory, deleteCategory, updateCategory } from '../api';
 
-import state from '../state';
-
 const ColorPickerButton = styled(
 	Button,
 	() => `
@@ -43,18 +41,12 @@ export default class CategoryDialog extends Dialog {
 					localStorage.setItem('recentColors', JSON.stringify(recentColors));
 
 					if (category) {
-						updateCategory(category.id, { body: { name: nameInput.elem.value, color } }).then(() => {
-							state.router.renderView();
-						});
+						updateCategory(category.id, { body: { name: nameInput.elem.value, color } });
 					} else {
-						createCategory({ body: { name: nameInput.elem.value, color } }).then(() => {
-							state.router.renderView();
-						});
+						createCategory({ body: { name: nameInput.elem.value, color } });
 					}
 				} else if (button === 'Delete') {
-					deleteCategory(category.id).then(() => {
-						state.router.renderView();
-					});
+					deleteCategory(category.id);
 				}
 
 				this.close();
