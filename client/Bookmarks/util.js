@@ -6,9 +6,9 @@ const localhostRegex = /^(.+:\/\/)?localhost(:\d{1,5})?(\/.*)?$/;
 export const isLink = url => websiteRegex.test(url) || ipRegex.test(url) || localhostRegex.test(url) || hostnameRegex.test(url);
 
 export const fixLink = url => {
-	if (isLink(url)) return url;
+	if (isLink(url)) return /.+:\/\//.test(url) ? url : `http://${url}`;
 
-	return !/.+:\/\//.test(url) ? `http://${url}` : `http://google.com/search?q=${url}`;
+	return `http://google.com/search?q=${encodeURIComponent(url)}`;
 };
 
 export const copyToClipboard = text => {
