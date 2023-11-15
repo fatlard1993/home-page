@@ -34,7 +34,7 @@ export default async (request, server) => {
 		try {
 			const suggestions = await search(match.term);
 
-			return Response.json({ suggestions });
+			return Response.json(suggestions);
 		} catch (error) {
 			console.error(error);
 

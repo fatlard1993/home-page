@@ -68,7 +68,7 @@ export default class Bookmarks extends View {
 
 		this.content.empty();
 
-		if (!bookmarkIds?.length) {
+		if (!searchTerm && !bookmarkIds?.length) {
 			new NoData({ appendTo: this.content, textContent: 'No bookmarks yet .. Create them with the + button above' });
 		} else {
 			if (suggestions?.length) {
@@ -110,7 +110,6 @@ export default class Bookmarks extends View {
 					return new BookmarksContainer({
 						appendTo: this.content,
 						heading: category.name,
-						color: category.color,
 						onContextMenu:
 							categoryId &&
 							(event =>
