@@ -1,5 +1,7 @@
 import { Input, ColorPicker, Select, Label, DomElem } from 'vanilla-bean-components';
+
 import { createBookmark, updateBookmark, getCategories } from '../api';
+import { isLink } from './util';
 
 export default class BookmarkForm extends DomElem {
 	async render(options = this.options) {
@@ -9,8 +11,10 @@ export default class BookmarkForm extends DomElem {
 
 		const { bookmark, category } = this.options;
 
+		const clipboardContent = await navigator.clipboard.readText();
+
 		this.nameInput = new Input({ type: 'text', value: bookmark?.name || '', validations: [[/.+/, 'Required']] });
-		this.urlInput = new Input({ type: 'text', value: bookmark?.url || '', validations: [[/.+/, 'Required']] });
+		this.urlInput = new Input({ type: 'text', value: bookmark?.url || (isLink(clipboardContent) ? clipboardContent : ''), validations: [[/.+/, 'Required']] });
 		this.newCategoryInput = new Input({
 			type: 'text',
 			style: { display: 'none' },
