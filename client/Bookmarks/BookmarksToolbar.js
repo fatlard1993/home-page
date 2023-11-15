@@ -11,7 +11,7 @@ export default class BookmarksToolbar extends Toolbar {
 	async render(options = this.options) {
 		super.render(options);
 
-		const debouncedSearch = debounce(this.search.bind(this));
+		const debouncedSearch = debounce(options.search);
 
 		this.search = new Search({
 			appendTo: this.elem,
