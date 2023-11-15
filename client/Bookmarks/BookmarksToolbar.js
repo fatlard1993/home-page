@@ -6,6 +6,7 @@ import { Toolbar } from '../Layout';
 import BookmarkDialog from './BookmarkDialog';
 import CategoryDialog from './CategoryDialog';
 import ContextMenu from './ContextMenu';
+import { fixLink } from './util';
 
 export default class BookmarksToolbar extends Toolbar {
 	async render(options = this.options) {
@@ -20,7 +21,11 @@ export default class BookmarksToolbar extends Toolbar {
 				height: 2.4rem;
 			`,
 			value: context.preRenderSearch,
-			onKeyUp: debounce(({ value }) => options.search(value)),
+			onKeyUp: debounce(({ key, value }) => {
+				if (key === 'Enter') return window.open(fixLink(value));
+
+				options.search(value);
+			}),
 		});
 
 		setTimeout(() => {
