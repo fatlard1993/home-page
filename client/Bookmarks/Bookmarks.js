@@ -58,8 +58,6 @@ export default class Bookmarks extends View {
 	}
 
 	async renderContent() {
-		console.log('render', this.options.search);
-
 		const searchTerm = this.options.search;
 
 		const categories = (await getCategories({ onRefetch: this.renderContent.bind(this) })).body;
@@ -112,6 +110,7 @@ export default class Bookmarks extends View {
 					return new BookmarksContainer({
 						appendTo: this.content,
 						heading: category.name,
+						color: category.color,
 						onContextMenu:
 							categoryId &&
 							(event =>
