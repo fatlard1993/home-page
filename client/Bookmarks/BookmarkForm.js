@@ -53,7 +53,7 @@ export default class BookmarkForm extends DomElem {
 		if (category === 'Default') category = '';
 		else if (category === 'New') category = this.newCategoryInput.value;
 
-		if (this.options.bookmark.id) {
+		if (this.options.bookmark?.id) {
 			updateBookmark(this.options.bookmark.id, { body: { name: this.nameInput.elem.value, url: this.urlInput.elem.value, category, color } });
 		} else {
 			createBookmark({ body: { name: this.nameInput.elem.value, url: this.urlInput.elem.value, category, color } });
