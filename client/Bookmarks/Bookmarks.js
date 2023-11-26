@@ -1,5 +1,5 @@
 import uFuzzy from '@leeoniya/ufuzzy';
-import { View, NoData, Dialog, Checkbox } from 'vanilla-bean-components';
+import { View, NoData, Dialog, Checkbox, copyToClipboard } from 'vanilla-bean-components';
 
 import { deleteBookmark, deleteCategory, getBookmarks, getCategories, getSearchResults } from '../api';
 
@@ -10,7 +10,7 @@ import BookmarksToolbar from './BookmarksToolbar';
 import BookmarksContainer from './BookmarksContainer';
 import ContextMenu from './ContextMenu';
 
-import { fixLink, copyToClipboard } from './util';
+import { fixLink } from './util';
 
 const fuzzy = new uFuzzy({ intraMode: 1, intraIns: 5, intraSub: 1, intraTrn: 1, intraDel: 1 });
 
