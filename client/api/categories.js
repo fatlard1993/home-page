@@ -1,4 +1,4 @@
-import { GET, POST, PATCH, DELETE } from './util';
+import { GET, POST, PATCH, DELETE } from 'vanilla-bean-components';
 
 export const getCategories = async options => await GET('/categories', { id: 'categories', ...options });
 

@@ -1,4 +1,4 @@
-import { GET, POST, PATCH, DELETE } from './util';
+import { GET, POST, PATCH, DELETE } from 'vanilla-bean-components';
 
 export const getBookmarks = async options => await GET('/bookmarks', { id: 'bookmarks', ...options });
 

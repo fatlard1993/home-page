@@ -10,11 +10,3 @@ export const fixLink = url => {
 
 	return `http://google.com/search?q=${encodeURIComponent(url)}`;
 };
-
-export const copyToClipboard = text => {
-	if (!isSecureContext) return false;
-
-	navigator.clipboard.writeText(text);
-
-	return true;
-};
