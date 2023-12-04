@@ -56,9 +56,11 @@ export default class BookmarkDialog extends Dialog {
 			],
 		});
 
+		const formData = { name: '', url: isLink(clipboardContent) ? clipboardContent : '', color: category?.color || 'random', category: category?.id || 'Default', ...bookmark };
+
 		this.form = new Form({
 			appendTo: this._body,
-			data: { name: '', url: isLink(clipboardContent) ? clipboardContent : '', color: category?.color || 'random', category: category?.id || 'Default', ...bookmark },
+			data: formData,
 			inputs: [
 				{ key: 'name', validations: [[/.+/, 'Required']] },
 				{ key: 'url', validations: [[/.+/, 'Required']] },
@@ -67,6 +69,7 @@ export default class BookmarkDialog extends Dialog {
 					Component: DomElem,
 					append: [
 						new Select({
+							value: formData.category,
 							options: ['Default', 'New', ...Object.keys(categories).map(id => ({ label: categories?.[id]?.name, value: id }))],
 							onChange: ({ value }) => {
 								const showNew = value === 'New';
