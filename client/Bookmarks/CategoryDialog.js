@@ -16,11 +16,11 @@ export default class CategoryDialog extends Dialog {
 
 					const { color } = this.form.data;
 
-					const recentColors = [...new Set([color, ...(JSON.parse(localStorage.getItem('recentColors')) || [])])];
-
-					recentColors.length = Math.min(recentColors.length, 10);
-
-					localStorage.setItem('recentColors', JSON.stringify(recentColors));
+					if (color) {
+						const recentColors = [...new Set([color, ...(JSON.parse(localStorage.getItem('recentColors')) || [])])];
+						recentColors.length = Math.min(recentColors.length, 10);
+						localStorage.setItem('recentColors', JSON.stringify(recentColors));
+					}
 
 					if (isEdit) {
 						updateCategory(this.options.category.id, { body: this.form.data });
@@ -44,10 +44,16 @@ export default class CategoryDialog extends Dialog {
 
 		this.form = new Form({
 			appendTo: this._body,
-			data: { name: '', color: 'random', ...category },
+			data: { name: '', color: '', ...category },
 			inputs: [
 				{ key: 'name', validations: [[/.+/, 'Required']] },
-				{ key: 'color', label: 'Default Color', Component: ColorPicker, swatches: ['random', ...(JSON.parse(localStorage.getItem('recentColors')) || [])] },
+				{
+					key: 'color',
+					label: 'Default Color',
+					Component: ColorPicker,
+					swatches: ['random', ...(JSON.parse(localStorage.getItem('recentColors')) || [])],
+					collapsed: !category?.color,
+				},
 			],
 		});
 	}
