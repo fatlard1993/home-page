@@ -17,9 +17,11 @@ export default class BookmarkDialog extends Dialog {
 
 					const { color, category } = this.form.data;
 
-					const recentColors = [...new Set([color, ...(JSON.parse(localStorage.getItem('recentColors')) || [])])];
-					recentColors.length = Math.min(recentColors.length, 10);
-					localStorage.setItem('recentColors', JSON.stringify(recentColors));
+					if (color && color !== 'random') {
+						const recentColors = [...new Set([color, ...(JSON.parse(localStorage.getItem('recentColors')) || [])])];
+						recentColors.length = Math.min(recentColors.length, 10);
+						localStorage.setItem('recentColors', JSON.stringify(recentColors));
+					}
 
 					if (category === 'Default') this.form.data.category = '';
 					else if (category === 'New') this.form.data.category = this.newCategoryInput.value;
