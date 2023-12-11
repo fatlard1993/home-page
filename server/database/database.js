@@ -5,8 +5,8 @@ import { JSONFile } from 'lowdb/node';
 
 const database = {
 	default: {
-		items: {},
-		filters: {},
+		bookmarks: {},
+		categories: {},
 	},
 	async init({ path }) {
 		database.db = new Low(new JSONFile(path), database.default);
