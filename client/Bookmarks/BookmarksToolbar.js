@@ -54,7 +54,6 @@ export default class BookmarksToolbar extends Toolbar {
 				this.contextMenu?.hide();
 
 				this.contextMenu = new ContextMenu({
-					appendTo: this.elem,
 					x: event?.clientX,
 					y: event?.clientY,
 					items: [
