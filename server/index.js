@@ -31,7 +31,7 @@ const { options } = argi.parse({
 	},
 });
 
-console.log('Options', options);
+console.log('Options', options, process.env.NODE_ENV);
 
 database.init({ persistent: options.persistent, path: options.database });
 

@@ -22,11 +22,11 @@ export default class Bookmarks extends View {
 		});
 
 		this.onPointerUp(() => {
-			this.toolbar?.contextMenu?.hide();
+			this.toolbar?.contextMenu?.elem?.remove();
 
 			if (!this.contextMenu) return;
 
-			if (this.contextMenu.opened) this.contextMenu.hide();
+			if (this.contextMenu.opened) this.contextMenu.elem.remove();
 
 			this.contextMenu.opened = true;
 		});
@@ -178,7 +178,7 @@ export default class Bookmarks extends View {
 		event.preventDefault();
 		event.stopPropagation();
 
-		this.contextMenu?.hide();
+		this.contextMenu?.elem.remove();
 
 		items.push(
 			{
@@ -192,7 +192,6 @@ export default class Bookmarks extends View {
 		);
 
 		this.contextMenu = new ContextMenu({
-			appendTo: this.elem,
 			x: event.clientX,
 			y: event.clientY,
 			...options,
