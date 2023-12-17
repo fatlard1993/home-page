@@ -1,21 +1,14 @@
-import { Overlay, Menu } from 'vanilla-bean-components';
+import { Popover, Menu } from 'vanilla-bean-components';
 
-export default class ContextMenu extends Overlay {
+export default class ContextMenu extends Popover {
 	constructor(options) {
-		const { x, y, items = [], sticky = false, maxWidth = 240 } = options;
+		const itemHeight = 37;
 
-		const itemHeight = 36;
-		const pastRight = x + maxWidth >= document.body.clientWidth;
-		const pastBottom = y + items.length * itemHeight >= document.body.clientHeight;
+		const { items = [], sticky = false, maxWidth = 240, maxHeight = items.length * itemHeight } = options;
 
 		super({
-			styles: () => `
-				max-width: ${maxWidth}px;
-				top: ${pastBottom ? 'unset' : `${y}px`};
-				bottom: ${pastBottom ? `${document.body.clientHeight - y}px` : 'unset'};
-				left: ${pastRight ? 'unset' : `${x}px`};
-				right: ${pastRight ? `${document.body.clientWidth - x}px` : 'unset'};
-			`,
+			maxWidth,
+			maxHeight,
 			append: new Menu({
 				styles: () => `
 					li {
@@ -30,16 +23,12 @@ export default class ContextMenu extends Overlay {
 						onPointerPress: event => {
 							item.onPointerPress(event);
 
-							this.hide();
+							this.elem.remove();
 						},
 					}),
 				})),
 			}),
 			...options,
 		});
-	}
-
-	hide() {
-		this.elem?.remove();
 	}
 }
