@@ -1,6 +1,9 @@
-import { Dialog, ColorPicker, Form, conditionalList } from 'vanilla-bean-components';
+import { Dialog, conditionalList } from 'vanilla-bean-components';
 
-import { createCategory, updateCategory, deleteCategory } from '../api';
+import { createCategory, updateCategory } from '../../api';
+
+import DeleteCategoryDialog from '../DeleteCategoryDialog';
+import CategoryForm from './CategoryForm';
 
 export default class CategoryDialog extends Dialog {
 	constructor(options = {}) {
@@ -14,7 +17,7 @@ export default class CategoryDialog extends Dialog {
 				if (button === 'Save') {
 					if (this.form.validate()) return;
 
-					const { color } = this.form.data;
+					const { color } = this.form.options.data;
 
 					if (color) {
 						const recentColors = [...new Set([color, ...(JSON.parse(localStorage.getItem('recentColors')) || [])])];
@@ -23,38 +26,19 @@ export default class CategoryDialog extends Dialog {
 					}
 
 					if (isEdit) {
-						updateCategory(this.options.category.id, { body: this.form.data });
+						updateCategory(this.options.category.id, { body: this.form.options.data });
 					} else {
-						createCategory({ body: this.form.data });
+						createCategory({ body: this.form.options.data });
 					}
 				} else if (button === 'Delete') {
-					deleteCategory(this.options.category.id);
+					new DeleteCategoryDialog({ category: this.options.category });
 				}
 
 				this.close();
 			},
 			...options,
 		});
-	}
 
-	async render(options = this.options) {
-		super.render(options);
-
-		const { category } = options;
-
-		this.form = new Form({
-			appendTo: this._body,
-			data: { name: '', color: '', ...category },
-			inputs: [
-				{ key: 'name', validations: [[/.+/, 'Required']] },
-				{
-					key: 'color',
-					label: 'Default Color',
-					Component: ColorPicker,
-					swatches: ['random', ...(JSON.parse(localStorage.getItem('recentColors')) || [])],
-					collapsed: !category?.color,
-				},
-			],
-		});
+		this.form = new CategoryForm({ appendTo: this._body, category: this.options.category });
 	}
 }

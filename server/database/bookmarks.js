@@ -10,9 +10,7 @@ const bookmarks = {
 	create(data) {
 		const id = nanoid(6);
 
-		if (data.category && !categories.data[data.category]) {
-			data.category = categories.create({ name: data.category });
-		}
+		if (data.category?.create) data.category = categories.create(data.category.create).id;
 
 		const newBookmark = { name: '', url: '', color: '', category: '', ...data, id };
 
@@ -30,9 +28,7 @@ const bookmarks = {
 	update({ id, update }) {
 		if (!bookmarks.data[id]) return false;
 
-		if (update.category && !categories.data[update.category]) {
-			update.category = categories.create({ name: update.category });
-		}
+		if (update.category?.create) update.category = categories.create(update.category.create).id;
 
 		const newBookmark = { ...bookmarks.data[id], ...update };
 

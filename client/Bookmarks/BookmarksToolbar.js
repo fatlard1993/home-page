@@ -1,18 +1,19 @@
-import { Button, Search, debounce } from 'vanilla-bean-components';
+import { Button, Input, debounce } from 'vanilla-bean-components';
 
 import context from '../context';
 
 import { Toolbar } from '../Layout';
 import BookmarkDialog from './BookmarkDialog';
-import CategoryDialog from './CategoryDialog';
+import CategoryDialog from './DeleteCategoryDialog';
 import ContextMenu from './ContextMenu';
 import { fixLink } from './util';
 
 export default class BookmarksToolbar extends Toolbar {
-	async render(options = this.options) {
-		super.render(options);
+	async render() {
+		super.render();
 
-		this.search = new Search({
+		this.search = new Input({
+			type: 'search',
 			appendTo: this.elem,
 			styles: () => `
 				width: auto;
@@ -24,15 +25,15 @@ export default class BookmarksToolbar extends Toolbar {
 			onKeyUp: debounce(({ key, value }) => {
 				if (key === 'Enter') return window.open(fixLink(value));
 
-				options.search(value);
+				this.options.search(value);
 			}),
-			onSearch: debounce(({ value }) => options.search(value)),
+			onSearch: debounce(({ value }) => this.options.search(value)),
 		});
 
 		setTimeout(() => {
 			this.search.value = context.preRenderSearch;
 			this.search.elem.focus();
-			if (context.preRenderSearch.length > 0) options.search(context.preRenderSearch);
+			if (context.preRenderSearch.length > 0) this.options.search(context.preRenderSearch);
 			context.searchElem = this.search.elem;
 		}, 100);
 
@@ -49,7 +50,8 @@ export default class BookmarksToolbar extends Toolbar {
 			`,
 			icon: 'plus',
 			onPointerPress: event => {
-				event.stop();
+				event.preventDefault();
+				event.stopPropagation();
 
 				this.contextMenu?.hide();
 

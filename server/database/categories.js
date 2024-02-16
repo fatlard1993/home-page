@@ -32,15 +32,15 @@ const categories = {
 
 		return newCategory;
 	},
-	delete({ id, recursive = false }) {
+	delete({ id, moveTo }) {
 		if (!categories.data[id]) return false;
 
 		delete categories.data[id];
 
 		Object.keys(database.db.data.bookmarks).forEach(bookmarkId => {
 			if (database.db.data.bookmarks[bookmarkId].category === id) {
-				if (recursive) delete database.db.data.bookmarks[bookmarkId];
-				else database.db.data.bookmarks[bookmarkId].category = undefined;
+				if (moveTo !== undefined) database.db.data.bookmarks[bookmarkId].category = moveTo;
+				else delete database.db.data.bookmarks[bookmarkId];
 			}
 		});
 

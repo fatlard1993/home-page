@@ -1,62 +1,62 @@
 {
-  "name": "home-page",
-  "version": "3.6.3",
-  "type": "module",
-  "exports": {
-    "./package.json": "./package.json",
-    ".": "./server/index.js"
-  },
-  "description": "A simple browser home page",
-  "author": "justfatlard",
-  "license": "ISC",
-  "browserslist": [
-    "last 1 version",
-    "> 1%",
-    "not dead",
-    "not op_mini all"
-  ],
-  "scripts": {
-    "prepare": "bun run build",
-    "_build": "bun build client/index.js --outdir client/build --define 'process.env.AUTOPREFIXER_GRID=\"undefined\"'",
-    "build": "NODE_ENV=production bun run _build",
-    "build:dev": "NODE_ENV=development bun run _build -- --watch",
-    "start": "NODE_ENV=production bun server/index.js",
-    "dev": "NODE_ENV=development bun --hot server/index.js",
-    "lint": "bun --bun eslint --ext .js .",
-    "lint:fix": "bun --bun eslint --fix --ext .js .",
-    "pretty": "bun --bun prettier .",
-    "pretty:fix": "bun --bun prettier --write .",
-    "fix": "bun run lint:fix ; bun run pretty:fix"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/fatlard1993/home-page.git"
-  },
-  "bugs": {
-    "url": "https://github.com/fatlard1993/home-page/issues"
-  },
-  "homepage": "https://github.com/fatlard1993/home-page#readme",
-  "dependencies": {
-    "@leeoniya/ufuzzy": "^1.0.13",
-    "argi": "github:fatlard1993/argi#e3f79c8",
-    "lowdb": "^6.1.1",
-    "nanoid": "^5.0.4",
-    "vanilla-bean-components": "github:fatlard1993/vanilla-bean-components#6124ccd"
-  },
-  "devDependencies": {
-    "@happy-dom/global-registrator": "^12.1.5",
-    "@testing-library/dom": "^9.3.3",
-    "@testing-library/jest-dom": "^6.1.5",
-    "bun-types": "^1.0.18",
-    "eslint": "^8.56.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-compat": "^4.2.0",
-    "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-prettier": "^5.0.1",
-    "eslint-plugin-spellcheck": "0.0.20",
-    "eslint-plugin-testing-library": "^6.2.0",
-    "eslint-plugin-unicorn": "^49.0.0",
-    "eslint-plugin-write-good-comments": "^0.2.0",
-    "prettier": "3.1.1"
-  }
+	"name": "home-page",
+	"version": "3.6.3",
+	"type": "module",
+	"exports": {
+		"./package.json": "./package.json",
+		".": "./server/index.js"
+	},
+	"description": "A simple browser home page",
+	"author": "justfatlard",
+	"license": "ISC",
+	"browserslist": [
+		"last 1 version",
+		"> 1%",
+		"not dead",
+		"not op_mini all"
+	],
+	"scripts": {
+		"prepare": "bun run build",
+		"_build": "bun build client/index.js --outdir client/build --define 'process.env.AUTOPREFIXER_GRID=\"undefined\"'",
+		"build": "NODE_ENV=production bun run _build",
+		"build:dev": "NODE_ENV=development bun run _build -- --watch",
+		"start": "NODE_ENV=production bun server/index.js",
+		"dev": "NODE_ENV=development bun --hot server/index.js",
+		"lint": "bun --bun eslint --ext .js .",
+		"lint:fix": "bun --bun eslint --fix --ext .js .",
+		"pretty": "bun --bun prettier .",
+		"pretty:fix": "bun --bun prettier --write .",
+		"fix": "bun run lint:fix ; bun run pretty:fix"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/fatlard1993/home-page.git"
+	},
+	"bugs": {
+		"url": "https://github.com/fatlard1993/home-page/issues"
+	},
+	"homepage": "https://github.com/fatlard1993/home-page#readme",
+	"dependencies": {
+		"@leeoniya/ufuzzy": "^1.0.13",
+		"argi": "github:fatlard1993/argi#e3f79c8",
+		"lowdb": "^6.1.1",
+		"nanoid": "^5.0.4",
+		"vanilla-bean-components": "github:fatlard1993/vanilla-bean-components#7ccb952"
+	},
+	"devDependencies": {
+		"@happy-dom/global-registrator": "^12.1.5",
+		"@testing-library/dom": "^9.3.3",
+		"@testing-library/jest-dom": "^6.1.5",
+		"bun-types": "^1.0.18",
+		"eslint": "^8.56.0",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-compat": "^4.2.0",
+		"eslint-plugin-import": "^2.29.1",
+		"eslint-plugin-prettier": "^5.0.1",
+		"eslint-plugin-spellcheck": "0.0.20",
+		"eslint-plugin-testing-library": "^6.2.0",
+		"eslint-plugin-unicorn": "^49.0.0",
+		"eslint-plugin-write-good-comments": "^0.2.0",
+		"prettier": "3.1.1"
+	}
 }

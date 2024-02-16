@@ -1,7 +1,7 @@
 import uFuzzy from '@leeoniya/ufuzzy';
-import { View, NoData, Dialog, Checkbox, copyToClipboard } from 'vanilla-bean-components';
+import { View, DomElem, copyToClipboard } from 'vanilla-bean-components';
 
-import { deleteBookmark, deleteCategory, getBookmarks, getCategories, getSearchResults } from '../api';
+import { deleteBookmark, getBookmarks, getCategories, getSearchResults } from '../api';
 
 import { Content } from '../Layout';
 import CategoryDialog from './CategoryDialog';
@@ -11,6 +11,7 @@ import BookmarksContainer from './BookmarksContainer';
 import ContextMenu from './ContextMenu';
 
 import { fixLink } from './util';
+import DeleteCategoryDialog from './DeleteCategoryDialog';
 
 const fuzzy = new uFuzzy({ intraMode: 1, intraIns: 5, intraSub: 1, intraTrn: 1, intraDel: 1 });
 
@@ -21,7 +22,7 @@ export default class Bookmarks extends View {
 			...options,
 		});
 
-		this.onPointerUp(() => {
+		this.options.onPointerUp = () => {
 			this.toolbar?.contextMenu?.elem?.remove();
 
 			if (!this.contextMenu) return;
@@ -29,11 +30,21 @@ export default class Bookmarks extends View {
 			if (this.contextMenu.opened) this.contextMenu.elem.remove();
 
 			this.contextMenu.opened = true;
-		});
+		};
 	}
 
-	async render(options = this.options) {
-		super.render(options);
+	async render() {
+		this.options.categories = await getCategories({ onRefetch: response => (this.options.categories = response) });
+		this.options.bookmarks = await getBookmarks({ onRefetch: response => (this.options.bookmarks = response) });
+		this.options.searchResults = await getSearchResults(this.options.search, { onRefetch: response => (this.options.searchResults = response) });
+
+		this.options.onDisconnected = () => {
+			this.options.categories.unsubscribe();
+			this.options.bookmarks.unsubscribe();
+			this.options.searchResults.unsubscribe();
+		};
+
+		super.render();
 
 		this.toolbar = new BookmarksToolbar({
 			appendTo: this.elem,
@@ -50,32 +61,36 @@ export default class Bookmarks extends View {
 	}
 
 	setOption(key, value) {
-		if (key === 'categories' || key === 'bookmarks') return;
+		if (key === 'categories' || key === 'bookmarks' || key === 'searchResults') {
+			if (this.rendered) this.renderContent();
+		} else if (key === 'search') {
+			this.options.searchResults.refetch({ enabled: value.length > 0, urlParameters: { term: value } });
 
-		if (key === 'search') {
-			this.renderContent();
+			if (value.length === 0) this.renderContent();
 		} else super.setOption(key, value);
 	}
 
 	async renderContent() {
-		const searchTerm = this.options.search;
-
-		const categories = (await getCategories({ onRefetch: this.renderContent.bind(this) })).body;
-		const bookmarks = (await getBookmarks({ onRefetch: this.renderContent.bind(this) })).body;
-		const suggestions = (await getSearchResults(searchTerm, { onRefetch: this.renderContent.bind(this) })).body;
-
-		const bookmarkIds = Object.keys(bookmarks);
+		const bookmarkIds = Object.keys(this.options.bookmarks.body);
 
 		this.content.empty();
 
-		if (!searchTerm && !bookmarkIds?.length) {
-			new NoData({ appendTo: this.content, textContent: 'No bookmarks yet .. Create them with the + button above' });
+		if (!this.options.search && !bookmarkIds?.length) {
+			new DomElem({
+				styles: () => `
+					margin: 6px auto;
+					padding: 6px 12px;
+					text-align: center;
+				`,
+				appendTo: this.content,
+				textContent: 'No bookmarks yet .. Create them with the + button above',
+			});
 		} else {
-			if (suggestions?.length) {
+			if (this.options.searchResults.body?.length) {
 				new BookmarksContainer({
 					appendTo: this.content,
 					heading: 'Search Results',
-					bookmarks: suggestions.slice(0, 5).map(search => ({
+					bookmarks: this.options.searchResults.body.slice(0, 5).map(search => ({
 						name: search,
 						url: search,
 						onContextMenu: event =>
@@ -93,19 +108,19 @@ export default class Bookmarks extends View {
 			}
 
 			const filteredNames =
-				searchTerm &&
+				this.options.search &&
 				new Set(
 					fuzzy.filter(
-						bookmarkIds.map(id => bookmarks[id].name),
-						searchTerm,
+						bookmarkIds.map(id => this.options.bookmarks.body[id].name),
+						this.options.search,
 					),
 				);
 
-			const filteredBookmarks = searchTerm ? bookmarkIds.filter((id, index) => filteredNames.has(index)) : bookmarkIds;
+			const filteredBookmarks = this.options.search ? bookmarkIds.filter((id, index) => filteredNames.has(index)) : bookmarkIds;
 
 			this.content.append(
-				[undefined, ...Object.keys(categories)].map(categoryId => {
-					const category = categories[categoryId] || { name: 'Bookmarks' };
+				[undefined, ...Object.keys(this.options.categories.body)].map(categoryId => {
+					const category = this.options.categories.body[categoryId] || { name: 'Bookmarks' };
 
 					return new BookmarksContainer({
 						appendTo: this.content,
@@ -126,44 +141,29 @@ export default class Bookmarks extends View {
 										},
 										{
 											textContent: `Delete ${category.name}`,
-											onPointerPress: () => {
-												const checkbox = new Checkbox({ style: { marginTop: '90px' }, name: 'Keep bookmarks', value: true });
-
-												new Dialog({
-													header: `Delete ${category.name}`,
-													body: [`Are you sure you want to delete "${category.name}"`, checkbox],
-													buttons: ['Delete', 'Cancel'],
-													onButtonPress: ({ button, closeDialog }) => {
-														if (button === 'Delete') {
-															deleteCategory(categoryId, checkbox.value ? {} : { searchParams: { recursive: true } });
-														}
-
-														closeDialog();
-													},
-												});
-											},
+											onPointerPress: () => new DeleteCategoryDialog({ category }),
 										},
 									],
 								})),
 						bookmarks: filteredBookmarks
-							.filter(id => bookmarks[id].category === categoryId || (!categoryId && !categories[bookmarks[id].category]))
+							.filter(id => this.options.bookmarks.body[id].category === categoryId || (!categoryId && !this.options.categories.body[this.options.bookmarks.body[id].category]))
 							.map(id => ({
-								...bookmarks[id],
+								...this.options.bookmarks.body[id],
 								onContextMenu: event =>
 									this.showContextMenu({
 										event,
 										items: [
 											{
-												textContent: `Edit ${bookmarks[id].name}`,
-												onPointerPress: () => new BookmarkDialog({ bookmark: bookmarks[id] }),
+												textContent: `Edit ${this.options.bookmarks.body[id].name}`,
+												onPointerPress: () => new BookmarkDialog({ bookmark: this.options.bookmarks.body[id] }),
 											},
 											{
-												textContent: `Delete ${bookmarks[id].name}`,
+												textContent: `Delete ${this.options.bookmarks.body[id].name}`,
 												onPointerPress: () => deleteBookmark(id),
 											},
 											{
 												textContent: 'Copy To Clipboard',
-												onPointerPress: () => copyToClipboard(bookmarks[id].url),
+												onPointerPress: () => copyToClipboard(this.options.bookmarks.body[id].url),
 											},
 										],
 									}),
@@ -192,8 +192,8 @@ export default class Bookmarks extends View {
 		);
 
 		this.contextMenu = new ContextMenu({
-			x: event.clientX,
-			y: event.clientY,
+			x: event.clientX + 6,
+			y: event.clientY + 6,
 			...options,
 			items,
 		});
