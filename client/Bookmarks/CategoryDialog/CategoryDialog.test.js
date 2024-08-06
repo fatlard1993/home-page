@@ -2,20 +2,8 @@ import { findByRole, findAllByRole, fireEvent, queryByRole, waitForElementToBeRe
 
 import CategoryDialog from './CategoryDialog';
 
-HTMLDialogElement.prototype.show = () => {
-	this.open = true;
-};
-
-HTMLDialogElement.prototype.showModal = () => {
-	this.open = true;
-};
-
-HTMLDialogElement.prototype.close = () => {
-	this.open = false;
-};
-
-describe.skip('CategoryDialog', () => {
-	test('must provide a way to cancel the operation', async () => {
+describe('CategoryDialog', () => {
+	test.skip('must provide a way to cancel the operation', async () => {
 		new CategoryDialog({ appendTo: container });
 
 		fireEvent.click(await findByRole(container, 'button', { name: 'Cancel' }), {});

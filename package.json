@@ -37,26 +37,26 @@
 	},
 	"homepage": "https://github.com/fatlard1993/home-page#readme",
 	"dependencies": {
-		"@leeoniya/ufuzzy": "^1.0.13",
+		"@leeoniya/ufuzzy": "^1.0.14",
 		"argi": "github:fatlard1993/argi#e3f79c8",
-		"lowdb": "^6.1.1",
-		"nanoid": "^5.0.4",
-		"vanilla-bean-components": "github:fatlard1993/vanilla-bean-components#7ccb952"
+		"lowdb": "^7.0.1",
+		"nanoid": "^5.0.7",
+		"vanilla-bean-components": "github:fatlard1993/vanilla-bean-components#30e470e"
 	},
 	"devDependencies": {
-		"@happy-dom/global-registrator": "^12.1.5",
-		"@testing-library/dom": "^9.3.3",
-		"@testing-library/jest-dom": "^6.1.5",
-		"bun-types": "^1.0.18",
-		"eslint": "^8.56.0",
+		"@happy-dom/global-registrator": "^14.12.3",
+		"@testing-library/dom": "^10.4.0",
+		"@testing-library/jest-dom": "^6.4.8",
+		"bun-types": "^1.1.21",
+		"eslint": "^9.8.0",
 		"eslint-config-prettier": "^9.1.0",
-		"eslint-plugin-compat": "^4.2.0",
+		"eslint-plugin-compat": "^6.0.0",
 		"eslint-plugin-import": "^2.29.1",
-		"eslint-plugin-prettier": "^5.0.1",
+		"eslint-plugin-prettier": "^5.2.1",
 		"eslint-plugin-spellcheck": "0.0.20",
-		"eslint-plugin-testing-library": "^6.2.0",
-		"eslint-plugin-unicorn": "^49.0.0",
+		"eslint-plugin-testing-library": "^6.2.2",
+		"eslint-plugin-unicorn": "^55.0.0",
 		"eslint-plugin-write-good-comments": "^0.2.0",
-		"prettier": "3.1.1"
+		"prettier": "3.3.3"
 	}
 }

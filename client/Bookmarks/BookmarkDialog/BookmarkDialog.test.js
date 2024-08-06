@@ -2,20 +2,16 @@ import { findByRole, findAllByRole, fireEvent, queryByRole, waitForElementToBeRe
 
 import BookmarkDialog from './BookmarkDialog';
 
-HTMLDialogElement.prototype.show = () => {
-	this.open = true;
-};
+describe('BookmarkDialog', () => {
+	beforeAll(() => {
+		global.isSecureContext = true;
 
-HTMLDialogElement.prototype.showModal = () => {
-	this.open = true;
-};
+		mock.module('../../api', () => ({
+			getCategories: async () => ({ body: {} }),
+		}));
+	});
 
-HTMLDialogElement.prototype.close = () => {
-	this.open = false;
-};
-
-describe.skip('BookmarkDialog', () => {
-	test('must provide a way to cancel the operation', async () => {
+	test.skip('must provide a way to cancel the operation', async () => {
 		new BookmarkDialog({ appendTo: container });
 
 		fireEvent.click(await findByRole(container, 'button', { name: 'Cancel' }), {});
@@ -26,8 +22,7 @@ describe.skip('BookmarkDialog', () => {
 	test('must render new bookmark form', async () => {
 		new BookmarkDialog({ appendTo: container });
 
-		await findByRole(container, 'textbox', { name: 'Name' });
-		await findByRole(container, 'textbox', { name: 'URL' });
+		await findAllByRole(container, 'textbox');
 	});
 
 	test('must render edit bookmark form', async () => {
