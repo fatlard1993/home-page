@@ -21,6 +21,6 @@ new Page({
 		color: ${colors.lightest(colors.gray)};
 		background-color: ${colors.darkest(colors.gray)};
 	`,
-	appendTo: document.getElementById('app'),
+	appendTo: document.body,
 	append: router,
 });
