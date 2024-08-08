@@ -6,7 +6,6 @@ const localSpellcheck = require('./spellcheck.config.cjs');
 module.exports = [
 	...vanillaBeanEslint,
 	{
-		files: ['**/*.js', '**/*.mjs', '**/*.cjs'],
 		rules: {
 			'spellcheck/spell-checker': [
 				'warn',
