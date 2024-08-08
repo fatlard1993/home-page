@@ -43,14 +43,20 @@ export default class BookmarkForm extends Form {
 					append: [
 						new Select({
 							value: formData.category,
-							options: ['Default', 'New', ...Object.keys(categories).map(id => ({ label: categories?.[id]?.name, value: id }))],
+							options: [
+								'Default',
+								'New',
+								...Object.keys(categories).map(id => ({ label: categories?.[id]?.name, value: id })),
+							],
 							onChange: ({ value }) => {
 								const showNew = value === 'New';
 								this.newCategoryInput.elem.style.display = showNew ? 'block' : 'none';
 
 								this.newCategoryInput.elem.focus();
 
-								this.options.data.category = this.newCategoryInput.parent.options.value = showNew ? this.newCategoryInput.options.value : value;
+								this.options.data.category = this.newCategoryInput.parent.options.value = showNew
+									? this.newCategoryInput.options.value
+									: value;
 							},
 						}),
 						this.newCategoryInput,
@@ -59,7 +65,11 @@ export default class BookmarkForm extends Form {
 						if (this.newCategoryInput.elem.style.display === 'block') return this.newCategoryInput.validate();
 					},
 				},
-				{ key: 'color', Component: ColorPicker, swatches: ['random', ...(JSON.parse(localStorage.getItem('recentColors')) || [])] },
+				{
+					key: 'color',
+					Component: ColorPicker,
+					swatches: ['random', ...(JSON.parse(localStorage.getItem('recentColors')) || [])],
+				},
 			],
 		});
 

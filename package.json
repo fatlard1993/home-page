@@ -22,9 +22,9 @@
 		"build:dev": "NODE_ENV=development bun run _build -- --watch",
 		"start": "NODE_ENV=production bun server/index.js",
 		"dev": "NODE_ENV=development bun --hot server/index.js",
-		"lint": "bun --bun eslint --ext .js .",
-		"lint:fix": "bun --bun eslint --fix --ext .js .",
-		"pretty": "bun --bun prettier .",
+		"lint": "bun --bun eslint",
+		"lint:fix": "bun --bun eslint --fix",
+		"pretty": "bun --bun prettier --check .",
 		"pretty:fix": "bun --bun prettier --write .",
 		"fix": "bun run lint:fix ; bun run pretty:fix"
 	},
@@ -41,22 +41,23 @@
 		"argi": "github:fatlard1993/argi#e3f79c8",
 		"lowdb": "^7.0.1",
 		"nanoid": "^5.0.7",
-		"vanilla-bean-components": "github:fatlard1993/vanilla-bean-components#30e470e"
+		"vanilla-bean-components": "github:fatlard1993/vanilla-bean-components#3ec2ab1"
 	},
 	"devDependencies": {
+		"@eslint/compat": "^1.1.1",
+		"@eslint/js": "^9.8.0",
 		"@happy-dom/global-registrator": "^14.12.3",
 		"@testing-library/dom": "^10.4.0",
 		"@testing-library/jest-dom": "^6.4.8",
 		"bun-types": "^1.1.21",
 		"eslint": "^9.8.0",
-		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-compat": "^6.0.0",
 		"eslint-plugin-import": "^2.29.1",
-		"eslint-plugin-prettier": "^5.2.1",
 		"eslint-plugin-spellcheck": "0.0.20",
 		"eslint-plugin-testing-library": "^6.2.2",
 		"eslint-plugin-unicorn": "^55.0.0",
 		"eslint-plugin-write-good-comments": "^0.2.0",
+		"globals": "^15.9.0",
 		"prettier": "3.3.3"
 	}
 }

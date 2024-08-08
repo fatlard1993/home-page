@@ -36,7 +36,9 @@ export default class Bookmarks extends View {
 	async render() {
 		this.options.categories = await getCategories({ onRefetch: response => (this.options.categories = response) });
 		this.options.bookmarks = await getBookmarks({ onRefetch: response => (this.options.bookmarks = response) });
-		this.options.searchResults = await getSearchResults(this.options.search, { onRefetch: response => (this.options.searchResults = response) });
+		this.options.searchResults = await getSearchResults(this.options.search, {
+			onRefetch: response => (this.options.searchResults = response),
+		});
 
 		this.options.onDisconnected = () => {
 			this.options.categories.unsubscribe();
@@ -116,7 +118,9 @@ export default class Bookmarks extends View {
 					),
 				);
 
-			const filteredBookmarks = this.options.search ? bookmarkIds.filter((id, index) => filteredNames.has(index)) : bookmarkIds;
+			const filteredBookmarks = this.options.search
+				? bookmarkIds.filter((id, index) => filteredNames.has(index))
+				: bookmarkIds;
 
 			this.content.append(
 				[undefined, ...Object.keys(this.options.categories.body)].map(categoryId => {
@@ -146,7 +150,11 @@ export default class Bookmarks extends View {
 									],
 								})),
 						bookmarks: filteredBookmarks
-							.filter(id => this.options.bookmarks.body[id].category === categoryId || (!categoryId && !this.options.categories.body[this.options.bookmarks.body[id].category]))
+							.filter(
+								id =>
+									this.options.bookmarks.body[id].category === categoryId ||
+									(!categoryId && !this.options.categories.body[this.options.bookmarks.body[id].category]),
+							)
 							.map(id => ({
 								...this.options.bookmarks.body[id],
 								onContextMenu: event =>
