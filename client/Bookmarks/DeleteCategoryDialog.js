@@ -10,7 +10,12 @@ export default class DeleteCategoryDialog extends Dialog {
 			buttons: ['Delete', 'Cancel'],
 			onButtonPress: ({ button, closeDialog }) => {
 				if (button === 'Delete') {
-					deleteCategory(options.category.id, this.options.keepBookmarks ? { searchParameters: { moveTo: moveTo.value === 'undefined' ? '' : moveTo.value } } : {});
+					deleteCategory(
+						options.category.id,
+						this.options.keepBookmarks
+							? { searchParameters: { moveTo: moveTo.value === 'undefined' ? '' : moveTo.value } }
+							: {},
+					);
 				}
 
 				closeDialog();
@@ -27,7 +32,13 @@ export default class DeleteCategoryDialog extends Dialog {
 		};
 
 		const moveTo = new Select({
-			options: [{ label: 'Default', value: undefined }, ...Object.keys(this.options.categories.body).map(id => ({ label: this.options.categories.body?.[id]?.name, value: id }))],
+			options: [
+				{ label: 'Default', value: undefined },
+				...Object.keys(this.options.categories.body).map(id => ({
+					label: this.options.categories.body?.[id]?.name,
+					value: id,
+				})),
+			],
 			value: undefined,
 		});
 

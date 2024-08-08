@@ -41,6 +41,10 @@ export default class BookmarkDialog extends Dialog {
 			...options,
 		});
 
-		this.form = new BookmarkForm({ appendTo: this._body, bookmark: this.options.bookmark, category: this.options.category });
+		this.form = new BookmarkForm({
+			appendTo: this._body,
+			bookmark: this.options.bookmark,
+			category: this.options.category,
+		});
 	}
 }

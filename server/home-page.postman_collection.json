@@ -12,13 +12,9 @@
 				"header": [],
 				"url": {
 					"raw": "localhost:11571/bookmarks",
-					"host": [
-						"localhost"
-					],
+					"host": ["localhost"],
 					"port": "11571",
-					"path": [
-						"bookmarks"
-					]
+					"path": ["bookmarks"]
 				}
 			},
 			"response": []
@@ -53,13 +49,9 @@
 				},
 				"url": {
 					"raw": "localhost:11571/bookmarks",
-					"host": [
-						"localhost"
-					],
+					"host": ["localhost"],
 					"port": "11571",
-					"path": [
-						"bookmarks"
-					]
+					"path": ["bookmarks"]
 				}
 			},
 			"response": []
@@ -80,14 +72,9 @@
 				},
 				"url": {
 					"raw": "localhost:11571/bookmarks/:id",
-					"host": [
-						"localhost"
-					],
+					"host": ["localhost"],
 					"port": "11571",
-					"path": [
-						"bookmarks",
-						":id"
-					],
+					"path": ["bookmarks", ":id"],
 					"variable": [
 						{
 							"key": "id",
@@ -105,14 +92,9 @@
 				"header": [],
 				"url": {
 					"raw": "localhost:11571/bookmarks/:id",
-					"host": [
-						"localhost"
-					],
+					"host": ["localhost"],
 					"port": "11571",
-					"path": [
-						"bookmarks",
-						":id"
-					],
+					"path": ["bookmarks", ":id"],
 					"variable": [
 						{
 							"key": "id",
@@ -130,14 +112,9 @@
 				"header": [],
 				"url": {
 					"raw": "localhost:11571/search/:term",
-					"host": [
-						"localhost"
-					],
+					"host": ["localhost"],
 					"port": "11571",
-					"path": [
-						"search",
-						":term"
-					],
+					"path": ["search", ":term"],
 					"variable": [
 						{
 							"key": "term",
