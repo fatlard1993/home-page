@@ -1,4 +1,4 @@
-export default async request => {
+const staticRouter = async request => {
 	const path = new URL(request.url).pathname;
 
 	let file = Bun.file(`client/build${path}`);
@@ -9,3 +9,4 @@ export default async request => {
 
 	return new Response(file);
 };
+export default staticRouter;

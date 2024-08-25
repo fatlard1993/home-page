@@ -10,7 +10,8 @@ const requestMatch = (method, pattern, request) => {
 
 	if (!pattern.includes(':')) return path === pattern && result;
 
-	const regex = new RegExp(pattern.replaceAll('/', '\\/').replaceAll(/:.+/g, '([^/]+)'));
+	const regex = new RegExp(pattern.replaceAll('/', String.raw`\/`).replaceAll(/:[^/]+/g, '([^/]+)'));
+
 	const keys = regex
 		.exec(pattern)
 		?.slice(1)
