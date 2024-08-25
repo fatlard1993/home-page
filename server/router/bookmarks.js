@@ -2,7 +2,7 @@ import bookmarks from '../database/bookmarks';
 
 import requestMatch from '../utils/requestMatch';
 
-export default async request => {
+const bookmarksRouter = async request => {
 	let match;
 
 	match = requestMatch('GET', '/bookmarks', request);
@@ -28,3 +28,5 @@ export default async request => {
 	match = requestMatch('DELETE', '/bookmarks/:id', request);
 	if (match) return new Response(null, { status: bookmarks.delete(match) ? 204 : 404 });
 };
+
+export default bookmarksRouter;

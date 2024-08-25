@@ -2,7 +2,7 @@ import categories from '../database/categories';
 
 import requestMatch from '../utils/requestMatch';
 
-export default async request => {
+const categoriesRouter = async request => {
 	let match;
 
 	match = requestMatch('GET', '/categories', request);
@@ -28,3 +28,5 @@ export default async request => {
 	match = requestMatch('DELETE', '/categories/:id', request);
 	if (match) return new Response(null, { status: categories.delete(match) ? 204 : 404 });
 };
+
+export default categoriesRouter;
