@@ -1,6 +1,6 @@
 {
 	"name": "home-page",
-	"version": "3.6.8",
+	"version": "3.6.9",
 	"type": "module",
 	"exports": {
 		"./package.json": "./package.json",
