@@ -8,7 +8,6 @@ import argi from 'argi';
 import database from './database';
 import server from './server';
 
-import './hotReload';
 import './exit';
 
 const { options } = argi.parse({

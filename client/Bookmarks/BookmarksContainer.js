@@ -1,43 +1,41 @@
-import { DomElem, Link, styled } from 'vanilla-bean-components';
+import { Link, Elem, styled } from 'vanilla-bean-components';
 import { fixLink } from './util';
 
-const BookmarkLink = styled(
-	Link,
-	({ colors }, { options: { color } }) => `
-		background: ${color || colors.blue};
-		color: ${colors.mostReadable(color || colors.blue, [colors.white, colors.black])}
-	`,
-);
+export default class BookmarksContainer extends (styled.Label`
+	margin: 1px 0;
+	padding: 3px 12px 6px 12px;
 
-export default class BookmarksContainer extends DomElem {
-	constructor({ heading = '', bookmarks = [], ...options }) {
-		super({
-			styles: () => `
-				margin: 0 1%;
-				display: flex;
-				flex-wrap: wrap;
-				gap: 6px;
+	label {
+		font-weight: bold;
+		pointer-events: none;
+	}
 
-				h2 {
-					${bookmarks.length > 0 ? '' : 'display: none;'}
-					margin: 6px 6px 0;
-					flex-basis: 100%;
-				}
-			`,
-			...options,
-		});
+	div {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+		margin-left: 6px;
+	}
+`) {
+	_setOption(key, value) {
+		if (key === 'bookmarks') {
+			if (!this.linkContainer) this.linkContainer = new Elem({ appendTo: this });
 
-		this.prepend(typeof heading === 'string' ? new DomElem({ tag: 'h2', textContent: heading }) : heading);
-
-		this.append(
-			bookmarks.map(
-				({ name, url, ...options }) =>
-					new BookmarkLink({
-						textContent: name,
-						href: fixLink(url),
-						...options,
-					}),
-			),
-		);
+			this.linkContainer.content(
+				value.map(
+					({ name, url, ...options }) =>
+						new Link({
+							textContent: name,
+							href: fixLink(url),
+							variant: 'button',
+							styles: ({ colors }) => ({
+								background: options.color || colors.blue,
+								color: colors.mostReadable(options.color || colors.blue, [colors.white, colors.black]),
+							}),
+							...options,
+						}),
+				),
+			);
+		} else super._setOption(key, value);
 	}
 }

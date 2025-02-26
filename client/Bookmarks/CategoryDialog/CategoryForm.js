@@ -15,7 +15,7 @@ export default class CategoryForm extends Form {
 				{
 					key: 'color',
 					label: 'Default Color',
-					Component: ColorPicker,
+					InputComponent: ColorPicker,
 					swatches: ['random', ...(JSON.parse(localStorage.getItem('recentColors')) || [])],
 					collapsed: !formData?.color,
 				},

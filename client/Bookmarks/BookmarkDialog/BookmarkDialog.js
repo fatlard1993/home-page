@@ -43,7 +43,7 @@ export default class BookmarkDialog extends Dialog {
 
 		this.form = new BookmarkForm({
 			appendTo: this._body,
-			bookmark: this.options.bookmark,
+			data: this.options.bookmark,
 			category: this.options.category,
 		});
 	}

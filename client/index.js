@@ -16,11 +16,4 @@ document.addEventListener('keypress', event => {
 	}
 });
 
-new Page({
-	styles: ({ colors }) => `
-		color: ${colors.lightest(colors.gray)};
-		background-color: ${colors.darkest(colors.gray)};
-	`,
-	appendTo: document.body,
-	append: router,
-});
+new Page({ appendTo: document.body, append: router });
