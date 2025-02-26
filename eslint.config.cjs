@@ -18,7 +18,7 @@ module.exports = [
 		},
 	},
 	{
-		files: ['server/*.js', 'server/**/*.js'],
+		files: ['server/*.js', 'server/**/*.js', 'client/build.js'],
 		languageOptions: {
 			globals: {
 				...globals.node,

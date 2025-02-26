@@ -13,7 +13,7 @@ const router = async (request, server) => {
 		let response;
 
 		match = requestMatch('GET', '/', request);
-		if (match) return new Response(Bun.file('client/index.html'));
+		if (match) return new Response(Bun.file('client/build/index.html'));
 
 		if (process.env.NODE_ENV === 'development') {
 			match = requestMatch('GET', '/ws', request);

@@ -73,8 +73,8 @@ export default class BookmarksToolbar extends Toolbar {
 		});
 	}
 
-	setOption(key, value) {
+	_setOption(key, value) {
 		if (key === 'search') return;
-		else super.setOption(key, value);
+		else super._setOption(key, value);
 	}
 }
