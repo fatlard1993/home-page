@@ -216,7 +216,10 @@ export default class Bookmarks extends View {
 						categoryId,
 						bookmarks: categoryBookmarks,
 						...(category.color && {
-							style: { width: 'calc(100% - 28px)', borderLeft: `4px solid ${new TinyColor(category.color).setAlpha(0.4)}` },
+							style: {
+								width: 'calc(100% - 28px)',
+								borderLeft: `4px solid ${new TinyColor(category.color).setAlpha(0.4)}`,
+							},
 						}),
 					});
 				}

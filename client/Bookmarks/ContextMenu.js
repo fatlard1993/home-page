@@ -12,11 +12,8 @@ const Reticle = styled.Component`
 	--aug-all-width: ${reticleSize}px;
 	--reticle-color: currentColor;
 	--reticle-size: calc(var(--aug-all-width) * 0.25);
-	--aug-border-bg: radial-gradient(
-			circle at top center,
-			var(--reticle-color) var(--reticle-size),
-			transparent var(--reticle-size)
-		),
+	--aug-border-bg:
+		radial-gradient(circle at top center, var(--reticle-color) var(--reticle-size), transparent var(--reticle-size)),
 		radial-gradient(
 			circle at bottom 13.92% right 6.89%,
 			var(--reticle-color) var(--reticle-size),
