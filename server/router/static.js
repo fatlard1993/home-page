@@ -1,7 +1,7 @@
 const staticRouter = async request => {
 	const path = new URL(request.url).pathname;
 
-	console.log('static server', path)
+	console.log('static server', path);
 
 	let file = Bun.file(`client/build${path}`);
 
