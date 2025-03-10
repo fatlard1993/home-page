@@ -1,5 +1,6 @@
 import uFuzzy from '@leeoniya/ufuzzy';
 import { View, Elem, copyToClipboard, Icon, conditionalList } from 'vanilla-bean-components';
+import { TinyColor } from '@ctrl/tinycolor';
 
 import { deleteBookmark, getBookmarks, getCategories, getSearchResults } from '../api';
 
@@ -214,6 +215,9 @@ export default class Bookmarks extends View {
 						label: category.name,
 						categoryId,
 						bookmarks: categoryBookmarks,
+						...(category.color && {
+							style: { width: 'calc(100% - 28px)', borderLeft: `4px solid ${new TinyColor(category.color).setAlpha(0.4)}` },
+						}),
 					});
 				}
 			});
