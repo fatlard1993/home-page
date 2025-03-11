@@ -21,7 +21,7 @@ export default class BookmarkForm extends Form {
 		const categories = (await getCategories()).body;
 		const clipboardContent = await readClipboard();
 
-		if (isLink(clipboardContent)) this.options.data.url = clipboardContent;
+		if (!this.options.data.url && isLink(clipboardContent)) this.options.data.url = clipboardContent;
 
 		this.newCategoryInput = new Input({
 			type: 'text',
