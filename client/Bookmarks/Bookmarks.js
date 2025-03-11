@@ -75,10 +75,10 @@ export default class Bookmarks extends View {
 
 	_setOption(key, value) {
 		if (key === 'search') {
-			this.renderLoader();
-
-			if (value) this.searchResults.refetch({ enabled: value.length > 0, urlParameters: { term: value } });
-			else if (this.rendered) this.renderContent();
+			if (value) {
+				this.renderLoader();
+				this.searchResults.refetch({ enabled: value.length > 0, urlParameters: { term: value } });
+			} else if (this.rendered) this.renderContent();
 		} else super._setOption(key, value);
 	}
 
@@ -282,11 +282,14 @@ export default class Bookmarks extends View {
 				],
 			},
 			{
+				if: event.target.href,
+				thenItem: {
+					textContent: 'Copy URL To Clipboard',
+					onPointerPress: () => copyToClipboard(event.target.href),
+				},
+			},
+			{
 				alwaysItems: [
-					{
-						textContent: 'Copy URL To Clipboard',
-						onPointerPress: () => copyToClipboard(event.target.href),
-					},
 					{
 						textContent: 'Add Bookmark',
 						onPointerPress: () => new BookmarkDialog(),
