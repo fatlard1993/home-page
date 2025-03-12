@@ -6,7 +6,7 @@ import path from 'path';
 import argi from 'argi';
 
 import database from './database';
-import server from './server';
+import server, { spawnBuild } from './server';
 
 import './exit';
 
@@ -35,3 +35,10 @@ console.log('Options', options, process.env.NODE_ENV);
 database.init({ persistent: options.persistent, path: options.database });
 
 server.init({ port: options.port });
+
+for await (const line of console) {
+	if (line === 'b') {
+		console.log('>> Building...');
+		spawnBuild();
+	}
+}
