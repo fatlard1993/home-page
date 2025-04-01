@@ -3,30 +3,32 @@
 import os from 'os';
 import path from 'path';
 
-import argi from 'argi';
+import Argi from 'argi';
 
 import database from './database';
 import server, { spawnBuild } from './server';
 
 import './exit';
 
-const { options } = argi.parse({
-	persistent: {
-		type: 'boolean',
-		alias: 'P',
-		defaultValue: true,
-		description: 'Save lists to a file',
-	},
-	database: {
-		type: 'string',
-		alias: 'd',
-		defaultValue: path.join(os.homedir(), '.homePage.json'),
-		description: 'Database json file to use',
-	},
-	port: {
-		type: 'number',
-		alias: 'p',
-		defaultValue: 8033,
+const { options } = new Argi({
+	options: {
+		persistent: {
+			type: 'boolean',
+			alias: 'P',
+			defaultValue: true,
+			description: 'Save lists to a file',
+		},
+		database: {
+			type: 'string',
+			alias: 'd',
+			defaultValue: path.join(os.homedir(), '.homePage.json'),
+			description: 'Database json file to use',
+		},
+		port: {
+			type: 'number',
+			alias: 'p',
+			defaultValue: 8033,
+		},
 	},
 });
 
