@@ -8,6 +8,7 @@ const build = async () => {
 		outdir: 'client/build',
 		define: {
 			'process.env.AUTOPREFIXER_GRID': 'undefined',
+			'process.cwd': 'String'
 		},
 		...(import.meta.env === 'production' && { drop: ['console'] }),
 	});
