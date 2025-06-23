@@ -11,7 +11,7 @@ const search = async term => {
 
 	let scryfall = await fetch(`https://api.scryfall.com/cards/search?q=${term}&limit=10`);
 	scryfall = await scryfall.json();
-	scryfall = scryfall?.data.slice(0, 10);
+	scryfall = scryfall?.data?.slice(0, 10);
 
 	return { google, stardew, scryfall };
 };
