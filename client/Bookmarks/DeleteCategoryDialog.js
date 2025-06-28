@@ -25,17 +25,17 @@ export default class DeleteCategoryDialog extends Dialog {
 	}
 
 	async render() {
-		this.options.categories = await getCategories({ onRefetch: this.render.bind(this) });
+		const categories = (await getCategories()).body;
 
 		this.options.onDisconnected = () => {
-			this.options.categories.unsubscribe();
+			categories.unsubscribe();
 		};
 
 		const moveTo = new Select({
 			options: [
 				{ label: 'Default', value: undefined },
-				...Object.keys(this.options.categories.body).map(id => ({
-					label: this.options.categories.body?.[id]?.name,
+				...Object.keys(categories).map(id => ({
+					label: categories?.[id]?.name,
 					value: id,
 				})),
 			],
