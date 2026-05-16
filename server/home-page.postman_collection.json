@@ -4,126 +4,304 @@
 		"name": "home-page",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "localhost:8033"
+		}
+	],
 	"item": [
 		{
-			"name": "/bookmarks",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "localhost:11571/bookmarks",
-					"host": ["localhost"],
-					"port": "11571",
-					"path": ["bookmarks"]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "/bookmarks",
-			"event": [
+			"name": "Bookmarks",
+			"item": [
 				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"const body = JSON.parse(responseBody);",
-							"",
-							"if (body.id) postman.setEnvironmentVariable(\"bookmarkId\", body.id);",
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"name\": \"myCoolBookmark\",\n    \"url\": \"www.myCoolSite.com\",\n    \"color\": \"#BADA55\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+					"name": "GET /bookmarks",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookmarks",
+							"host": ["{{baseUrl}}"],
+							"path": ["bookmarks"]
 						}
 					}
 				},
-				"url": {
-					"raw": "localhost:11571/bookmarks",
-					"host": ["localhost"],
-					"port": "11571",
-					"path": ["bookmarks"]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "/bookmarks",
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"name\": \"myCoolBookmark!\",\n    \"url\": \"www.myCoolSite.com\",\n    \"color\": \"#BADA55\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+				{
+					"name": "POST /bookmarks",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const body = JSON.parse(responseBody);",
+									"if (body.id) postman.setEnvironmentVariable('bookmarkId', body.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"myCoolBookmark\",\n    \"url\": \"www.myCoolSite.com\",\n    \"color\": \"#BADA55\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookmarks",
+							"host": ["{{baseUrl}}"],
+							"path": ["bookmarks"]
 						}
 					}
 				},
-				"url": {
-					"raw": "localhost:11571/bookmarks/:id",
-					"host": ["localhost"],
-					"port": "11571",
-					"path": ["bookmarks", ":id"],
-					"variable": [
-						{
-							"key": "id",
-							"value": "{{bookmarkId}}"
+				{
+					"name": "GET /bookmarks/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookmarks/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["bookmarks", ":id"],
+							"variable": [{ "key": "id", "value": "{{bookmarkId}}" }]
 						}
-					]
+					}
+				},
+				{
+					"name": "PATCH /bookmarks/:id",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"myCoolBookmark!\",\n    \"url\": \"www.myCoolSite.com\",\n    \"color\": \"#BADA55\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookmarks/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["bookmarks", ":id"],
+							"variable": [{ "key": "id", "value": "{{bookmarkId}}" }]
+						}
+					}
+				},
+				{
+					"name": "DELETE /bookmarks/:id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookmarks/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["bookmarks", ":id"],
+							"variable": [{ "key": "id", "value": "{{bookmarkId}}" }]
+						}
+					}
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "/bookmarks",
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "localhost:11571/bookmarks/:id",
-					"host": ["localhost"],
-					"port": "11571",
-					"path": ["bookmarks", ":id"],
-					"variable": [
-						{
-							"key": "id",
-							"value": "{{bookmarkId}}"
+			"name": "Categories",
+			"item": [
+				{
+					"name": "GET /categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/categories",
+							"host": ["{{baseUrl}}"],
+							"path": ["categories"]
 						}
-					]
+					}
+				},
+				{
+					"name": "POST /categories",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const body = JSON.parse(responseBody);",
+									"if (body.id) postman.setEnvironmentVariable('categoryId', body.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"myCoolCategory\",\n    \"color\": \"#C0FFEE\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{baseUrl}}/categories",
+							"host": ["{{baseUrl}}"],
+							"path": ["categories"]
+						}
+					}
+				},
+				{
+					"name": "GET /categories/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/categories/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["categories", ":id"],
+							"variable": [{ "key": "id", "value": "{{categoryId}}" }]
+						}
+					}
+				},
+				{
+					"name": "PATCH /categories/:id",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"myCoolCategory!\",\n    \"color\": \"#DECADE\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{baseUrl}}/categories/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["categories", ":id"],
+							"variable": [{ "key": "id", "value": "{{categoryId}}" }]
+						}
+					}
+				},
+				{
+					"name": "DELETE /categories/:id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/categories/:id?moveTo=",
+							"host": ["{{baseUrl}}"],
+							"path": ["categories", ":id"],
+							"query": [{ "key": "moveTo", "value": "", "description": "Category ID to move bookmarks to (omit to delete bookmarks)" }],
+							"variable": [{ "key": "id", "value": "{{categoryId}}" }]
+						}
+					}
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "/search",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "localhost:11571/search/:term",
-					"host": ["localhost"],
-					"port": "11571",
-					"path": ["search", ":term"],
-					"variable": [
-						{
-							"key": "term",
-							"value": "cool"
+			"name": "Search Engines",
+			"item": [
+				{
+					"name": "GET /search/engines",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/search/engines",
+							"host": ["{{baseUrl}}"],
+							"path": ["search", "engines"]
 						}
-					]
+					}
+				},
+				{
+					"name": "POST /search/engines",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const body = JSON.parse(responseBody);",
+									"if (body.id) postman.setEnvironmentVariable('engineId', body.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"label\": \"My Search\",\n    \"url\": \"https://example.com/search?q=:term\",\n    \"resultsPath\": \"results\",\n    \"nameProperty\": \"name\",\n    \"urlProperty\": \"url\",\n    \"limit\": 5\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{baseUrl}}/search/engines",
+							"host": ["{{baseUrl}}"],
+							"path": ["search", "engines"]
+						}
+					}
+				},
+				{
+					"name": "GET /search/engines/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/search/engines/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["search", "engines", ":id"],
+							"variable": [{ "key": "id", "value": "{{engineId}}" }]
+						}
+					}
+				},
+				{
+					"name": "PATCH /search/engines/:id",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"label\": \"Updated Search\",\n    \"limit\": 10\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{baseUrl}}/search/engines/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["search", "engines", ":id"],
+							"variable": [{ "key": "id", "value": "{{engineId}}" }]
+						}
+					}
+				},
+				{
+					"name": "DELETE /search/engines/:id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/search/engines/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["search", "engines", ":id"],
+							"variable": [{ "key": "id", "value": "{{engineId}}" }]
+						}
+					}
 				}
-			},
-			"response": []
+			]
+		},
+		{
+			"name": "Search",
+			"item": [
+				{
+					"name": "GET /search/:provider/:term",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/search/:provider/:term",
+							"host": ["{{baseUrl}}"],
+							"path": ["search", ":provider", ":term"],
+							"variable": [
+								{ "key": "provider", "value": "{{engineId}}" },
+								{ "key": "term", "value": "test" }
+							]
+						}
+					}
+				}
+			]
 		}
 	]
 }

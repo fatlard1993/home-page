@@ -11,6 +11,7 @@ describe('BookmarkDialog', () => {
 		}));
 	});
 
+	// Dialog close relies on animation/transition events not fired in test env
 	test.skip('must provide a way to cancel the operation', async () => {
 		new BookmarkDialog({ appendTo: container });
 
@@ -33,6 +34,7 @@ describe('BookmarkDialog', () => {
 		await findAllByRole(container, 'textbox');
 	});
 
+	// Validation behavior needs form submission simulation
 	test.skip('must require a Name and URL', async () => {
 		new BookmarkDialog({ appendTo: container });
 

@@ -1,6 +1,7 @@
 import { Dialog, conditionalList } from 'vanilla-bean-components';
 
 import { createCategory, updateCategory } from '../../api';
+import { saveRecentColor } from '../util';
 
 import DeleteCategoryDialog from '../DeleteCategoryDialog';
 import CategoryForm from './CategoryForm';
@@ -19,11 +20,7 @@ export default class CategoryDialog extends Dialog {
 
 					const { color } = this.form.options.data;
 
-					if (color) {
-						const recentColors = [...new Set([color, ...(JSON.parse(localStorage.getItem('recentColors')) || [])])];
-						recentColors.length = Math.min(recentColors.length, 10);
-						localStorage.setItem('recentColors', JSON.stringify(recentColors));
-					}
+					saveRecentColor(color);
 
 					if (isEdit) {
 						updateCategory(this.options.category.id, { body: this.form.options.data });

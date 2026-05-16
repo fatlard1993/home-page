@@ -39,22 +39,6 @@ export default class BookmarkForm extends Form {
 			},
 		});
 
-		// this.categorySelect = new Select({
-		// 	value: this.options.data.category,
-		// 	options: ['Default', 'New', ...Object.keys(categories).map(id => ({ label: categories?.[id]?.name, value: id }))],
-		// 	onChange: ({ value }) => {
-		// 		console.log('XXX');
-		// 		const showNew = value === 'New';
-		// 		this.newCategoryInput.elem.style.display = showNew ? 'block' : 'none';
-
-		// 		this.newCategoryInput.elem.focus();
-
-		// 		this.options.data.category = this.newCategoryInput.parent.options.value = showNew
-		// 			? this.newCategoryInput.options.value
-		// 			: value;
-		// 	},
-		// });
-
 		this.options.inputs = [
 			{ key: 'name', validations: [[/.+/, 'Required']] },
 			{ key: 'url', validations: [[/.+/, 'Required']] },
@@ -67,9 +51,6 @@ export default class BookmarkForm extends Form {
 					...Object.keys(categories).map(id => ({ label: categories?.[id]?.name, value: id })),
 				],
 				append: [this.newCategoryInput],
-				// validate: () => {
-				// 	if (this.newCategoryInput.elem.style.display === 'block') return this.newCategoryInput.validate();
-				// },
 			},
 			{
 				key: 'color',

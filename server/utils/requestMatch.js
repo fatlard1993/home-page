@@ -10,17 +10,28 @@ const requestMatch = (method, pattern, request) => {
 
 	if (!pattern.includes(':')) return path === pattern && result;
 
-	const regex = new RegExp(pattern.replaceAll('/', String.raw`\/`).replaceAll(/:[^/]+/g, '([^/]+)'));
+	// Extract param names during regex construction instead of running regex against the pattern string
+	const paramNames = [];
+	const regexStr = pattern
+		.split('/')
+		.map(segment => {
+			if (segment.startsWith(':')) {
+				paramNames.push(segment.slice(1));
+				return '([^/]+)';
+			}
+			return segment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+		})
+		.join('\\/');
 
-	const keys = regex
-		.exec(pattern)
-		?.slice(1)
-		?.map(key => key.slice(1));
-	const values = regex.exec(path)?.slice(1);
+	const values = new RegExp(`^${regexStr}$`).exec(path)?.slice(1);
 
-	keys.forEach((key, index) => (result[key] = values?.[index] && decodeURI(values[index])));
+	if (!values) return false;
 
-	return values && result;
+	paramNames.forEach((key, index) => {
+		result[key] = decodeURIComponent(values[index]);
+	});
+
+	return result;
 };
 
 export default requestMatch;

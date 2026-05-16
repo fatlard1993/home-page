@@ -1,10 +1,11 @@
 import { nanoid } from 'nanoid';
 
-import search from '../utils/search';
+import { searchProvider } from '../utils/search';
 import requestMatch from '../utils/requestMatch';
 
 import bookmarksRoutes from './bookmarks';
 import categoriesRoutes from './categories';
+import searchEnginesRoutes from './searchEngines';
 import staticRoutes from './static';
 
 const router = async (request, server) => {
@@ -30,12 +31,17 @@ const router = async (request, server) => {
 		response = await categoriesRoutes(request);
 		if (response) return response;
 
-		match = requestMatch('GET', '/search/:term', request);
+		response = await searchEnginesRoutes(request);
+		if (response) return response;
+
+		match = requestMatch('GET', '/search/:provider/:term', request);
 		if (match) {
 			try {
-				const suggestions = await search(match.term);
+				const results = await searchProvider(match.provider, match.term);
 
-				return Response.json(suggestions);
+				if (!results) return new Response('Provider not found', { status: 404 });
+
+				return Response.json(results);
 			} catch (error) {
 				console.error(error);
 
@@ -45,7 +51,14 @@ const router = async (request, server) => {
 
 		response = await staticRoutes(request);
 		if (response) return response;
+
+		// SPA fallback — serve index.html for unmatched GET requests
+		if (request.method === 'GET') return new Response(Bun.file('client/build/index.html'));
+
+		return new Response('Not Found', { status: 404 });
 	} catch (error) {
+		if (error instanceof SyntaxError) return new Response('Invalid JSON', { status: 400 });
+
 		console.error('An error was encountered processing a request\n', error);
 
 		return new Response('Server Error', { status: 500 });

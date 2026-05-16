@@ -2,7 +2,9 @@ import uFuzzy from '@leeoniya/ufuzzy';
 import { View, Elem, copyToClipboard, Icon, conditionalList } from 'vanilla-bean-components';
 import { TinyColor } from '@ctrl/tinycolor';
 
-import { deleteBookmark, getBookmarks, getCategories, getSearchResults } from '../api';
+import { orderBy } from 'vanilla-bean-components';
+
+import { deleteBookmark, getBookmarks, getCategories, getSearchEngines, getSearchResult } from '../api';
 
 import { Content } from '../Layout';
 import CategoryDialog from './CategoryDialog';
@@ -14,6 +16,7 @@ import ContextMenu from './ContextMenu';
 import { fixLink } from './util';
 import DeleteCategoryDialog from './DeleteCategoryDialog';
 
+// Tolerant fuzzy: allows insertions, substitutions, transpositions, and deletions within matches
 const fuzzy = new uFuzzy({ intraMode: 1, intraIns: 5, intraSub: 1, intraTrn: 1, intraDel: 1 });
 
 export default class Bookmarks extends View {
@@ -38,46 +41,93 @@ export default class Bookmarks extends View {
 
 		this.renderLoader();
 
-		this.categories = await getCategories({
+		this._subscriptions = [];
+
+		this.categories = await this._subscribe(getCategories({
 			onRefetch: response => {
 				this.categories = response;
 
 				if (this.rendered) this.renderContent();
 			},
-		});
+		}));
 
-		this.bookmarks = await getBookmarks({
+		this.bookmarks = await this._subscribe(getBookmarks({
 			onRefetch: response => {
 				this.bookmarks = response;
 
 				if (this.rendered) this.renderContent();
 			},
-		});
+		}));
 
-		this.searchResults = await getSearchResults(this.options.search, {
-			onRefetch: response => {
-				this.searchResults = response;
+		this.searchResults = {};
+
+		this.engines = await this._subscribe(getSearchEngines({
+			onRefetch: async response => {
+				this.engines = response;
+
+				this._unsubscribeSearchResults();
+				await this.subscribeSearchResults();
 
 				if (this.rendered) this.renderContent();
 			},
-		});
+		}));
 
-		this.options.onDisconnected = () => {
-			this.categories.unsubscribe();
-			this.bookmarks.unsubscribe();
-			this.searchResults.unsubscribe();
-		};
+		await this.subscribeSearchResults();
+
+		this.options.onDisconnected = () => this._unsubscribeAll();
 
 		super.render();
 
 		await this.renderContent();
 	}
 
+	async _subscribe(dataPromise) {
+		const data = await dataPromise;
+
+		this._subscriptions.push(data);
+
+		return data;
+	}
+
+	_unsubscribeSearchResults() {
+		for (const id of Object.keys(this.searchResults)) {
+			this.searchResults[id]?.unsubscribe?.();
+
+			const index = this._subscriptions.indexOf(this.searchResults[id]);
+			if (index !== -1) this._subscriptions.splice(index, 1);
+		}
+	}
+
+	_unsubscribeAll() {
+		for (const sub of this._subscriptions) sub?.unsubscribe?.();
+		this._subscriptions = [];
+	}
+
+	async subscribeSearchResults() {
+		this.searchResults = {};
+
+		for (const engine of Object.values(this.engines.body)) {
+			this.searchResults[engine.id] = await this._subscribe(getSearchResult(engine.id, this.options.search, {
+				onRefetch: response => {
+					this.searchResults[engine.id] = response;
+
+					if (this.rendered) this.renderContent();
+				},
+			}));
+		}
+	}
+
 	_setOption(key, value) {
 		if (key === 'search') {
 			if (value) {
 				this.renderLoader();
-				this.searchResults.refetch({ enabled: value.length > 0, urlParameters: { term: value } });
+
+				for (const engine of Object.values(this.engines.body)) {
+					this.searchResults[engine.id].refetch({
+						enabled: value.length > 0,
+						urlParameters: { provider: engine.id, term: value },
+					});
+				}
 			} else if (this.rendered) this.renderContent();
 		} else super._setOption(key, value);
 	}
@@ -99,12 +149,92 @@ export default class Bookmarks extends View {
 		});
 	}
 
+	getFilteredBookmarkIds() {
+		const bookmarkIds = Object.keys(this.bookmarks.body || {});
+
+		if (!this.options.search) return bookmarkIds;
+
+		const haystack = bookmarkIds.flatMap(id => [
+			{ id, hay: this.bookmarks.body[id].name },
+			{ id, hay: this.bookmarks.body[id].url },
+		]);
+		const matches = fuzzy.filter(
+			haystack.map(({ hay }) => hay),
+			this.options.search,
+		);
+
+		return [...new Set(matches?.map?.(i => haystack[i].id))];
+	}
+
+	getCategoryBookmarks(categoryId, filteredIds) {
+		return filteredIds
+			.filter(
+				id =>
+					this.bookmarks.body[id].category === categoryId ||
+					// Uncategorized bucket: no categoryId and bookmark's category doesn't exist
+					(!categoryId && !this.categories.body[this.bookmarks.body[id].category]),
+			)
+			.map(id => this.bookmarks.body[id]);
+	}
+
+	renderBookmarksByCategory(filteredIds) {
+		for (const categoryId of [undefined, ...Object.keys(this.categories.body)]) {
+			const category = this.categories.body[categoryId] || { name: 'Bookmarks' };
+			const categoryBookmarks = this.getCategoryBookmarks(categoryId, filteredIds);
+
+			if (categoryBookmarks.length > 0) {
+				new BookmarksContainer({
+					appendTo: this.content,
+					label: category.name,
+					categoryId,
+					bookmarks: categoryBookmarks,
+					...(category.color && {
+						style: {
+							width: 'calc(100% - 28px)',
+							borderLeft: `4px solid ${new TinyColor(category.color).setAlpha(0.4)}`,
+						},
+					}),
+				});
+			}
+		}
+	}
+
+	renderSearchResults() {
+		for (const engine of Object.values(this.engines.body)) {
+			const results = this.searchResults[engine.id]?.body;
+
+			if (!results?.length) continue;
+
+			const sorted = engine.orderBy ? [...results].sort(orderBy(engine.orderBy)) : results;
+
+			new BookmarksContainer({
+				appendTo: this.content,
+				label: engine.label,
+				bookmarks: sorted.map(item => ({
+					name: item.name,
+					url: item.url,
+					onContextMenu: event =>
+						this.showContextMenu({
+							event,
+							items: [
+								{
+									textContent: `Bookmark "${item.name}"`,
+									onPointerPress: () =>
+										new BookmarkDialog({ bookmark: { name: item.name, url: fixLink(item.url) } }),
+								},
+							],
+						}),
+				})),
+			});
+		}
+	}
+
 	async renderContent() {
-		const bookmarkIds = Object.keys(this.bookmarks.body);
+		const filteredIds = this.getFilteredBookmarkIds();
 
 		this.content.empty();
 
-		if (!this.options.search && !bookmarkIds?.length) {
+		if (!this.options.search && !filteredIds.length) {
 			new Elem({
 				style: {
 					margin: '6px auto',
@@ -115,119 +245,16 @@ export default class Bookmarks extends View {
 				textContent: 'No bookmarks yet .. Create them with the + button above',
 			});
 		} else {
-			if (this.options.search && this.searchResults.body?.google?.length) {
-				new BookmarksContainer({
-					appendTo: this.content,
-					label: 'Google Search Results',
-					bookmarks: this.searchResults.body.google.slice(0, 5).map(search => ({
-						name: search,
-						url: search,
-						onContextMenu: event =>
-							this.showContextMenu({
-								event,
-								items: [
-									{
-										textContent: `Bookmark "${search}"`,
-										onPointerPress: () => new BookmarkDialog({ bookmark: { name: search, url: fixLink(search) } }),
-									},
-								],
-							}),
-					})),
-				});
-			}
+			this.renderBookmarksByCategory(filteredIds);
 
-			if (this.options.search && this.searchResults.body?.stardew?.length) {
-				new BookmarksContainer({
-					appendTo: this.content,
-					label: 'Stardew Wiki Search Results',
-					bookmarks: this.searchResults.body.stardew.slice(0, 5).map(search => ({
-						name: search.replace('https://stardewvalleywiki.com/', ''),
-						url: search,
-						onContextMenu: event =>
-							this.showContextMenu({
-								event,
-								items: [
-									{
-										textContent: `Bookmark "${search}"`,
-										onPointerPress: () =>
-											new BookmarkDialog({
-												bookmark: { name: search.replace('https://stardewvalleywiki.com/', ''), url: fixLink(search) },
-											}),
-									},
-								],
-							}),
-					})),
-				});
-			}
-
-			if (this.options.search && this.searchResults.body?.scryfall?.length) {
-				new BookmarksContainer({
-					appendTo: this.content,
-					label: 'Scryfall Search Results',
-					bookmarks: this.searchResults.body.scryfall.slice(0, 5).map(search => ({
-						name: search.name,
-						url: search.scryfall_uri,
-						onContextMenu: event =>
-							this.showContextMenu({
-								event,
-								items: [
-									{
-										textContent: `Bookmark "${search}"`,
-										onPointerPress: () =>
-											new BookmarkDialog({
-												bookmark: { name: search.name, url: fixLink(search.scryfall_uri) },
-											}),
-									},
-								],
-							}),
-					})),
-				});
-			}
-
-			const bookmarkHaystack = bookmarkIds.flatMap(id => [
-				{ id, hay: this.bookmarks.body[id].name },
-				{ id, hay: this.bookmarks.body[id].url },
-			]);
-			const suggestions =
-				this.options.search &&
-				fuzzy.filter(
-					bookmarkHaystack.map(({ hay }) => hay),
-					this.options.search,
-				);
-			const suggestedBookmarkIds = [
-				...new Set(suggestions?.map?.(haystackIndex => bookmarkHaystack[haystackIndex].id)),
-			];
-			const filteredBookmarkIds = this.options.search ? suggestedBookmarkIds : bookmarkIds;
-
-			[undefined, ...Object.keys(this.categories.body)].forEach(categoryId => {
-				const category = this.categories.body[categoryId] || { name: 'Bookmarks' };
-				const categoryBookmarks = filteredBookmarkIds
-					.filter(
-						id =>
-							this.bookmarks.body[id].category === categoryId ||
-							(!categoryId && !this.categories.body[this.bookmarks.body[id].category]),
-					)
-					.map(id => this.bookmarks.body[id]);
-
-				if (categoryBookmarks.length > 0) {
-					new BookmarksContainer({
-						appendTo: this.content,
-						label: category.name,
-						categoryId,
-						bookmarks: categoryBookmarks,
-						...(category.color && {
-							style: {
-								width: 'calc(100% - 28px)',
-								borderLeft: `4px solid ${new TinyColor(category.color).setAlpha(0.4)}`,
-							},
-						}),
-					});
-				}
-			});
+			if (this.options.search) this.renderSearchResults();
 		}
 	}
 
-	showContextMenu(event) {
+	showContextMenu(eventOrOptions) {
+		const event = eventOrOptions.event || eventOrOptions;
+		const extraItems = eventOrOptions.items;
+
 		event.preventDefault();
 		event.stopPropagation();
 
@@ -244,6 +271,10 @@ export default class Bookmarks extends View {
 		const searchResult = !bookmarkId && event.target.href && event.target.textContent;
 
 		this.contextMenu.options.items = conditionalList([
+			{
+				if: extraItems,
+				thenItems: extraItems,
+			},
 			{
 				if: searchResult,
 				thenItem: {
