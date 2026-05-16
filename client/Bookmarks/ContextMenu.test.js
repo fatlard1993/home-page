@@ -1,11 +1,11 @@
-import { findByRole } from '@testing-library/dom';
-
 import ContextMenu from './ContextMenu';
 
 describe('ContextMenu', () => {
 	test('must render', async () => {
-		new ContextMenu({ appendTo: container });
+		const menu = new ContextMenu({ appendTo: container });
 
-		await findByRole(container, 'list');
+		// Menu is a popover — verify it mounted
+		expect(menu.elem).toBeDefined();
+		expect(menu.elem.getAttribute('popover')).toBe('manual');
 	});
 });

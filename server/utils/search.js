@@ -1,19 +1,59 @@
-const search = async term => {
-	let google = await fetch(`http://suggestqueries.google.com/complete/search?client=chrome&q=${term}`);
-	google = await google.json();
-	google = google?.[1];
+import searchEnginesDb from '../database/searchEngines';
 
-	let stardew = await fetch(
-		`https://stardewvalleywiki.com/mediawiki/api.php?action=opensearch&format=json&formatversion=2&search=${term}&namespace=0&limit=10`,
-	);
-	stardew = await stardew.json();
-	stardew = stardew?.[3];
+import defaultEngines from './defaultEngines';
 
-	let scryfall = await fetch(`https://api.scryfall.com/cards/search?q=${term}&limit=10`);
-	scryfall = await scryfall.json();
-	scryfall = scryfall?.data?.slice(0, 10);
+export const seedEngines = async () => {
+	const existing = searchEnginesDb.read();
 
-	return { google, stardew, scryfall };
+	if (Object.keys(existing).length === 0) {
+		for (const engine of defaultEngines) await searchEnginesDb.create(engine);
+	}
 };
 
-export default search;
+const ALLOWED_PROTOCOLS = ['http:', 'https:'];
+
+export const searchProvider = async (providerId, term) => {
+	const engine = searchEnginesDb.read({ id: providerId });
+
+	if (!engine) return [];
+
+	const url = engine.url.replace(':term', encodeURIComponent(term));
+
+	let parsed;
+	try {
+		parsed = new URL(url);
+	} catch {
+		throw new Error(`Invalid search engine URL: ${url}`);
+	}
+
+	if (!ALLOWED_PROTOCOLS.includes(parsed.protocol)) {
+		throw new Error(`Disallowed protocol: ${parsed.protocol}`);
+	}
+
+	const response = await fetch(url);
+
+	if (!response.ok) throw new Error(`Search API returned ${response.status}: ${response.statusText}`);
+
+	const json = await response.json();
+
+	const results = json[engine.resultsPath] || [];
+	const nameResults = engine.nameResultsPath ? json[engine.nameResultsPath] || [] : null;
+
+	const mapped = results.slice(0, engine.limit || 5).map((item, index) => {
+		let name = item;
+
+		if (nameResults) name = nameResults[index] || item;
+		else if (engine.nameProperty) name = item[engine.nameProperty];
+
+		return {
+			name,
+			url: engine.urlProperty ? item[engine.urlProperty] : item,
+		};
+	});
+
+	if (engine.orderBy && engine.orderBy in mapped[0]) {
+		mapped.sort((a, b) => String(a[engine.orderBy]).localeCompare(String(b[engine.orderBy])));
+	}
+
+	return mapped;
+};

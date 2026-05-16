@@ -9,7 +9,7 @@ const bookmarksRouter = async request => {
 	if (match) return Response.json(bookmarks.read());
 
 	match = requestMatch('POST', '/bookmarks', request);
-	if (match) return Response.json(bookmarks.create(await request.json()), { status: 201 });
+	if (match) return Response.json(await bookmarks.create(await request.json()), { status: 201 });
 
 	match = requestMatch('GET', '/bookmarks/:id', request);
 	if (match) {
@@ -20,13 +20,13 @@ const bookmarksRouter = async request => {
 
 	match = requestMatch('PATCH', '/bookmarks/:id', request);
 	if (match) {
-		const item = bookmarks.update({ ...match, update: await request.json() });
+		const item = await bookmarks.update({ ...match, update: await request.json() });
 
 		return item ? Response.json(item) : new Response(null, { status: 404 });
 	}
 
 	match = requestMatch('DELETE', '/bookmarks/:id', request);
-	if (match) return new Response(null, { status: bookmarks.delete(match) ? 204 : 404 });
+	if (match) return new Response(null, { status: (await bookmarks.delete(match)) ? 204 : 404 });
 };
 
 export default bookmarksRouter;

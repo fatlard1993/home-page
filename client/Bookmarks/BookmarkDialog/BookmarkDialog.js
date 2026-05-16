@@ -1,6 +1,7 @@
 import { Dialog, conditionalList } from 'vanilla-bean-components';
 
 import { deleteBookmark, updateBookmark, createBookmark } from '../../api';
+import { saveRecentColor } from '../util';
 
 import BookmarkForm from './BookmarkForm';
 
@@ -18,14 +19,9 @@ export default class BookmarkDialog extends Dialog {
 
 					const { color, category } = this.form.options.data;
 
-					if (color && color !== 'random') {
-						const recentColors = [...new Set([color, ...(JSON.parse(localStorage.getItem('recentColors')) || [])])];
-						recentColors.length = Math.min(recentColors.length, 10);
-						localStorage.setItem('recentColors', JSON.stringify(recentColors));
-					}
+					saveRecentColor(color);
 
 					if (category === 'Default') this.form.options.data.category = '';
-					else if (category === 'New') this.form.options.data.category = this.newCategoryInput.elem.value;
 
 					if (isEdit) {
 						updateBookmark(this.options.bookmark.id, { body: this.form.options.data });
@@ -36,7 +32,7 @@ export default class BookmarkDialog extends Dialog {
 					deleteBookmark(this.options.bookmark.id);
 				}
 
-				this.elem.remove();
+				this.close();
 			},
 			...options,
 		});

@@ -1,7 +1,7 @@
 import { styled, Menu, isDescendantOf } from 'vanilla-bean-components';
 
-const itemHeight = 37;
-const reticleSize = 32;
+const itemHeight = 37; // Menu item height in px — matches Menu component's rendered li height
+const reticleSize = 32; // Hexagonal click indicator size in px — used by augmented-ui for the hex shape
 
 const Reticle = styled.Component`
 	position: absolute;
@@ -108,6 +108,7 @@ export default class ContextMenu extends styled.Popover(
 		this.addCleanup('contextMenu', () => {
 			document.removeEventListener('keyup', keyBinds);
 			document.removeEventListener('pointerdown', pointerBinds);
+			this.contextPointer?.elem.remove();
 		});
 	}
 

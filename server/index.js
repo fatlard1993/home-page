@@ -7,17 +7,12 @@ import Argi from 'argi';
 
 import database from './database';
 import server, { spawnBuild } from './server';
+import { seedEngines } from './utils/search';
 
 import './exit';
 
 const { options } = new Argi({
 	options: {
-		persistent: {
-			type: 'boolean',
-			alias: 'P',
-			defaultValue: true,
-			description: 'Save lists to a file',
-		},
 		database: {
 			type: 'string',
 			alias: 'd',
@@ -32,16 +27,18 @@ const { options } = new Argi({
 	},
 });
 
-console.log('Options', options, process.env.NODE_ENV);
+if (process.env.NODE_ENV === 'development') console.log('Options', options);
 
-database.init({ persistent: options.persistent, path: options.database });
+await database.init({ path: options.database });
+
+await seedEngines();
 
 server.init({ port: options.port });
 
 if (process.env.NODE_ENV === 'development') {
 	try {
 		for await (const line of console) {
-			if ({ stop: 1, close: 1, exit: 1 }[line]) process.kill(process.pid, 'SIGTERM');
+			if (['stop', 'close', 'exit'].includes(line)) process.kill(process.pid, 'SIGTERM');
 			else if (line === 'b') {
 				console.log('>> Building...');
 				spawnBuild();

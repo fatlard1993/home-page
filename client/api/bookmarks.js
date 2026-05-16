@@ -12,4 +12,4 @@ export const updateBookmark = async (id, options) =>
 	await PATCH('/bookmarks/:id', { invalidates: ['bookmarks', 'categories'], urlParameters: { id }, ...options });
 
 export const deleteBookmark = async (id, options) =>
-	await DELETE('/bookmarks/:id', { invalidates: ['bookmarks'], urlParameters: { id }, ...options });
+	await DELETE('/bookmarks/:id', { invalidates: ['bookmarks', 'categories'], urlParameters: { id }, ...options });

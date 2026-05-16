@@ -6,11 +6,12 @@ const build = async () => {
 	const buildResults = await Bun.build({
 		entrypoints: ['client/index.html'],
 		outdir: 'client/build',
+		minify: true,
 		define: {
 			'process.env.AUTOPREFIXER_GRID': 'undefined',
-			'process.cwd': 'String'
+			'process.cwd': 'String',
 		},
-		...(import.meta.env === 'production' && { drop: ['console'] }),
+		...(process.env.NODE_ENV === 'production' && { drop: ['console'] }),
 	});
 
 	console.log(buildResults.success ? 'build.success' : buildResults.logs);
@@ -24,12 +25,15 @@ const watcherIgnore = /^client\/build|^\./;
 if (enableWatcher) {
 	console.log(`Initializing watcher`);
 
+	let buildTimeout;
+
 	const watcher = watch(`${import.meta.dir}/..`, { recursive: true }, (event, filename) => {
 		if (watcherIgnore.test(filename)) return;
 
 		console.log(`Detected ${event} in ${filename}`);
 
-		build();
+		clearTimeout(buildTimeout);
+		buildTimeout = setTimeout(build, 100);
 	});
 
 	process.on('SIGINT', () => {

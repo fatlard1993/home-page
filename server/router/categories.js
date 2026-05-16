@@ -9,7 +9,7 @@ const categoriesRouter = async request => {
 	if (match) return Response.json(categories.read(match));
 
 	match = requestMatch('POST', '/categories', request);
-	if (match) return Response.json(categories.create(await request.json()), { status: 201 });
+	if (match) return Response.json(await categories.create(await request.json()), { status: 201 });
 
 	match = requestMatch('GET', '/categories/:id', request);
 	if (match) {
@@ -20,13 +20,13 @@ const categoriesRouter = async request => {
 
 	match = requestMatch('PATCH', '/categories/:id', request);
 	if (match) {
-		const item = categories.update({ ...match, update: await request.json() });
+		const item = await categories.update({ ...match, update: await request.json() });
 
 		return item ? Response.json(item) : new Response(null, { status: 404 });
 	}
 
 	match = requestMatch('DELETE', '/categories/:id', request);
-	if (match) return new Response(null, { status: categories.delete(match) ? 204 : 404 });
+	if (match) return new Response(null, { status: (await categories.delete(match)) ? 204 : 404 });
 };
 
 export default categoriesRouter;

@@ -7,6 +7,14 @@ const localhostRegex = /^(.+:\/\/)?localhost(:\d{1,5})?(\/.*)?$/;
 export const isLink = url =>
 	websiteRegex.test(url) || ipRegex.test(url) || localhostRegex.test(url) || hostnameRegex.test(url);
 
+export const saveRecentColor = color => {
+	if (!color || color === 'random') return;
+
+	const recentColors = [...new Set([color, ...(JSON.parse(localStorage.getItem('recentColors')) || [])])];
+	recentColors.length = Math.min(recentColors.length, 10);
+	localStorage.setItem('recentColors', JSON.stringify(recentColors));
+};
+
 export const fixLink = url => {
 	if (isLink(url)) return /.+:\/\//.test(url) ? url : `http://${url}`;
 
