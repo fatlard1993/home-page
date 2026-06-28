@@ -1,6 +1,6 @@
-import { Context } from 'vanilla-bean-components';
+import { Oxject } from '@vanilla-bean/components';
 
-const context = new Context({
+const context = new Oxject({
 	preRenderSearch: '',
 });
 

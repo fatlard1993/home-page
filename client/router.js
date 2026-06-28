@@ -1,4 +1,4 @@
-import { Router } from 'vanilla-bean-components';
+import { Router } from '@vanilla-bean/components';
 
 import Bookmarks from './Bookmarks';
 

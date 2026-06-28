@@ -1,4 +1,4 @@
-import { styled } from 'vanilla-bean-components';
+import { styled } from '@vanilla-bean/components';
 
 export const Content = styled.Component`
 	margin: 0 0 6px;

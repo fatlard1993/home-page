@@ -1,4 +1,4 @@
-import { styled, Menu, isDescendantOf } from 'vanilla-bean-components';
+import { styled, Menu, isDescendantOf } from '@vanilla-bean/components';
 
 const itemHeight = 37; // Menu item height in px — matches Menu component's rendered li height
 const reticleSize = 32; // Hexagonal click indicator size in px — used by augmented-ui for the hex shape
