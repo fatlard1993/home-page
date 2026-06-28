@@ -1,4 +1,4 @@
-import { Page } from 'vanilla-bean-components';
+import { Page } from '@vanilla-bean/components';
 
 import context from './context';
 import router from './router';

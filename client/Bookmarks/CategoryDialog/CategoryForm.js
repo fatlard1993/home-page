@@ -1,4 +1,4 @@
-import { ColorPicker, Form } from 'vanilla-bean-components';
+import { ColorPicker, Form } from '@vanilla-bean/components';
 
 export default class CategoryForm extends Form {
 	render() {

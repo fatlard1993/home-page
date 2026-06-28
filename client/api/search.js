@@ -1,4 +1,4 @@
-import { GET, POST, PATCH, DELETE } from 'vanilla-bean-components';
+import { GET, POST, PATCH, DELETE } from '@vanilla-bean/hypertether';
 
 export const getSearchEngines = async options =>
 	await GET('/search/engines', {
@@ -17,7 +17,7 @@ export const deleteSearchEngine = async (id, options) =>
 
 export const getSearchResult = async (provider, term, options) =>
 	await GET('/search/:provider/:term', {
-		id: `search:${provider}`,
+		apiId: `search:${provider}`,
 		enabled: !!term && (options?.enabled ?? true),
 		urlParameters: { provider, term },
 		cacheId: ({ urlParameters }) => `search:${urlParameters.provider}:${urlParameters.term}`,

@@ -1,8 +1,8 @@
 import uFuzzy from '@leeoniya/ufuzzy';
-import { View, Elem, copyToClipboard, Icon, conditionalList } from 'vanilla-bean-components';
+import { View, Elem, copyToClipboard, Icon, conditionalList } from '@vanilla-bean/components';
 import { TinyColor } from '@ctrl/tinycolor';
 
-import { orderBy } from 'vanilla-bean-components';
+import { orderBy } from '@vanilla-bean/components';
 
 import { deleteBookmark, getBookmarks, getCategories, getSearchEngines, getSearchResult } from '../api';
 

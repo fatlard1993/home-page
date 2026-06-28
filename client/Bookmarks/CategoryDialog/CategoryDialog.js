@@ -1,4 +1,4 @@
-import { Dialog, conditionalList } from 'vanilla-bean-components';
+import { Dialog, conditionalList } from '@vanilla-bean/components';
 
 import { createCategory, updateCategory } from '../../api';
 import { saveRecentColor } from '../util';

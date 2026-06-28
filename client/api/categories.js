@@ -1,9 +1,9 @@
-import { GET, POST, PATCH, DELETE } from 'vanilla-bean-components';
+import { GET, POST, PATCH, DELETE } from '@vanilla-bean/hypertether';
 
-export const getCategories = async options => await GET('/categories', { id: 'categories', ...options });
+export const getCategories = async options => await GET('/categories', { apiId: 'categories', ...options });
 
 export const getCategory = async (id, options) =>
-	await GET('/categories/:id', { id: ['categories', id], urlParameters: { id }, ...options });
+	await GET('/categories/:id', { apiId: ['categories', id], urlParameters: { id }, ...options });
 
 export const createCategory = async options => await POST('/categories', { invalidates: ['categories'], ...options });
 

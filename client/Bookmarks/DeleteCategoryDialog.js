@@ -1,4 +1,4 @@
-import { Dialog, Select, Input, Label } from 'vanilla-bean-components';
+import { Dialog, Select, Input, Label } from '@vanilla-bean/components';
 
 import { getCategories, deleteCategory } from '../api';
 

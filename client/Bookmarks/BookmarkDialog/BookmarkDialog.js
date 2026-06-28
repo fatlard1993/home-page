@@ -1,4 +1,4 @@
-import { Dialog, conditionalList } from 'vanilla-bean-components';
+import { Dialog, conditionalList } from '@vanilla-bean/components';
 
 import { deleteBookmark, updateBookmark, createBookmark } from '../../api';
 import { saveRecentColor } from '../util';

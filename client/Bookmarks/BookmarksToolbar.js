@@ -1,4 +1,4 @@
-import { Button, Input, debounce } from 'vanilla-bean-components';
+import { Button, Input, debounce } from '@vanilla-bean/components';
 
 import { getSearchEngines } from '../api';
 import context from '../context';

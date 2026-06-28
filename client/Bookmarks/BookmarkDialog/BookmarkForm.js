@@ -1,4 +1,4 @@
-import { Form, ColorPicker, Input, Select, readClipboard } from 'vanilla-bean-components';
+import { Form, ColorPicker, Input, Select, readClipboard } from '@vanilla-bean/components';
 
 import { getCategories } from '../../api';
 import { isLink } from '../util';

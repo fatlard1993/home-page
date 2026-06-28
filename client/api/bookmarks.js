@@ -1,9 +1,9 @@
-import { GET, POST, PATCH, DELETE } from 'vanilla-bean-components';
+import { GET, POST, PATCH, DELETE } from '@vanilla-bean/hypertether';
 
-export const getBookmarks = async options => await GET('/bookmarks', { id: 'bookmarks', ...options });
+export const getBookmarks = async options => await GET('/bookmarks', { apiId: 'bookmarks', ...options });
 
 export const getBookmark = async (id, options) =>
-	await GET('/bookmarks/:id', { id: ['bookmarks', id], urlParameters: { id }, ...options });
+	await GET('/bookmarks/:id', { apiId: ['bookmarks', id], urlParameters: { id }, ...options });
 
 export const createBookmark = async options =>
 	await POST('/bookmarks', { invalidates: ['bookmarks', 'categories'], ...options });

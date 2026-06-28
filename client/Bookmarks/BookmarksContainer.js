@@ -1,4 +1,4 @@
-import { Link, Elem, styled } from 'vanilla-bean-components';
+import { Link, Elem, styled } from '@vanilla-bean/components';
 import { fixLink } from './util';
 
 export default class BookmarksContainer extends (styled.Label`

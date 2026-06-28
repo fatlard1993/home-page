@@ -1,4 +1,4 @@
-import { Form, Input, Select } from 'vanilla-bean-components';
+import { Form, Input, Select } from '@vanilla-bean/components';
 
 export default class SearchEngineForm extends Form {
 	render() {
