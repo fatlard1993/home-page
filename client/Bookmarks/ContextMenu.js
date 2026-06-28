@@ -92,9 +92,27 @@ export default class ContextMenu extends styled.Popover(
 	`,
 	{ autoOpen: false, sticky: false, maxWidth: 240 },
 ) {
-	render() {
-		super.render();
+	static handlers = {
+		items(value) {
+			if (!this.menu) this.menu = new Menu({ appendTo: this });
 
+			this.menu.options.items = value.map(item => ({
+				...item,
+				...(!this.options.sticky && {
+					onPointerPress: event => {
+						item.onPointerPress(event);
+
+						this.hide();
+					},
+				}),
+			}));
+
+			this.options.maxHeight = (value.length + 1) * itemHeight;
+		},
+		sticky() {},
+	};
+
+	build() {
 		const keyBinds = ({ key }) => {
 			if (this.isOpen && key === 'Escape') this.hide();
 		};
@@ -110,25 +128,6 @@ export default class ContextMenu extends styled.Popover(
 			document.removeEventListener('pointerdown', pointerBinds);
 			this.contextPointer?.elem.remove();
 		});
-	}
-
-	_setOption(key, value) {
-		if (key === 'items') {
-			if (!this.menu) this.menu = new Menu({ appendTo: this });
-
-			this.menu.options.items = value.map(item => ({
-				...item,
-				...(!this.options.sticky && {
-					onPointerPress: event => {
-						item.onPointerPress(event);
-
-						this.hide();
-					},
-				}),
-			}));
-
-			this.options.maxHeight = (value.length + 1) * itemHeight;
-		} else super._setOption(key, value);
 	}
 
 	edgeAwarePlacement(options) {

@@ -15,11 +15,17 @@ export const updateSearchEngine = async (id, options) =>
 export const deleteSearchEngine = async (id, options) =>
 	await DELETE('/search/engines/:id', { invalidates: ['search:engines'], urlParameters: { id }, ...options });
 
-export const getSearchResult = async (provider, term, options) =>
-	await GET('/search/:provider/:term', {
+export const getSearchResult = async (provider, term, options) => {
+	const { enabled: enabledOption, ...restOptions } = options ?? {};
+	const enabled = !!term && (enabledOption ?? true);
+
+	return GET('/search/:provider/:term', {
 		apiId: `search:${provider}`,
-		enabled: !!term && (options?.enabled ?? true),
-		urlParameters: { provider, term },
-		cacheId: ({ urlParameters }) => `search:${urlParameters.provider}:${urlParameters.term}`,
-		...options,
+		enabled,
+		...(term && {
+			urlParameters: { provider, term },
+			cacheId: ({ urlParameters }) => `search:${urlParameters.provider}:${urlParameters.term}`,
+		}),
+		...restOptions,
 	});
+};
