@@ -1,7 +1,7 @@
 import { Form, Input, Select } from '@vanilla-bean/components';
 
 export default class SearchEngineForm extends Form {
-	render() {
+	build() {
 		const formData = {
 			label: '',
 			url: '',
@@ -49,8 +49,8 @@ export default class SearchEngineForm extends Form {
 			],
 		});
 
-		super.render();
+		super.build();
 
-		this.inputElements.label.elem.focus();
+		requestAnimationFrame(() => this.inputElements.label?.elem.focus());
 	}
 }

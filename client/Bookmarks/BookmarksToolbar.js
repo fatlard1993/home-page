@@ -11,9 +11,11 @@ import SearchEngineDialog from './SearchEngineDialog';
 import { fixLink } from './util';
 
 export default class BookmarksToolbar extends Toolbar {
-	async render() {
-		super.render();
+	static handlers = {
+		search() {},
+	};
 
+	build() {
 		this.contextMenu = new ContextMenu({ appendTo: this });
 
 		this.search = new Input({
@@ -95,10 +97,5 @@ export default class BookmarksToolbar extends Toolbar {
 				this.contextMenu.show({ x: event.clientX, y: event.clientY });
 			},
 		});
-	}
-
-	_setOption(key, value) {
-		if (key === 'search') return;
-		else super._setOption(key, value);
 	}
 }

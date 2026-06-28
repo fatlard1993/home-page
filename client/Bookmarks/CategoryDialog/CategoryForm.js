@@ -1,7 +1,7 @@
 import { ColorPicker, Form } from '@vanilla-bean/components';
 
 export default class CategoryForm extends Form {
-	render() {
+	build() {
 		const formData = {
 			name: '',
 			color: '',
@@ -22,6 +22,6 @@ export default class CategoryForm extends Form {
 			],
 		});
 
-		super.render();
+		super.build();
 	}
 }
