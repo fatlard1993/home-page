@@ -15,6 +15,11 @@ export const saveRecentColor = color => {
 	localStorage.setItem('recentColors', JSON.stringify(recentColors));
 };
 
+export const validateForm = form => {
+	document.activeElement?.blur();
+	return form.hasErrors();
+};
+
 export const fixLink = url => {
 	if (isLink(url)) return /.+:\/\//.test(url) ? url : `http://${url}`;
 

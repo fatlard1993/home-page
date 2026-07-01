@@ -17,12 +17,7 @@ export default class BookmarkForm extends Form {
 		});
 	}
 
-	async render() {
-		const categories = (await getCategories()).body;
-		const clipboardContent = await readClipboard();
-
-		if (!this.options.data.url && isLink(clipboardContent)) this.options.data.url = clipboardContent;
-
+	build() {
 		this.newCategoryInput = new Input({
 			type: 'text',
 			style: { display: 'none' },
@@ -39,28 +34,42 @@ export default class BookmarkForm extends Form {
 			},
 		});
 
-		this.options.inputs = [
-			{ key: 'name', validations: [[/.+/, 'Required']] },
-			{ key: 'url', validations: [[/.+/, 'Required']] },
-			{
-				key: 'category',
-				InputComponent: Select,
-				options: [
-					'Default',
-					{ label: 'New', value: this.uniqueId },
-					...Object.keys(categories).map(id => ({ label: categories?.[id]?.name, value: id })),
-				],
-				append: [this.newCategoryInput],
-			},
-			{
-				key: 'color',
-				InputComponent: ColorPicker,
-				parse: (value, input) => input.parseValue(value).hslString,
-				swatches: ['random', ...(JSON.parse(localStorage.getItem('recentColors')) || [])],
-			},
-		];
+		this.setOptions({
+			inputs: [
+				{ key: 'name', validations: [[/.+/, 'Required']] },
+				{ key: 'url', validations: [[/.+/, 'Required']] },
+				{
+					key: 'category',
+					InputComponent: Select,
+					options: ['Default', { label: 'New', value: this.uniqueId }],
+					append: [this.newCategoryInput],
+				},
+				{
+					key: 'color',
+					InputComponent: ColorPicker,
+					parse: (value, input) => input.parseValue(value).hslString,
+					swatches: ['random', ...(JSON.parse(localStorage.getItem('recentColors')) || [])],
+				},
+			],
+		});
 
-		super.render();
+		super.build();
+
+		this._populateAsyncFields();
+	}
+
+	async _populateAsyncFields() {
+		const [{ body: categories }, clipboardContent] = await Promise.all([getCategories(), readClipboard()]);
+
+		if (!this.rendered) return;
+
+		if (!this.options.data.url && isLink(clipboardContent)) this.options.data.url = clipboardContent;
+
+		this.inputElements.category.options.options = [
+			'Default',
+			{ label: 'New', value: this.uniqueId },
+			...Object.keys(categories).map(id => ({ label: categories[id]?.name, value: id })),
+		];
 
 		this.inputElements.name.elem.focus();
 	}

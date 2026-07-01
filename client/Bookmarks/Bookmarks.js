@@ -44,7 +44,7 @@ export default class Bookmarks extends View {
 		this._subscriptions = [];
 
 		this.categories = await this._subscribe(getCategories({
-			onRefetch: response => {
+			onSuccess: response => {
 				this.categories = response;
 
 				if (this.rendered) this.renderContent();
@@ -52,7 +52,7 @@ export default class Bookmarks extends View {
 		}));
 
 		this.bookmarks = await this._subscribe(getBookmarks({
-			onRefetch: response => {
+			onSuccess: response => {
 				this.bookmarks = response;
 
 				if (this.rendered) this.renderContent();
@@ -62,7 +62,7 @@ export default class Bookmarks extends View {
 		this.searchResults = {};
 
 		this.engines = await this._subscribe(getSearchEngines({
-			onRefetch: async response => {
+			onSuccess: async response => {
 				this.engines = response;
 
 				this._unsubscribeSearchResults();
@@ -108,7 +108,7 @@ export default class Bookmarks extends View {
 
 		for (const engine of Object.values(this.engines.body)) {
 			this.searchResults[engine.id] = await this._subscribe(getSearchResult(engine.id, this.options.search, {
-				onRefetch: response => {
+				onSuccess: response => {
 					this.searchResults[engine.id] = response;
 
 					if (this.rendered) this.renderContent();

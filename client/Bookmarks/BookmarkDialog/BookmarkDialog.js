@@ -1,7 +1,7 @@
 import { Dialog, conditionalList } from '@vanilla-bean/components';
 
 import { deleteBookmark, updateBookmark, createBookmark } from '../../api';
-import { saveRecentColor } from '../util';
+import { saveRecentColor, validateForm } from '../util';
 
 import BookmarkForm from './BookmarkForm';
 
@@ -15,18 +15,18 @@ export default class BookmarkDialog extends Dialog {
 			buttons: conditionalList([{ alwaysItem: 'Save' }, { if: isEdit, thenItem: 'Delete' }, { alwaysItem: 'Cancel' }]),
 			onButtonPress: ({ button }) => {
 				if (button === 'Save') {
-					if (this.form.validate()) return;
+					if (validateForm(this.form)) return;
 
-					const { color, category } = this.form.options.data;
+					const { color, category, ...rest } = this.form.options.data;
 
 					saveRecentColor(color);
 
-					if (category === 'Default') this.form.options.data.category = '';
+					const body = { ...rest, color, category: category === 'Default' ? '' : category };
 
 					if (isEdit) {
-						updateBookmark(this.options.bookmark.id, { body: this.form.options.data });
+						updateBookmark(this.options.bookmark.id, { body });
 					} else {
-						createBookmark({ body: this.form.options.data });
+						createBookmark({ body });
 					}
 				} else if (button === 'Delete') {
 					deleteBookmark(this.options.bookmark.id);
