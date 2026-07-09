@@ -1,3 +1,5 @@
+import fs from 'fs';
+
 import { Low } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
 
@@ -9,7 +11,15 @@ const database = {
 		searchEngines: {},
 	},
 	async init({ path }) {
-		database.db = new Low(new JSONFile(path), database.default);
+		let resolvedPath = path;
+
+		try {
+			resolvedPath = fs.realpathSync(path);
+		} catch {
+			// path doesn't exist yet (first run) or isn't a symlink, use as-is
+		}
+
+		database.db = new Low(new JSONFile(resolvedPath), database.default);
 
 		await database.db.read();
 
