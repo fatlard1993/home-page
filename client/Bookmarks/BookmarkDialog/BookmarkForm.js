@@ -59,11 +59,9 @@ export default class BookmarkForm extends Form {
 	}
 
 	async _populateAsyncFields() {
-		const [{ body: categories }, clipboardContent] = await Promise.all([getCategories(), readClipboard()]);
+		const { body: categories } = await getCategories();
 
 		if (!this.rendered) return;
-
-		if (!this.options.data.url && isLink(clipboardContent)) this.options.data.url = clipboardContent;
 
 		this.inputElements.category.options.options = [
 			'Default',
@@ -72,5 +70,15 @@ export default class BookmarkForm extends Form {
 		];
 
 		this.inputElements.name.elem.focus();
+
+		// Clipboard access can reject (permission denied) or never settle (unanswered prompt);
+		// isolate it so it can't block category population above.
+		readClipboard()
+			.then(clipboardContent => {
+				if (this.rendered && !this.options.data.url && isLink(clipboardContent)) {
+					this.options.data.url = clipboardContent;
+				}
+			})
+			.catch(() => {});
 	}
 }
