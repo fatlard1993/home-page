@@ -15,6 +15,11 @@ export default class BookmarksContainer extends (styled.Label`
 		flex-wrap: wrap;
 		gap: 6px;
 		margin-left: 6px;
+
+		a {
+			max-width: 100%;
+			overflow: hidden;
+		}
 	}
 `) {
 	_setOption(key, value) {
