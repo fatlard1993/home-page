@@ -12,6 +12,8 @@ export const seedEngines = async () => {
 
 const ALLOWED_PROTOCOLS = ['http:', 'https:'];
 
+const getPath = (item, path) => path.split('.').reduce((value, key) => value?.[key], item);
+
 export const searchProvider = async (providerId, term) => {
 	const engine = searchEnginesDb.read({ id: providerId });
 
@@ -43,11 +45,11 @@ export const searchProvider = async (providerId, term) => {
 		let name = item;
 
 		if (nameResults) name = nameResults[index] || item;
-		else if (engine.nameProperty) name = item[engine.nameProperty];
+		else if (engine.nameProperty) name = getPath(item, engine.nameProperty);
 
 		return {
 			name,
-			url: engine.urlProperty ? item[engine.urlProperty] : item,
+			url: engine.urlProperty ? getPath(item, engine.urlProperty) : item,
 		};
 	});
 

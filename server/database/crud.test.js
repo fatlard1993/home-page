@@ -1,7 +1,7 @@
-import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'bun:test';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'bun:test';
 
 let tmpDir;
 let database;

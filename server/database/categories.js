@@ -1,7 +1,7 @@
 import { createCRUD } from './crud';
 import database from '.';
 
-export default createCRUD('categories', ['name', 'color'], {
+export default createCRUD('categories', ['name', 'color', 'order'], {
 	// Coupled to bookmarks: moves or deletes bookmarks belonging to the removed category.
 	// Snapshot-based so partial mutation doesn't leave bookmarks in a broken state.
 	async afterDelete(id, { moveTo }) {

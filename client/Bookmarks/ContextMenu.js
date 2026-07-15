@@ -3,9 +3,10 @@ import { styled, Menu, isDescendantOf } from '@vanilla-bean/components';
 const itemHeight = 37; // Menu item height in px — matches Menu component's rendered li height
 const reticleSize = 32; // Hexagonal click indicator size in px — used by augmented-ui for the hex shape
 
-const Reticle = styled.Component`
+const Reticle = styled.Component(
+	({ colors }) => `
 	position: absolute;
-	color: red;
+	color: ${colors.red};
 
 	--aug-border: initial;
 	--aug-all-hexangle-up: initial;
@@ -35,10 +36,11 @@ const Reticle = styled.Component`
 		transform: rotateZ(360deg) scale(3);
 		color: transparent;
 	}
-`;
+`,
+);
 
 export default class ContextMenu extends styled.Popover(
-	() => `
+	({ colors }) => `
 		overflow: visible;
 		transform: scaleY(0);
 		transition:
@@ -48,7 +50,7 @@ export default class ContextMenu extends styled.Popover(
 			display 0.3s allow-discrete;
 
 		&::backdrop {
-			background-color: rgb(0 0 0 / 0%);
+			background-color: ${colors.alpha(colors.vantablack, 0)};
 			transition:
 				display 0.7s allow-discrete,
 				overlay 0.7s allow-discrete,
@@ -65,7 +67,7 @@ export default class ContextMenu extends styled.Popover(
 				transform 0.6s;
 
 			&::backdrop {
-				background-color: rgb(0 0 0 / 25%);
+				background-color: ${colors.alpha(colors.vantablack, 0.25)};
 			}
 		}
 
@@ -75,7 +77,7 @@ export default class ContextMenu extends styled.Popover(
 				transform: scaleY(0);
 
 				&::backdrop {
-					background-color: rgb(0 0 0 / 0%);
+					background-color: ${colors.alpha(colors.vantablack, 0)};
 				}
 			}
 		}

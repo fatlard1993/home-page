@@ -20,6 +20,15 @@ export const validateForm = form => {
 	return form.hasErrors();
 };
 
+// Falls back to current position for items never explicitly reordered. The CRUD layer defaults
+// unset fields to '' rather than undefined, so anything non-numeric counts as unset.
+export const sortedIds = collection => {
+	const ids = Object.keys(collection);
+	const effectiveOrder = id => (typeof collection[id].order === 'number' ? collection[id].order : ids.indexOf(id));
+
+	return [...ids].sort((a, b) => effectiveOrder(a) - effectiveOrder(b));
+};
+
 export const fixLink = url => {
 	if (isLink(url)) return /.+:\/\//.test(url) ? url : `http://${url}`;
 

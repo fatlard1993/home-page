@@ -10,6 +10,7 @@ export default class SearchEngineForm extends Form {
 			nameProperty: '',
 			urlProperty: '',
 			limit: 5,
+			default: false,
 			orderBy: { property: '', direction: 'asc' },
 			...this.options.engine,
 		};
@@ -18,6 +19,11 @@ export default class SearchEngineForm extends Form {
 			data: formData,
 			inputs: [
 				{ key: 'label', validations: [[/.+/, 'Required']] },
+				{
+					key: 'default',
+					label: 'Default (runs automatically with every search, others load on-demand)',
+					type: 'checkbox',
+				},
 				{
 					key: 'url',
 					label: 'URL',

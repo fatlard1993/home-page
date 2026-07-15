@@ -1,8 +1,9 @@
 import { Dialog, conditionalList } from '@vanilla-bean/components';
 
-import { deleteBookmark, updateBookmark, createBookmark } from '../../api';
+import { updateBookmark, createBookmark, setBookmarkFaviconFromDataUri, deleteBookmarkFavicon } from '../../api';
 import { saveRecentColor, validateForm } from '../util';
 
+import confirmDeleteBookmark from '../confirmDeleteBookmark';
 import BookmarkForm from './BookmarkForm';
 
 export default class BookmarkDialog extends Dialog {
@@ -13,23 +14,37 @@ export default class BookmarkDialog extends Dialog {
 			size: 'large',
 			header: `${isEdit ? 'Edit' : 'Create'} Bookmark${isEdit ? ` | ${options.bookmark.name}` : ''}`,
 			buttons: conditionalList([{ alwaysItem: 'Save' }, { if: isEdit, thenItem: 'Delete' }, { alwaysItem: 'Cancel' }]),
-			onButtonPress: ({ button }) => {
+			onButtonPress: async ({ button }) => {
 				if (button === 'Save') {
 					if (validateForm(this.form)) return;
 
-					const { color, category, ...rest } = this.form.options.data;
+					const { color, category, favicon, ...rest } = this.form.options.data;
 
-					saveRecentColor(color);
+					// An untouched color is only a preview of what the bookmark would inherit
+					// (category, then a default) — leave it unset so it keeps following that.
+					const explicitColor = this.form.colorTouched ? color : '';
 
-					const body = { ...rest, color, category: category === 'Default' ? '' : category };
+					if (explicitColor) saveRecentColor(explicitColor);
+
+					const body = { ...rest, color: explicitColor, category: category === 'Default' ? '' : category };
+
+					// The favicon field is managed entirely through its own endpoints below —
+					// never sent as part of the regular bookmark update.
+					let id = this.options.bookmark?.id;
 
 					if (isEdit) {
-						updateBookmark(this.options.bookmark.id, { body });
+						updateBookmark(id, { body });
 					} else {
-						createBookmark({ body });
+						id = (await createBookmark({ body })).body.id;
+					}
+
+					if (this.form._pendingFaviconDataUri) {
+						setBookmarkFaviconFromDataUri(id, this.form._pendingFaviconDataUri);
+					} else if (!this.form.useFavicon && this.form.existingFaviconId) {
+						deleteBookmarkFavicon(id);
 					}
 				} else if (button === 'Delete') {
-					deleteBookmark(this.options.bookmark.id);
+					confirmDeleteBookmark(this.options.bookmark);
 				}
 
 				this.close();

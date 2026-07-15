@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 
 import { Low } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
@@ -10,11 +11,11 @@ const database = {
 		categories: {},
 		searchEngines: {},
 	},
-	async init({ path }) {
-		let resolvedPath = path;
+	async init({ path: dbPath }) {
+		let resolvedPath = dbPath;
 
 		try {
-			resolvedPath = fs.realpathSync(path);
+			resolvedPath = fs.realpathSync(dbPath);
 		} catch {
 			// path doesn't exist yet (first run) or isn't a symlink, use as-is
 		}
@@ -26,6 +27,12 @@ const database = {
 		database.db.data = { ...database.default, ...(database.db.data || {}) };
 
 		await database.db.write();
+
+		// Sibling dotfolder next to the db file, e.g. ~/.homePage.json -> ~/.homePage-favicons/
+		const { dir, name } = path.parse(resolvedPath);
+		database.faviconsDir = path.join(dir, `${name}-favicons`);
+
+		fs.mkdirSync(database.faviconsDir, { recursive: true });
 	},
 	write() {
 		database._writeQueue = database._writeQueue

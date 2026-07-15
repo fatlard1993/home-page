@@ -1,6 +1,8 @@
 import { nanoid } from 'nanoid';
 
 import { searchProvider } from '../utils/search';
+import { detectBrandColor } from '../utils/brandColor';
+import { fetchFaviconDataUri } from '../utils/faviconColor';
 import requestMatch from '../utils/requestMatch';
 
 import bookmarksRoutes from './bookmarks';
@@ -48,6 +50,12 @@ const router = async (request, server) => {
 				return new Response('Search Failed', { status: 500 });
 			}
 		}
+
+		match = requestMatch('GET', '/brand-color', request);
+		if (match) return Response.json({ color: await detectBrandColor(match.url) });
+
+		match = requestMatch('GET', '/favicon-preview', request);
+		if (match) return Response.json({ dataUri: await fetchFaviconDataUri(match.url) });
 
 		response = await staticRoutes(request);
 		if (response) return response;
