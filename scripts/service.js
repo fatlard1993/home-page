@@ -118,7 +118,7 @@ WantedBy=default.target
 	},
 };
 
-const service = platform === 'darwin' ? darwin : platform === 'linux' ? linux : null;
+const service = { darwin, linux }[platform];
 
 if (!service) {
 	console.error(`Unsupported platform: ${platform}`);

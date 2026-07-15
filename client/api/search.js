@@ -3,6 +3,8 @@ import { GET, POST, PATCH, DELETE } from '@vanilla-bean/hypertether';
 export const getSearchEngines = async options =>
 	await GET('/search/engines', {
 		cacheId: 'search:engines',
+		// Same reasoning as getBookmarks: invalidation-driven, so the cache entry must outlive the TTL.
+		invalidateAfter: false,
 		...options,
 	});
 

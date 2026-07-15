@@ -31,7 +31,7 @@
 		"service:disable": "bun scripts/service.js disable",
 		"service:start": "bun scripts/service.js start",
 		"service:stop": "bun scripts/service.js stop",
-		"service:reload": "bun scripts/service.js reload",
+		"service:reload": "bun scripts/service.js reload"
 	},
 	"repository": {
 		"type": "git",
@@ -43,29 +43,30 @@
 	"homepage": "https://github.com/fatlard1993/home-page#readme",
 	"dependencies": {
 		"@ctrl/tinycolor": "^4.2.0",
-		"@leeoniya/ufuzzy": "^1.0.18",
+		"@leeoniya/ufuzzy": "^1.0.19",
+		"@vanilla-bean/components": "^1.1.1",
+		"@vanilla-bean/hypertether": "^1.0.1",
 		"argi": "github:fatlard1993/argi#fcac703",
 		"lowdb": "^7.0.1",
-		"nanoid": "^5.1.5",
-		"@vanilla-bean/components": "^1.0.0",
-		"@vanilla-bean/hypertether": "^1.0.0"
+		"nanoid": "^6.0.0",
+		"pngjs": "^7.0.0"
 	},
 	"devDependencies": {
-		"@eslint/compat": "^1.3.1",
-		"@eslint/js": "^9.30.1",
-		"@happy-dom/global-registrator": "^18.0.1",
-		"@testing-library/dom": "^10.4.0",
-		"@testing-library/jest-dom": "^6.6.3",
-		"bun-types": "^1.2.18",
-		"eslint": "^9.30.1",
-		"eslint-plugin-compat": "^6.0.2",
+		"@eslint/compat": "^2.1.0",
+		"@eslint/js": "^10.0.1",
+		"@happy-dom/global-registrator": "^20.10.6",
+		"@testing-library/dom": "^10.4.1",
+		"@testing-library/jest-dom": "^6.9.1",
+		"bun-types": "^1.3.14",
+		"eslint": "^10.7.0",
+		"eslint-plugin-compat": "^7.0.2",
 		"eslint-plugin-import": "^2.32.0",
-		"eslint-plugin-jsdoc": "^51.3.3",
+		"eslint-plugin-jsdoc": "^63.0.13",
 		"eslint-plugin-spellcheck": "0.0.20",
-		"eslint-plugin-testing-library": "^7.5.3",
-		"eslint-plugin-unicorn": "^59.0.1",
+		"eslint-plugin-testing-library": "^7.16.2",
+		"eslint-plugin-unicorn": "^72.0.0",
 		"eslint-plugin-write-good-comments": "^0.2.0",
-		"globals": "^16.3.0",
-		"prettier": "3.6.2"
+		"globals": "^17.7.0",
+		"prettier": "3.9.5"
 	}
 }

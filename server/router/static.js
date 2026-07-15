@@ -21,7 +21,7 @@ const staticRouter = async request => {
 		file = safeFile('../node_modules', pathname);
 		if (file && (await file.exists())) return new Response(file);
 
-		file = safeFile('../node_modules/vanilla-bean-components/node_modules', pathname);
+		file = safeFile('../node_modules/@vanilla-bean/components/node_modules', pathname);
 		if (file && (await file.exists())) return new Response(file);
 	}
 };
