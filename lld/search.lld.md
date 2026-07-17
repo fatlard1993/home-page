@@ -1,9 +1,11 @@
 # Search
+
 > server/database/searchEngines.js
 
 Search extends the bookmark model to queries. Engines are user-configurable records in the same database as bookmarks -- the user controls what search means. An engine requires a URL template with a `:term` placeholder; without it there is no search, just a link.
 
 ## Engines as records
+
 **method:** `searchWithDefaultEngine`
 
 - search engines are stored in the database, not written in code

@@ -57,48 +57,54 @@ export default class Bookmarks extends View {
 		this._subscriptions = [];
 		this.activatedEngines = new Set();
 
-		this.categories = await this._subscribe(getCategories({
-			onFetching: () => {
-				this._categoriesFetching = true;
-			},
-			onSuccess: response => {
-				this.categories = response;
-				this._categoriesFetching = false;
+		this.categories = await this._subscribe(
+			getCategories({
+				onFetching: () => {
+					this._categoriesFetching = true;
+				},
+				onSuccess: response => {
+					this.categories = response;
+					this._categoriesFetching = false;
 
-				this._scheduleRenderContent();
-			},
-			onError: () => {
-				this._categoriesFetching = false;
-			},
-		}));
+					this._scheduleRenderContent();
+				},
+				onError: () => {
+					this._categoriesFetching = false;
+				},
+			}),
+		);
 
-		this.bookmarks = await this._subscribe(getBookmarks({
-			onFetching: () => {
-				this._bookmarksFetching = true;
-			},
-			onSuccess: response => {
-				this.bookmarks = response;
-				this._bookmarksFetching = false;
+		this.bookmarks = await this._subscribe(
+			getBookmarks({
+				onFetching: () => {
+					this._bookmarksFetching = true;
+				},
+				onSuccess: response => {
+					this.bookmarks = response;
+					this._bookmarksFetching = false;
 
-				this._scheduleRenderContent();
-			},
-			onError: () => {
-				this._bookmarksFetching = false;
-			},
-		}));
+					this._scheduleRenderContent();
+				},
+				onError: () => {
+					this._bookmarksFetching = false;
+				},
+			}),
+		);
 
 		this.searchResults = {};
 
-		this.engines = await this._subscribe(getSearchEngines({
-			onSuccess: async response => {
-				this.engines = response;
+		this.engines = await this._subscribe(
+			getSearchEngines({
+				onSuccess: async response => {
+					this.engines = response;
 
-				this._unsubscribeSearchResults();
-				await this.subscribeSearchResults();
+					this._unsubscribeSearchResults();
+					await this.subscribeSearchResults();
 
-				if (this.rendered) this.renderContent();
-			},
-		}));
+					if (this.rendered) this.renderContent();
+				},
+			}),
+		);
 
 		await this.subscribeSearchResults();
 
@@ -148,14 +154,16 @@ export default class Bookmarks extends View {
 		this.searchResults = {};
 
 		for (const engine of Object.values(this.engines.body)) {
-			this.searchResults[engine.id] = await this._subscribe(getSearchResult(engine.id, this.options.search, {
-				enabled: !!this.options.search && this.isEngineActive(engine),
-				onSuccess: response => {
-					this.searchResults[engine.id] = response;
+			this.searchResults[engine.id] = await this._subscribe(
+				getSearchResult(engine.id, this.options.search, {
+					enabled: !!this.options.search && this.isEngineActive(engine),
+					onSuccess: response => {
+						this.searchResults[engine.id] = response;
 
-					if (this.rendered) this.renderContent();
-				},
-			}));
+						if (this.rendered) this.renderContent();
+					},
+				}),
+			);
 		}
 	}
 
@@ -289,8 +297,7 @@ export default class Bookmarks extends View {
 							items: [
 								{
 									textContent: `Bookmark "${item.name}"`,
-									onPointerPress: () =>
-										new BookmarkDialog({ bookmark: { name: item.name, url: fixLink(item.url) } }),
+									onPointerPress: () => new BookmarkDialog({ bookmark: { name: item.name, url: fixLink(item.url) } }),
 								},
 							],
 						}),
@@ -541,7 +548,10 @@ export default class Bookmarks extends View {
 	}
 
 	_batchBookmarksFor(categoryId) {
-		return this.getBatchCategoryBookmarks(categoryId).map(bookmark => ({ ...bookmark, markedForDeletion: bookmark.deleted }));
+		return this.getBatchCategoryBookmarks(categoryId).map(bookmark => ({
+			...bookmark,
+			markedForDeletion: bookmark.deleted,
+		}));
 	}
 
 	moveCategory(categoryId, beforeCategoryId) {
@@ -600,9 +610,7 @@ export default class Bookmarks extends View {
 		const categories = Object.values(this.batch.categories);
 
 		const deletedCategoryIds = new Set(categories.filter(category => category.deleted).map(category => category.id));
-		const doomedBookmarks = bookmarks.filter(
-			bookmark => bookmark.deleted || deletedCategoryIds.has(bookmark.category),
-		);
+		const doomedBookmarks = bookmarks.filter(bookmark => bookmark.deleted || deletedCategoryIds.has(bookmark.category));
 		const doomedBookmarkIds = new Set(doomedBookmarks.map(bookmark => bookmark.id));
 
 		const survivingBookmarks = bookmarks.filter(bookmark => !doomedBookmarkIds.has(bookmark.id));
