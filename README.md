@@ -24,10 +24,10 @@ bun run dev
 
 ## CLI Options
 
-| Flag | Alias | Default | Description |
-|------|-------|---------|-------------|
-| `--database` | `-d` | `~/.homePage.json` | Path to the JSON database file |
-| `--port` | `-p` | `8033` | Server port |
+| Flag         | Alias | Default            | Description                    |
+| ------------ | ----- | ------------------ | ------------------------------ |
+| `--database` | `-d`  | `~/.homePage.json` | Path to the JSON database file |
+| `--port`     | `-p`  | `8033`             | Server port                    |
 
 ## Build
 
@@ -78,24 +78,24 @@ client/
 
 All endpoints accept and return JSON.
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/bookmarks` | List all bookmarks |
-| `POST` | `/bookmarks` | Create bookmark |
-| `GET` | `/bookmarks/:id` | Get bookmark |
-| `PATCH` | `/bookmarks/:id` | Update bookmark |
-| `DELETE` | `/bookmarks/:id` | Delete bookmark |
-| `GET` | `/categories` | List all categories |
-| `POST` | `/categories` | Create category |
-| `GET` | `/categories/:id` | Get category |
-| `PATCH` | `/categories/:id` | Update category |
-| `DELETE` | `/categories/:id` | Delete category (query: `moveTo` to reassign bookmarks) |
-| `GET` | `/search/engines` | List search engines |
-| `POST` | `/search/engines` | Create search engine |
-| `GET` | `/search/engines/:id` | Get search engine |
-| `PATCH` | `/search/engines/:id` | Update search engine |
-| `DELETE` | `/search/engines/:id` | Delete search engine |
-| `GET` | `/search/:provider/:term` | Execute search with a configured engine |
+| Method   | Path                      | Description                                             |
+| -------- | ------------------------- | ------------------------------------------------------- |
+| `GET`    | `/bookmarks`              | List all bookmarks                                      |
+| `POST`   | `/bookmarks`              | Create bookmark                                         |
+| `GET`    | `/bookmarks/:id`          | Get bookmark                                            |
+| `PATCH`  | `/bookmarks/:id`          | Update bookmark                                         |
+| `DELETE` | `/bookmarks/:id`          | Delete bookmark                                         |
+| `GET`    | `/categories`             | List all categories                                     |
+| `POST`   | `/categories`             | Create category                                         |
+| `GET`    | `/categories/:id`         | Get category                                            |
+| `PATCH`  | `/categories/:id`         | Update category                                         |
+| `DELETE` | `/categories/:id`         | Delete category (query: `moveTo` to reassign bookmarks) |
+| `GET`    | `/search/engines`         | List search engines                                     |
+| `POST`   | `/search/engines`         | Create search engine                                    |
+| `GET`    | `/search/engines/:id`     | Get search engine                                       |
+| `PATCH`  | `/search/engines/:id`     | Update search engine                                    |
+| `DELETE` | `/search/engines/:id`     | Delete search engine                                    |
+| `GET`    | `/search/:provider/:term` | Execute search with a configured engine                 |
 
 ### Bookmark creation with inline category
 

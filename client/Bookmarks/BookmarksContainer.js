@@ -1,7 +1,7 @@
 import { Link, Button, Elem, styled } from '@vanilla-bean/components';
 import { fixLink } from './util';
 
-export default class BookmarksContainer extends (styled.Label(
+export default class BookmarksContainer extends styled.Label(
 	({ colors }) => `
 	margin: 1px 0;
 	padding: 3px 12px 6px 12px;
@@ -68,7 +68,7 @@ export default class BookmarksContainer extends (styled.Label(
 		}
 	}
 `,
-)) {
+) {
 	_buildBookmark({ name, url, favicon, markedForDeletion, order, category, deleted, color, ...options }) {
 		const shared = {
 			'data-bookmark-id': options.id,

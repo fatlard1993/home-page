@@ -185,7 +185,13 @@
 							"raw": "{{baseUrl}}/categories/:id?moveTo=",
 							"host": ["{{baseUrl}}"],
 							"path": ["categories", ":id"],
-							"query": [{ "key": "moveTo", "value": "", "description": "Category ID to move bookmarks to (omit to delete bookmarks)" }],
+							"query": [
+								{
+									"key": "moveTo",
+									"value": "",
+									"description": "Category ID to move bookmarks to (omit to delete bookmarks)"
+								}
+							],
 							"variable": [{ "key": "id", "value": "{{categoryId}}" }]
 						}
 					}

@@ -66,7 +66,13 @@ export default async function deleteWithUndo({ bookmarks, categories = [] }) {
 			for (const bookmark of bookmarks) {
 				const category = categoryIdMap[bookmark.category] ?? bookmark.category ?? '';
 				const created = await createBookmark({
-					body: { name: bookmark.name, url: bookmark.url, color: bookmark.color || '', category, order: bookmark.order },
+					body: {
+						name: bookmark.name,
+						url: bookmark.url,
+						color: bookmark.color || '',
+						category,
+						order: bookmark.order,
+					},
 				});
 
 				if (favicons[bookmark.id]) await setBookmarkFaviconFromDataUri(created.body.id, favicons[bookmark.id]);

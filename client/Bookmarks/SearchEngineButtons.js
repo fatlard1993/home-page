@@ -2,7 +2,7 @@ import { Button, Elem, styled } from '@vanilla-bean/components';
 
 const shortLabel = label => label.replace(/\s*search results$/i, '');
 
-export default class SearchEngineButtons extends (styled.Label(
+export default class SearchEngineButtons extends styled.Label(
 	({ colors }) => `
 	margin: 10px 0 1px;
 	padding: 8px 12px 10px;
@@ -26,7 +26,7 @@ export default class SearchEngineButtons extends (styled.Label(
 		margin-top: 6px;
 	}
 `,
-)) {
+) {
 	static handlers = {
 		engines(value) {
 			if (!this.buttonContainer) this.buttonContainer = new Elem({ appendTo: this });

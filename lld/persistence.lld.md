@@ -1,4 +1,5 @@
 # Persistence
+
 > server/database/database.js
 
 All application data lives in a single local JSON file. This is a deliberate choice: no infrastructure to install, no server to run, no migration to write. The data is local and the app has no external dependency for its primary function. The file is plain JSON and can travel with the user in a dotfiles repository.
@@ -20,6 +21,7 @@ All application data lives in a single local JSON file. This is a deliberate cho
   - does the queue continue after a write failure?
 
 ## Schema enforcement
+
 **module:** `server/database/bookmarks.js`
 
 - only declared fields survive a write

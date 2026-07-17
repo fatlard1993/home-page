@@ -1,4 +1,5 @@
 # Bookmarks
+
 > server/database/bookmarks.js
 
 A bookmark is a link with enough context to be found and used again. The URL is the executable part -- it is what gets opened. Name and color are for the user to read; they do not affect execution. Categories are the user's choice, not the system's requirement.
@@ -44,8 +45,8 @@ A bookmark is a link with enough context to be found and used again. The URL is 
   - does the other bookmark retain its original category?
 
 ## Category deletion
-**module:** `server/database/categories.js`
-**method:** `deleteOrphans`
+
+**module:** `server/database/categories.js` **method:** `deleteOrphans`
 
 - deleting a category removes or reassigns its bookmarks — no bookmark is left orphaned
 - if a destination category is provided, affected bookmarks are moved to it; otherwise they are deleted
