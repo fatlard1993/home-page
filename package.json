@@ -44,7 +44,7 @@
 	"dependencies": {
 		"@ctrl/tinycolor": "^4.2.0",
 		"@leeoniya/ufuzzy": "^1.0.19",
-		"@vanilla-bean/components": "^1.1.1",
+		"@vanilla-bean/components": "^2.0.1",
 		"@vanilla-bean/hypertether": "^1.0.1",
 		"argi": "github:fatlard1993/argi#fcac703",
 		"lowdb": "^7.0.1",

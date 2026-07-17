@@ -1,6 +1,12 @@
 import { Link, Button, Elem, styled } from '@vanilla-bean/components';
 import { fixLink } from './util';
 
+// Toggle on click, not pointerdown: pointerdown also fires when starting a drag,
+// and a completed drag never emits a click.
+class ClickButton extends Button {
+	static events = ['click'];
+}
+
 export default class BookmarksContainer extends styled.Label(
 	({ colors }) => `
 	margin: 1px 0;
@@ -84,12 +90,9 @@ export default class BookmarksContainer extends styled.Label(
 		};
 
 		if (this.options.batchEdit) {
-			return new Button({
+			return new ClickButton({
 				...shared,
 				draggable: true,
-				// Toggle on click, not pointerdown: pointerdown also fires when starting a drag,
-				// and a completed drag never emits a click.
-				registeredEvents: new Set(['click']),
 				onClick: () => this.options.onToggleBookmark?.(options.id),
 			});
 		}
@@ -97,24 +100,32 @@ export default class BookmarksContainer extends styled.Label(
 		return new Link({ href: fixLink(url), variant: 'button', draggable: false, ...shared });
 	}
 
-	static handlers = {
-		bookmarks(value) {
-			if (!this.linkContainer) this.linkContainer = new Elem({ appendTo: this });
+	static schema = {
+		bookmarks: {
+			set(value) {
+				if (!this.linkContainer) this.linkContainer = new Elem({ appendTo: this });
 
-			this.linkContainer.content(value.map(bookmark => this._buildBookmark(bookmark)));
+				this.linkContainer.content(value.map(bookmark => this._buildBookmark(bookmark)));
+			},
 		},
-		categoryId(value) {
-			this.setAttributes({ 'data-category-id': value || '' });
+		categoryId: {
+			set(value) {
+				this.setAttributes({ 'data-category-id': value || '' });
+			},
 		},
-		batchEdit(value) {
-			this[value ? 'addClass' : 'removeClass']('batchEdit');
-			if (this._labelText) this._labelText.elem.draggable = !!(value && this.options.categoryId);
+		batchEdit: {
+			set(value) {
+				this[value ? 'addClass' : 'removeClass']('batchEdit');
+				if (this._labelText) this._labelText.elem.draggable = !!(value && this.options.categoryId);
+			},
 		},
-		categoryMarkedForDeletion(value) {
-			this[value ? 'addClass' : 'removeClass']('categoryMarked');
+		categoryMarkedForDeletion: {
+			set(value) {
+				this[value ? 'addClass' : 'removeClass']('categoryMarked');
+			},
 		},
-		onToggleBookmark() {},
-		onToggleCategory() {},
+		onToggleBookmark: {},
+		onToggleCategory: {},
 	};
 
 	build() {

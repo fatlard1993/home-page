@@ -73,11 +73,13 @@ export default class BatchEditBar extends styled.Component(
 		this.countElem.elem.textContent = value > 0 ? `${value} marked for deletion` : '';
 	}
 
-	static handlers = {
-		markedCount(value) {
-			if (this.countElem) this._renderMarkedCount(value);
+	static schema = {
+		markedCount: {
+			set(value) {
+				if (this.countElem) this._renderMarkedCount(value);
+			},
 		},
-		done() {},
-		cancel() {},
+		done: {},
+		cancel: {},
 	};
 }

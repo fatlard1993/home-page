@@ -178,22 +178,24 @@ export default class Bookmarks extends View {
 		this.renderContent();
 	}
 
-	static handlers = {
-		search(value) {
-			if (value) {
-				this.renderLoader();
+	static schema = {
+		search: {
+			set(value) {
+				if (value) {
+					this.renderLoader();
 
-				for (const engine of Object.values(this.engines.body)) {
-					this.searchResults[engine.id].refetch({
-						enabled: this.isEngineActive(engine),
-						urlParameters: { provider: engine.id, term: value },
-					});
+					for (const engine of Object.values(this.engines.body)) {
+						this.searchResults[engine.id].refetch({
+							enabled: this.isEngineActive(engine),
+							urlParameters: { provider: engine.id, term: value },
+						});
+					}
+				} else {
+					this.activatedEngines.clear();
+
+					if (this.rendered) this.renderContent();
 				}
-			} else {
-				this.activatedEngines.clear();
-
-				if (this.rendered) this.renderContent();
-			}
+			},
 		},
 	};
 

@@ -27,26 +27,28 @@ export default class SearchEngineButtons extends styled.Label(
 	}
 `,
 ) {
-	static handlers = {
-		engines(value) {
-			if (!this.buttonContainer) this.buttonContainer = new Elem({ appendTo: this });
+	static schema = {
+		engines: {
+			set(value) {
+				if (!this.buttonContainer) this.buttonContainer = new Elem({ appendTo: this });
 
-			this.buttonContainer.content(
-				value.map(
-					engine =>
-						new Button({
-							textContent: shortLabel(engine.label),
-							onPointerPress: () => this.options.onActivate?.(engine.id),
-							styles: ({ colors }) => ({
-								background: 'transparent',
-								color: colors.light(colors.gray),
-								border: `1px solid ${colors.gray}`,
-								boxShadow: 'none',
+				this.buttonContainer.content(
+					value.map(
+						engine =>
+							new Button({
+								textContent: shortLabel(engine.label),
+								onPointerPress: () => this.options.onActivate?.(engine.id),
+								styles: ({ colors }) => ({
+									background: 'transparent',
+									color: colors.light(colors.gray),
+									border: `1px solid ${colors.gray}`,
+									boxShadow: 'none',
+								}),
 							}),
-						}),
-				),
-			);
+					),
+				);
+			},
 		},
-		onActivate() {},
+		onActivate: {},
 	};
 }
