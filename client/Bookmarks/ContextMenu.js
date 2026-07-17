@@ -94,24 +94,26 @@ export default class ContextMenu extends styled.Popover(
 	`,
 	{ autoOpen: false, sticky: false, maxWidth: 240 },
 ) {
-	static handlers = {
-		items(value) {
-			if (!this.menu) this.menu = new Menu({ appendTo: this });
+	static schema = {
+		items: {
+			set(value) {
+				if (!this.menu) this.menu = new Menu({ appendTo: this });
 
-			this.menu.options.items = value.map(item => ({
-				...item,
-				...(!this.options.sticky && {
-					onPointerPress: event => {
-						item.onPointerPress(event);
+				this.menu.options.items = value.map(item => ({
+					...item,
+					...(!this.options.sticky && {
+						onPointerPress: event => {
+							item.onPointerPress(event);
 
-						this.hide();
-					},
-				}),
-			}));
+							this.hide();
+						},
+					}),
+				}));
 
-			this.options.maxHeight = (value.length + 1) * itemHeight;
+				this.options.maxHeight = (value.length + 1) * itemHeight;
+			},
 		},
-		sticky() {},
+		sticky: {},
 	};
 
 	build() {

@@ -11,8 +11,9 @@ import SearchEngineDialog from './SearchEngineDialog';
 import { fixLink } from './util';
 
 export default class BookmarksToolbar extends Toolbar {
-	static handlers = {
-		search() {},
+	static schema = {
+		// data: the search option collides with the this.search Input created in build()
+		search: { data: true },
 	};
 
 	build() {
