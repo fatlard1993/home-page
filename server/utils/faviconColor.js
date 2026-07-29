@@ -1,6 +1,7 @@
 import { PNG } from 'pngjs';
 
 import { fetchBoundedHtml, ALLOWED_PROTOCOLS, FETCH_TIMEOUT, USER_AGENT } from './fetchHtml';
+import { sniffImageType } from './imageType';
 
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
@@ -175,10 +176,18 @@ export const fetchFaviconImage = async (html, baseUrl) => {
 
 		reader.cancel().catch(() => {});
 
-		return {
-			buffer: Buffer.concat(chunks.map(chunk => Buffer.from(chunk))),
-			contentType: response.headers.get('content-type'),
-		};
+		const buffer = Buffer.concat(chunks.map(chunk => Buffer.from(chunk)));
+
+		// A site missing the icon it declared - or missing one entirely - usually
+		// answers with a 200 and an HTML page, so response.ok is no evidence that
+		// an image came back. The sniffed type also supersedes the declared one,
+		// which is how .ico files served as application/octet-stream end up
+		// stored under a type a browser will render.
+		const imageType = sniffImageType(buffer);
+
+		if (!imageType) return null;
+
+		return { buffer, contentType: imageType };
 	} catch {
 		return null;
 	}
