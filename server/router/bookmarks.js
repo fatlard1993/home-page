@@ -2,6 +2,8 @@ import bookmarks from '../database/bookmarks';
 import { saveFavicon, deleteFavicon, readFavicon } from '../utils/faviconStorage';
 
 import requestMatch from '../utils/requestMatch';
+import { parseBase64DataUri } from '../utils/dataUri';
+import { sniffImageType } from '../utils/imageType';
 
 const MAX_UPLOAD_BYTES = 3_000_000;
 
@@ -29,14 +31,20 @@ const bookmarksRouter = async request => {
 		if (!bookmarks.read(match)) return new Response(null, { status: 404 });
 
 		const { dataUri } = await request.json();
-		const dataUriMatch = dataUri && /^data:([^;,]+)(?:;charset=[^;,]+)?;base64,(.+)$/.exec(dataUri);
+		const parsed = parseBase64DataUri(dataUri);
 
-		if (!dataUriMatch) return new Response('Expected a JSON { dataUri } body', { status: 400 });
+		if (!parsed) return new Response('Expected a JSON { dataUri } body', { status: 400 });
 
-		const imageContentType = dataUriMatch[1];
-		const imageBuffer = Buffer.from(dataUriMatch[2], 'base64');
+		const imageBuffer = Buffer.from(parsed.data, 'base64');
 
 		if (imageBuffer.length > MAX_UPLOAD_BYTES) return new Response('Image too large', { status: 413 });
+
+		// Checked against the bytes, not parsed.mediaType: the declared type is
+		// whatever the far end claimed, and storing a non-image here leaves a
+		// bookmark whose favicon no browser can draw.
+		const imageContentType = sniffImageType(imageBuffer);
+
+		if (!imageContentType) return new Response('Not a recognized image', { status: 415 });
 
 		await saveFavicon(match.id, imageBuffer, imageContentType);
 
