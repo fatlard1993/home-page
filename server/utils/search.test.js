@@ -1,3 +1,6 @@
+import { mkdtemp, rm } from 'node:fs/promises';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 import { describe, test, expect, beforeAll, beforeEach, afterAll } from 'bun:test';
 
 import searchEnginesDb from '../database/searchEngines';
@@ -8,7 +11,18 @@ let fetchResponse;
 
 const originalFetch = globalThis.fetch;
 
+let tmpDir;
+
 beforeAll(async () => {
+	// Spreading searchEnginesDb below evaluates its `data` getter, which dereferences the
+	// database singleton -- so this file worked only when some earlier test file had already
+	// run init. CI walks the files in a different order than this filesystem does, which is
+	// how a green local suite shipped a red first CI run. Init our own throwaway db instead
+	// of borrowing whoever ran first.
+	tmpDir = await mkdtemp(join(tmpdir(), 'search-test-'));
+	const database = (await import('../database/database.js')).default;
+	await database.init({ path: join(tmpDir, 'db.json') });
+
 	mock.module('../database/searchEngines', () => ({
 		default: { ...searchEnginesDb, read: query => (query?.id ? engines[query.id] : engines) },
 	}));
@@ -18,8 +32,9 @@ beforeAll(async () => {
 	({ searchProvider } = await import('./search.js'));
 });
 
-afterAll(() => {
+afterAll(async () => {
 	globalThis.fetch = originalFetch;
+	await rm(tmpDir, { recursive: true, force: true });
 });
 
 beforeEach(() => {
