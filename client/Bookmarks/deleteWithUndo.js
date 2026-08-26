@@ -30,17 +30,29 @@ const describeDeletion = (bookmarks, categories) => {
  */
 export default async function deleteWithUndo({ bookmarks, categories = [] }) {
 	// Favicon files are removed server-side on delete, so they have to be captured first to
-	// make a full restore possible.
-	const favicons = {};
-
-	for (const bookmark of bookmarks) {
-		favicons[bookmark.id] = bookmark.favicon ? await getBookmarkFaviconDataUri(bookmark.id) : null;
-	}
+	// make a full restore possible. Reads only, so they can all go at once.
+	const favicons = Object.fromEntries(
+		await Promise.all(
+			bookmarks.map(async bookmark => [
+				bookmark.id,
+				bookmark.favicon ? await getBookmarkFaviconDataUri(bookmark.id) : null,
+			]),
+		),
+	);
 
 	// Deleted individually rather than via a category delete's cascade, since a bookmark's
 	// category may have been reassigned locally (batch-mode drag) without saving to the server.
-	for (const bookmark of bookmarks) await deleteBookmark(bookmark.id);
-	for (const category of categories) await deleteCategory(category.id);
+	// Sequential because a category's cascade would race the individual deletes of its own
+	// bookmarks. Only the final delete keeps its cache invalidation — the intermediate ones
+	// would each cost a full bookmarks + categories refetch on the way through.
+	const deletions = [
+		...bookmarks.map(bookmark => options => deleteBookmark(bookmark.id, options)),
+		...categories.map(category => options => deleteCategory(category.id, options)),
+	];
+
+	for (const [index, deletion] of deletions.entries()) {
+		await deletion(index === deletions.length - 1 ? undefined : { invalidates: [] });
+	}
 
 	const notify = new Notify({
 		type: 'warning',
@@ -50,35 +62,54 @@ export default async function deleteWithUndo({ bookmarks, categories = [] }) {
 		content: describeDeletion(bookmarks, categories),
 	});
 
-	new Button({
+	const undoButton = new Button({
 		appendTo: notify,
 		textContent: 'Undo',
 		onPointerPress: async () => {
-			const categoryIdMap = {};
+			// Restoring is one request per record: locked on first press so a double-click
+			// cannot run it twice and duplicate everything it restores.
+			if (undoButton.options.disabled) return;
+			undoButton.options.disabled = true;
 
-			for (const category of categories) {
-				const created = await createCategory({
-					body: { name: category.name, color: category.color || '', order: category.order },
+			try {
+				const categoryIdMap = {};
+
+				for (const category of categories) {
+					const created = await createCategory({
+						body: { name: category.name, color: category.color || '', order: category.order },
+					});
+					categoryIdMap[category.id] = created.body.id;
+				}
+
+				for (const bookmark of bookmarks) {
+					const category = categoryIdMap[bookmark.category] ?? bookmark.category ?? '';
+					const created = await createBookmark({
+						body: {
+							name: bookmark.name,
+							url: bookmark.url,
+							color: bookmark.color || '',
+							category,
+							order: bookmark.order,
+						},
+					});
+
+					if (favicons[bookmark.id]) await setBookmarkFaviconFromDataUri(created.body.id, favicons[bookmark.id]);
+				}
+
+				notify.destroy();
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error(error);
+				notify.destroy();
+
+				new Notify({
+					type: 'error',
+					timeout: 6000,
+					x: window.innerWidth - 16,
+					y: window.innerHeight - 16,
+					content: 'Undo failed part way through. Some items may already be restored.',
 				});
-				categoryIdMap[category.id] = created.body.id;
 			}
-
-			for (const bookmark of bookmarks) {
-				const category = categoryIdMap[bookmark.category] ?? bookmark.category ?? '';
-				const created = await createBookmark({
-					body: {
-						name: bookmark.name,
-						url: bookmark.url,
-						color: bookmark.color || '',
-						category,
-						order: bookmark.order,
-					},
-				});
-
-				if (favicons[bookmark.id]) await setBookmarkFaviconFromDataUri(created.body.id, favicons[bookmark.id]);
-			}
-
-			notify.destroy();
 		},
 	});
 }

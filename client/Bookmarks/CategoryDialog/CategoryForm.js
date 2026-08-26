@@ -1,5 +1,7 @@
 import { ColorPicker, Form } from '@vanilla-bean/components';
 
+import { getRecentColors } from '../util';
+
 export default class CategoryForm extends Form {
 	build() {
 		const formData = {
@@ -16,7 +18,7 @@ export default class CategoryForm extends Form {
 					key: 'color',
 					label: 'Default Color',
 					InputComponent: ColorPicker,
-					swatches: ['random', ...(JSON.parse(localStorage.getItem('recentColors')) || [])],
+					swatches: ['random', ...getRecentColors()],
 					collapsed: !formData?.color,
 				},
 			],

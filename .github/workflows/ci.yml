@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Default the token to read-only: checkout persists it into .git/config, and the very next step runs
+# the branch's own prepare/build scripts, which are branch-controlled content.
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
+      - run: bun test
+      # The document gates, same as the pre-commit hook enforces locally -- CI is the copy of
+      # that gate a fresh clone can't opt out of. `lld` exits nonzero only on a claim its run
+      # proved false; pending and surviving mutations stay advisory. The full run with mutation
+      # measures under 20s on this corpus, so there is nothing to trim.
+      - run: bun run lld:lint
+      - run: bun run lld
+      - run: bun run build

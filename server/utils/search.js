@@ -53,7 +53,7 @@ export const searchProvider = async (providerId, term) => {
 		};
 	});
 
-	if (engine.orderBy && engine.orderBy in mapped[0]) {
+	if (engine.orderBy && mapped.length > 0 && engine.orderBy in mapped[0]) {
 		mapped.sort((a, b) => String(a[engine.orderBy]).localeCompare(String(b[engine.orderBy])));
 	}
 

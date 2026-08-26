@@ -93,7 +93,7 @@ export default class BookmarksContainer extends styled.Label(
 			return new ClickButton({
 				...shared,
 				draggable: true,
-				onClick: () => this.options.onToggleBookmark?.(options.id),
+				onClick: () => this.options.onTapBookmark?.(options.id),
 			});
 		}
 
@@ -124,8 +124,8 @@ export default class BookmarksContainer extends styled.Label(
 				this[value ? 'addClass' : 'removeClass']('categoryMarked');
 			},
 		},
-		onToggleBookmark: {},
-		onToggleCategory: {},
+		onTapBookmark: {},
+		onTapCategory: {},
 	};
 
 	build() {
@@ -138,7 +138,7 @@ export default class BookmarksContainer extends styled.Label(
 				event.preventDefault();
 				event.stopPropagation();
 
-				this.options.onToggleCategory?.(this.options.categoryId);
+				this.options.onTapCategory?.(this.options.categoryId);
 			});
 		}
 	}

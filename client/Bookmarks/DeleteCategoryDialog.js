@@ -9,7 +9,9 @@ export default class DeleteCategoryDialog extends Dialog {
 		super({
 			size: 'standard',
 			header: `Delete ${options.category.name}?`,
-			buttons: ['Delete', 'Cancel'],
+			// Safe choice first: the dialog focuses its first button, so a reflexive Enter cancels
+			// instead of deleting.
+			buttons: ['Cancel', 'Delete'],
 			...options,
 		});
 	}

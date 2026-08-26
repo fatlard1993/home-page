@@ -14,39 +14,8 @@ import {
 } from '@vanilla-bean/components';
 
 import { getCategories, getBrandColor, getFaviconPreview } from '../../api';
-import { isLink, fixLink } from '../util';
-
-// Matches ColorPicker's own swatch sizing/spacing so it sits consistently among the real color swatches.
-const ClearColorSwatch = styled(
-	Button,
-	({ colors }) => `
-		margin-top: 3px;
-		margin-right: 3px;
-		border: 1px solid ${colors.light(colors.gray)};
-		background: repeating-linear-gradient(
-			45deg,
-			${colors.dark(colors.gray)},
-			${colors.dark(colors.gray)} 4px,
-			${colors.gray} 4px,
-			${colors.gray} 8px
-		);
-	`,
-);
-
-// Dashed border marks it as "detected", distinct from a plain recent-color swatch.
-const BrandColorSwatch = styled(
-	Button,
-	({ colors }) => `
-		margin-top: 3px;
-		margin-right: 3px;
-		border: 2px dashed ${colors.white};
-		display: none;
-
-		&.detected {
-			display: inline-block;
-		}
-	`,
-);
+import { ClearColorSwatch, BrandColorSwatch } from '../ColorSwatch';
+import { isLink, fixLink, getRecentColors } from '../util';
 
 const FaviconPreview = styled(
 	Component,
@@ -209,7 +178,7 @@ export default class BookmarkForm extends Form {
 					key: 'color',
 					InputComponent: ColorPicker,
 					parse: (value, input) => input.parseValue(value).hslString,
-					swatches: ['random', ...(JSON.parse(localStorage.getItem('recentColors')) || [])],
+					swatches: ['random', ...getRecentColors()],
 					append: [this.clearColorSwatch, this.brandColorSwatch],
 					onChange: () => {
 						this.colorTouched = true;
