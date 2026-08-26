@@ -25,6 +25,8 @@
 		"dev": "NODE_ENV=development bun --hot server/index.js",
 		"lint": "bun --bun eslint",
 		"lint:fix": "bun --bun eslint --fix",
+		"lld": "lldtdd run",
+		"lld:lint": "lldtdd lint",
 		"format": "bun run lint:fix && bun --bun prettier --write .",
 		"version": "npm version",
 		"build:dev": "bun run build && bun run service:reload",
