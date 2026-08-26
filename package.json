@@ -16,7 +16,8 @@
 		"not op_mini all"
 	],
 	"scripts": {
-		"prepare": "bun run build",
+		"prepare": "bun run prepare:githooks && bun run build",
+		"prepare:githooks": "[ -n \"$CI\" ] && exit 0 || (git config --local core.hooksPath .githooks || echo 'Cannot set core.hooksPath -- pre-commit checks will not run')",
 		"build": "bun run build:clean && bun run client/build.js",
 		"build:clean": "rm -rf ./client/build/",
 		"build:watch": "bun run build -- --watch",
@@ -67,6 +68,7 @@
 		"eslint-plugin-unicorn": "^72.0.0",
 		"eslint-plugin-write-good-comments": "^0.2.0",
 		"globals": "^17.7.0",
+		"lldtdd": "^0.1.0",
 		"prettier": "3.9.5"
 	}
 }
