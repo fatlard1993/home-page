@@ -28,15 +28,15 @@ describe('BookmarksContainer', () => {
 		expect(queryByRole(container, 'button')).toBeNull();
 	});
 
-	test('renders bookmarks as toggle buttons in batch mode', async () => {
-		const toggled = [];
+	test('renders bookmarks as tappable buttons in batch mode', async () => {
+		const tapped = [];
 
 		new BookmarksContainer({
 			batchEdit: true,
 			bookmarks: [{ id: 'one', name: 'test', url: 'test.com' }],
 			label: 'heading',
 			appendTo: container,
-			onToggleBookmark: id => toggled.push(id),
+			onTapBookmark: id => tapped.push(id),
 		});
 
 		const button = await findByRole(container, 'button');
@@ -46,7 +46,7 @@ describe('BookmarksContainer', () => {
 
 		button.click();
 
-		expect(toggled).toEqual(['one']);
+		expect(tapped).toEqual(['one']);
 	});
 
 	test('reflects post-construction option updates', async () => {

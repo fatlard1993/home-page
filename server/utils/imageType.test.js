@@ -42,9 +42,7 @@ describe('sniffImageType', () => {
 	});
 
 	test('detects SVG behind an XML declaration', () => {
-		expect(sniffImageType(Buffer.from('<?xml version="1.0"?>\n<svg viewBox="0 0 1 1"></svg>'))).toBe(
-			'image/svg+xml',
-		);
+		expect(sniffImageType(Buffer.from('<?xml version="1.0"?>\n<svg viewBox="0 0 1 1"></svg>'))).toBe('image/svg+xml');
 	});
 
 	test('rejects an HTML page', () => {

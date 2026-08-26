@@ -10,13 +10,18 @@ import categoriesRoutes from './categories';
 import searchEnginesRoutes from './searchEngines';
 import staticRoutes from './static';
 
+// Every other build asset is content-hashed; the document must always revalidate, or a cached copy
+// points at chunk hashes that no longer exist.
+const indexResponse = () =>
+	new Response(Bun.file('client/build/index.html'), { headers: { 'Cache-Control': 'no-cache' } });
+
 const router = async (request, server) => {
 	try {
 		let match;
 		let response;
 
 		match = requestMatch('GET', '/', request);
-		if (match) return new Response(Bun.file('client/build/index.html'));
+		if (match) return indexResponse();
 
 		if (process.env.NODE_ENV === 'development') {
 			match = requestMatch('GET', '/ws', request);
@@ -61,7 +66,7 @@ const router = async (request, server) => {
 		if (response) return response;
 
 		// SPA fallback — serve index.html for unmatched GET requests
-		if (request.method === 'GET') return new Response(Bun.file('client/build/index.html'));
+		if (request.method === 'GET') return indexResponse();
 
 		return new Response('Not Found', { status: 404 });
 	} catch (error) {

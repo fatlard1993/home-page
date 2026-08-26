@@ -1,6 +1,6 @@
 import uFuzzy from '@leeoniya/ufuzzy';
-import { View, Elem, copyToClipboard, Icon, conditionalList } from '@vanilla-bean/components';
-import { TinyColor } from '@ctrl/tinycolor';
+import { View, Elem, copyToClipboard, Icon, conditionalList, Notify } from '@vanilla-bean/components';
+import { TinyColor, random as randomColor } from '@ctrl/tinycolor';
 
 import { orderBy } from '@vanilla-bean/components';
 
@@ -16,9 +16,10 @@ import SearchEngineButtons from './SearchEngineButtons';
 import ContextMenu from './ContextMenu';
 import confirmDeleteBookmark from './confirmDeleteBookmark';
 import confirmBatchDelete from './confirmBatchDelete';
+import confirmDiscardBatch from './confirmDiscardBatch';
 import deleteWithUndo from './deleteWithUndo';
 
-import { fixLink, sortedIds } from './util';
+import { fixLink, batchFieldsChanged, saveRecentColor, sortedIds } from './util';
 import DeleteCategoryDialog from './DeleteCategoryDialog';
 
 // Tolerant fuzzy: allows insertions, substitutions, transpositions, and deletions within matches
@@ -44,6 +45,8 @@ export default class Bookmarks extends View {
 		this.batchBar = new BatchEditBar({
 			appendTo: this.elem,
 			style: { display: 'none' },
+			modeChange: mode => this.setBatchMode(mode),
+			colorChange: color => this.setBrushColor(color),
 			done: () => this.commitBatchEdit(),
 			cancel: () => this.cancelBatchEdit(),
 		});
@@ -51,6 +54,7 @@ export default class Bookmarks extends View {
 		this.contextMenu = new ContextMenu({ appendTo: this });
 
 		this._setupBatchDnd();
+		this._setupBatchGuards();
 
 		this.renderLoader();
 
@@ -127,8 +131,10 @@ export default class Bookmarks extends View {
 	// when a single action (e.g. deleting a category) invalidates both together. Rendering as
 	// soon as just one lands can briefly categorize bookmarks against a stale (or momentarily
 	// missing) category — wait until neither is mid-fetch so both updates land in one render.
+	// Also held off mid-commit: the batch board is torn down and rebuilt the moment the commit's
+	// refetch lands, and _exitBatchEdit renders the real thing immediately after.
 	_scheduleRenderContent() {
-		if (this._categoriesFetching || this._bookmarksFetching) return;
+		if (this._categoriesFetching || this._bookmarksFetching || this._batchCommitting) return;
 		if (this.rendered) this.renderContent();
 	}
 
@@ -440,32 +446,82 @@ export default class Bookmarks extends View {
 		this.batchDirty = false;
 		this.batch = this._buildBatchState();
 		this._batchContainers = {};
+		this._brushesUsed = new Set();
 
 		this.batchBar.elem.style.display = 'flex';
+		this.batchBar.options.mode = 'delete';
 		this.batchBar.options.markedCount = 0;
+		// Rebuilt on entry so colors saved from the forms (or a prior commit) since the last entry
+		// appear as brush swatches without waiting for a page reload.
+		this.batchBar.refreshSwatches();
 
 		this.renderContent();
 	}
 
-	cancelBatchEdit() {
+	get batchMode() {
+		return this.batchBar.options.mode;
+	}
+
+	get brushColor() {
+		return this.batchBar.options.brushColor;
+	}
+
+	setBatchMode(mode) {
+		if (!this.batchEdit) return;
+
+		this.batchBar.options.mode = mode;
+	}
+
+	setBrushColor(color) {
+		if (!this.batchEdit) return;
+
+		this.batchBar.options.brushColor = color;
+
+		this.setBatchMode('paint');
+	}
+
+	async cancelBatchEdit() {
+		if (this._batchCancelling) return;
+
+		if (this.batchDirty) {
+			this._batchCancelling = true;
+
+			try {
+				if (!(await confirmDiscardBatch())) return;
+			} finally {
+				this._batchCancelling = false;
+			}
+		}
+
 		this._exitBatchEdit();
 	}
 
 	_exitBatchEdit() {
 		this.batchEdit = false;
+		this.batchDirty = false;
 		this.batch = null;
 		this._batchContainers = null;
+		this._brushesUsed = null;
 
 		this.batchBar.elem.style.display = 'none';
 
 		this.renderContent();
 	}
 
+	_rememberBrushColors() {
+		for (const color of this._brushesUsed ?? []) saveRecentColor(color);
+	}
+
+	// `stored` snapshots each record's server-side category/order/color; the commit diffs the batch
+	// against it (see batchFieldsChanged) so it can send only what actually changed.
 	_buildBatchState() {
-		const batch = { bookmarks: {}, categories: {} };
+		const batch = { bookmarks: {}, categories: {}, stored: { bookmarks: {}, categories: {} } };
 
 		sortedIds(this.categories.body).forEach((id, index) => {
-			batch.categories[id] = { ...this.categories.body[id], id, order: index, deleted: false };
+			const category = this.categories.body[id];
+
+			batch.categories[id] = { ...category, id, order: index, deleted: false };
+			batch.stored.categories[id] = { order: category.order, color: category.color || '' };
 		});
 
 		const counters = {};
@@ -476,6 +532,11 @@ export default class Bookmarks extends View {
 			const order = (counters[categoryKey] = (counters[categoryKey] ?? -1) + 1);
 
 			batch.bookmarks[id] = { ...bookmark, id, category: categoryKey, order, deleted: false };
+			batch.stored.bookmarks[id] = {
+				category: bookmark.category || '',
+				order: bookmark.order,
+				color: bookmark.color || '',
+			};
 		}
 
 		return batch;
@@ -491,6 +552,58 @@ export default class Bookmarks extends View {
 		return Object.values(this.batch.bookmarks)
 			.filter(bookmark => (bookmark.category || '') === (categoryId || ''))
 			.sort((a, b) => a.order - b.order);
+	}
+
+	tapBookmark(id) {
+		if (this.batchMode === 'paint') this.paintBookmark(id);
+		else this.toggleBookmarkMark(id);
+	}
+
+	tapCategory(id) {
+		if (this.batchMode === 'paint') this.paintCategory(id);
+		else this.toggleCategoryMark(id);
+	}
+
+	_resolveBrushColor() {
+		return this.brushColor === 'random' ? randomColor().toHslString() : this.brushColor;
+	}
+
+	paintBookmark(id) {
+		const bookmark = this.batch.bookmarks[id];
+
+		if (!bookmark) return;
+
+		const color = this._resolveBrushColor();
+
+		if ((bookmark.color || '') === color) return;
+
+		bookmark.color = color;
+		this.batchDirty = true;
+		this._brushesUsed.add(this.brushColor);
+
+		this._refreshBatchContainerBookmarks(bookmark.category || '');
+	}
+
+	paintCategory(id) {
+		const category = this.batch.categories[id];
+
+		if (!category) return;
+
+		const color = this._resolveBrushColor();
+
+		if ((category.color || '') === color) return;
+
+		category.color = color;
+		this.batchDirty = true;
+		this._brushesUsed.add(this.brushColor);
+
+		const container = this._batchContainers[id];
+
+		if (!container) return;
+
+		container.options.style = this._categoryContainerStyle(category);
+
+		this._refreshBatchContainerBookmarks(id);
 	}
 
 	toggleBookmarkMark(id) {
@@ -550,10 +663,20 @@ export default class Bookmarks extends View {
 	}
 
 	_batchBookmarksFor(categoryId) {
+		const category = categoryId ? this.batch.categories[categoryId] : null;
+
 		return this.getBatchCategoryBookmarks(categoryId).map(bookmark => ({
 			...bookmark,
 			markedForDeletion: bookmark.deleted,
+			color: bookmark.color || category?.color || '',
 		}));
+	}
+
+	_categoryContainerStyle(category) {
+		return {
+			width: category?.color ? 'calc(100% - 28px)' : '',
+			borderLeft: category?.color ? `4px solid ${new TinyColor(category.color).setAlpha(0.4)}` : '',
+		};
 	}
 
 	moveCategory(categoryId, beforeCategoryId) {
@@ -589,54 +712,143 @@ export default class Bookmarks extends View {
 				batchEdit: true,
 				categoryMarkedForDeletion: categoryId ? !!category.deleted : false,
 				bookmarks: this._batchBookmarksFor(categoryId),
-				onToggleBookmark: id => this.toggleBookmarkMark(id),
-				onToggleCategory: id => this.toggleCategoryMark(id),
-				...(category.color && {
-					style: {
-						width: 'calc(100% - 28px)',
-						borderLeft: `4px solid ${new TinyColor(category.color).setAlpha(0.4)}`,
-					},
-				}),
+				onTapBookmark: id => this.tapBookmark(id),
+				onTapCategory: id => this.tapCategory(id),
+				style: this._categoryContainerStyle(category),
 			});
 		}
 	}
 
 	async commitBatchEdit() {
+		if (this._batchCommitting) return;
+
 		if (!this.batchDirty) {
 			this._exitBatchEdit();
 
 			return;
 		}
 
-		const bookmarks = Object.values(this.batch.bookmarks);
-		const categories = Object.values(this.batch.categories);
+		this._batchCommitting = true;
 
-		const deletedCategoryIds = new Set(categories.filter(category => category.deleted).map(category => category.id));
-		const doomedBookmarks = bookmarks.filter(bookmark => bookmark.deleted || deletedCategoryIds.has(bookmark.category));
-		const doomedBookmarkIds = new Set(doomedBookmarks.map(bookmark => bookmark.id));
+		try {
+			const bookmarks = Object.values(this.batch.bookmarks);
+			const categories = Object.values(this.batch.categories);
 
-		const survivingBookmarks = bookmarks.filter(bookmark => !doomedBookmarkIds.has(bookmark.id));
-		const survivingCategories = categories.filter(category => !deletedCategoryIds.has(category.id));
-		const doomedCategories = categories.filter(category => deletedCategoryIds.has(category.id));
+			const deletedCategoryIds = new Set(categories.filter(category => category.deleted).map(category => category.id));
+			const doomedBookmarks = bookmarks.filter(
+				bookmark => bookmark.deleted || deletedCategoryIds.has(bookmark.category),
+			);
+			const doomedBookmarkIds = new Set(doomedBookmarks.map(bookmark => bookmark.id));
 
-		if (doomedBookmarks.length > 0 || doomedCategories.length > 0) {
-			const confirmed = await confirmBatchDelete(doomedBookmarks.length, doomedCategories.length);
+			const survivingBookmarks = bookmarks.filter(bookmark => !doomedBookmarkIds.has(bookmark.id));
+			const survivingCategories = categories.filter(category => !deletedCategoryIds.has(category.id));
+			const doomedCategories = categories.filter(category => deletedCategoryIds.has(category.id));
 
-			if (!confirmed) return;
-		}
+			if (doomedBookmarks.length > 0 || doomedCategories.length > 0) {
+				const confirmed = await confirmBatchDelete(doomedBookmarks.length, doomedCategories.length);
 
-		await Promise.all([
-			...survivingBookmarks.map(bookmark =>
-				updateBookmark(bookmark.id, { body: { category: bookmark.category, order: bookmark.order } }),
-			),
-			...survivingCategories.map(category => updateCategory(category.id, { body: { order: category.order } })),
-		]);
+				if (!confirmed) return;
+			}
 
-		if (doomedBookmarks.length > 0 || doomedCategories.length > 0) {
-			await deleteWithUndo({ bookmarks: doomedBookmarks, categories: doomedCategories });
+			// The commit diffs against `stored`, a snapshot taken at batch entry, with no concurrency
+			// check. Two limitations follow, accepted here for a single-user LAN app:
+			//   - a second tab or device that edits a touched record mid-batch is silently overwritten
+			//     (last write wins) — nothing refetches and compares before writing;
+			//   - a category delete cascades server-side over every bookmark in the category at delete
+			//     time, so a bookmark added to a doomed category after entry is destroyed, is not in the
+			//     confirmed count, and cannot be restored by Undo.
+			const { stored } = this.batch;
+
+			const changedBookmarks = survivingBookmarks.filter(bookmark =>
+				batchFieldsChanged(bookmark, stored.bookmarks[bookmark.id]),
+			);
+			const changedCategories = survivingCategories.filter(category =>
+				batchFieldsChanged(category, stored.categories[category.id]),
+			);
+
+			this.batchBar.options.saving = true;
+
+			// Each write's default `invalidates` would wake the bookmarks and categories
+			// subscriptions, costing two extra round trips per record. Suppressed here and
+			// replaced by a single refetch of each once every write has landed.
+			await Promise.all([
+				...changedBookmarks.map(bookmark =>
+					updateBookmark(bookmark.id, {
+						body: { category: bookmark.category, order: bookmark.order, color: bookmark.color || '' },
+						invalidates: [],
+					}),
+				),
+				...changedCategories.map(category =>
+					updateCategory(category.id, {
+						body: { order: category.order, color: category.color || '' },
+						invalidates: [],
+					}),
+				),
+			]);
+
+			this._rememberBrushColors();
+
+			if (doomedBookmarks.length > 0 || doomedCategories.length > 0) {
+				await deleteWithUndo({ bookmarks: doomedBookmarks, categories: doomedCategories });
+			} else if (changedBookmarks.length > 0 || changedCategories.length > 0) {
+				// Invalidated first: a refetch that arrived through mutation invalidation carries a
+				// cache-reading refetch, which would hand back the pre-commit ordering on a warm entry.
+				this.bookmarks.invalidateCache();
+				this.categories.invalidateCache();
+
+				await Promise.all([this.bookmarks.refetch(), this.categories.refetch()]);
+			}
+		} catch (error) {
+			// eslint-disable-next-line no-console
+			console.error(error);
+
+			// batch.stored is deliberately not rebuilt here: a retry must re-diff the pre-commit
+			// snapshot so writes that already landed stay idempotent.
+			this.bookmarks.invalidateCache();
+			this.categories.invalidateCache();
+			await Promise.allSettled([this.bookmarks.refetch(), this.categories.refetch()]);
+
+			new Notify({
+				type: 'error',
+				timeout: 6000,
+				x: window.innerWidth - 16,
+				y: window.innerHeight - 16,
+				content: 'Some batch changes could not be saved. Press Done to retry, or refresh to see what was applied.',
+			});
+
+			return;
+		} finally {
+			this.batchBar.options.saving = false;
+			this._batchCommitting = false;
 		}
 
 		this._exitBatchEdit();
+	}
+
+	_setupBatchGuards() {
+		// Bails during an in-flight commit or an open discard confirm: preventDefault here would
+		// otherwise swallow the confirm dialog's own native Escape-to-dismiss.
+		const onKeyDown = event => {
+			if (!this.batchEdit || this._batchCommitting || this._batchCancelling || event.key !== 'Escape') return;
+
+			event.preventDefault();
+			this.cancelBatchEdit();
+		};
+
+		document.addEventListener('keydown', onKeyDown);
+		this.addCleanup('batchKeys', () => document.removeEventListener('keydown', onKeyDown));
+
+		const onBeforeUnload = event => {
+			if (!this.batchDirty) return;
+
+			// returnValue is what Safari and older Chrome read to raise the prompt; preventDefault
+			// alone is silently ignored there.
+			event.preventDefault();
+			event.returnValue = '';
+		};
+
+		window.addEventListener('beforeunload', onBeforeUnload);
+		this.addCleanup('batchUnloadGuard', () => window.removeEventListener('beforeunload', onBeforeUnload));
 	}
 
 	_setupBatchDnd() {
