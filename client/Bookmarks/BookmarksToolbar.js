@@ -29,8 +29,9 @@ export default class BookmarksToolbar extends Toolbar {
 				height: 2.4rem;
 			`,
 			value: context.preRenderSearch,
-			onKeyDown: ({ key, event }) => {
-				if (key === 'Escape') {
+			// The handler receives the keyboard event itself; there is no wrapper carrying an `event` field
+			onKeyDown: event => {
+				if (event.key === 'Escape') {
 					event.preventDefault();
 					this.search.elem.blur();
 				}
