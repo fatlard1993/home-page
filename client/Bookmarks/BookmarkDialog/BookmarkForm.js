@@ -62,7 +62,10 @@ export default class BookmarkForm extends Form {
 
 	build() {
 		this.existingFaviconId = this.options.existingFaviconId;
-		this.useFavicon = !!this.existingFaviconId;
+		// What the user asked for, kept apart from what the checkbox shows: a url with no favicon
+		// clears the box, and a url that has one hands the choice back.
+		this.wantsFavicon = !!this.existingFaviconId;
+		this._siteFaviconStatus = 'unknown';
 
 		this.clearColorSwatch = new ClearColorSwatch({
 			title: 'Reset to automatic color (follows category)',
@@ -96,14 +99,15 @@ export default class BookmarkForm extends Form {
 
 		this.faviconCheckbox = new Input({
 			type: 'checkbox',
-			value: this.useFavicon,
+			value: this.wantsFavicon,
 			onChange: ({ value }) => {
-				this.useFavicon = value;
+				this.wantsFavicon = this.faviconCheckbox.options.value = value;
 
 				if (value) this._queueFaviconPreview(this.options.data.url);
 				else {
-					this._pendingFaviconDataUri = null;
+					this._setPendingFavicon(null);
 					this._updateFaviconPreview(null);
+					this._applyFaviconAvailability();
 				}
 			},
 		});
@@ -121,10 +125,10 @@ export default class BookmarkForm extends Form {
 			const reader = new FileReader();
 
 			reader.onload = () => {
-				this.useFavicon = true;
-				this.faviconCheckbox.options.value = true;
-				this._pendingFaviconDataUri = reader.result;
+				this.wantsFavicon = true;
+				this._setPendingFavicon(reader.result, { uploaded: true });
 				this._updateFaviconPreview(reader.result);
+				this._applyFaviconAvailability();
 			};
 
 			reader.readAsDataURL(file);
@@ -138,14 +142,11 @@ export default class BookmarkForm extends Form {
 			},
 		});
 
+		this.faviconLabel = new Label({ label: 'Use site favicon', variant: 'inline' }, this.faviconCheckbox);
+
 		this.faviconRow = new Elem({
 			style: { display: 'flex', alignItems: 'center', gap: '6px', margin: '6px 0' },
-			append: [
-				new Label({ label: 'Use site favicon', variant: 'inline' }, this.faviconCheckbox),
-				this.faviconPreview,
-				this.faviconUploadButton,
-				this.faviconUploadInput,
-			],
+			append: [this.faviconLabel, this.faviconPreview, this.faviconUploadButton, this.faviconUploadInput],
 		});
 
 		this.newCategoryInput = new Input({
@@ -211,10 +212,15 @@ export default class BookmarkForm extends Form {
 			const url = event.target.value;
 
 			this._queueBrandColorDetection(url);
-			if (this.useFavicon) this._queueFaviconPreview(url);
+			this._queueFaviconPreview(url);
 		});
 
-		if (this.options.data.url) this._queueBrandColorDetection(this.options.data.url);
+		if (this.options.data.url) {
+			this._queueBrandColorDetection(this.options.data.url);
+			// Opening an edit only learns whether the site still has an icon; the saved one stays put
+			// until the url changes or the box is toggled.
+			this._queueFaviconPreview(this.options.data.url, { detectOnly: !!this.existingFaviconId });
+		}
 	}
 
 	_applyImplicitColor(categoryId) {
@@ -250,22 +256,53 @@ export default class BookmarkForm extends Form {
 		}
 	}
 
-	async _fetchFaviconPreview(url) {
+	/**
+	 * Read by BookmarkDialog on save.
+	 * @returns {boolean} The user's choice, unless the url left nothing to use.
+	 */
+	get useFavicon() {
+		return this.wantsFavicon && !this._faviconUnavailable();
+	}
+
+	// Unavailable only when nothing could supply an image: the site answered without one, no icon
+	// is saved, and nothing was uploaded. An unreachable site proves nothing, so it never disables.
+	_faviconUnavailable() {
+		return this._siteFaviconStatus === 'none' && !this.existingFaviconId && !this._pendingFaviconUploaded;
+	}
+
+	_applyFaviconAvailability() {
+		const unavailable = this._faviconUnavailable();
+
+		this.faviconCheckbox.options.disabled = unavailable;
+		this.faviconCheckbox.options.value = this.wantsFavicon && !unavailable;
+		this.faviconLabel.elem.title = unavailable ? 'No favicon found at this address' : '';
+	}
+
+	_setPendingFavicon(dataUri, { uploaded = false } = {}) {
+		this._pendingFaviconDataUri = dataUri;
+		this._pendingFaviconUploaded = !!dataUri && uploaded;
+	}
+
+	async _fetchFaviconPreview(url, { detectOnly = false } = {}) {
 		this._faviconPreviewRequestUrl = url;
-		this._pendingFaviconDataUri = null;
 
-		if (!isLink(url)) {
-			this._updateFaviconPreview(null);
+		const { body } = isLink(url) ? await getFaviconPreview(fixLink(url)) : {};
 
-			return;
+		if (!this.rendered || this._faviconPreviewRequestUrl !== url) return;
+
+		this._siteFaviconStatus = isLink(url) ? body?.status || 'unreachable' : 'unknown';
+
+		if (!detectOnly && this.wantsFavicon) {
+			if (body?.dataUri) this._setPendingFavicon(body.dataUri);
+			// The site's icon replaces an upload; the site's absence doesn't discard one.
+			else if (!this._pendingFaviconUploaded) this._setPendingFavicon(null);
+
+			const savedSrc = this.existingFaviconId && `/bookmarks/${this.existingFaviconId}/favicon`;
+
+			this._updateFaviconPreview(this._pendingFaviconDataUri || savedSrc);
 		}
 
-		const { body } = await getFaviconPreview(fixLink(url));
-
-		if (!this.rendered || this._faviconPreviewRequestUrl !== url || !this.useFavicon) return;
-
-		this._pendingFaviconDataUri = body?.dataUri || null;
-		this._updateFaviconPreview(this._pendingFaviconDataUri);
+		this._applyFaviconAvailability();
 	}
 
 	async _populateAsyncFields() {
@@ -293,7 +330,7 @@ export default class BookmarkForm extends Form {
 					this.options.data.url = clipboardContent;
 
 					this._queueBrandColorDetection(clipboardContent);
-					if (this.useFavicon) this._queueFaviconPreview(clipboardContent);
+					this._queueFaviconPreview(clipboardContent);
 				}
 			})
 			.catch(() => {});

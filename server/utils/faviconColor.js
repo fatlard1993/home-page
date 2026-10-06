@@ -141,17 +141,18 @@ const findFaviconHref = html => {
 const MAX_IMAGE_BYTES = 300_000;
 
 // Finds the page's declared favicon (falling back to the conventional /favicon.ico) and fetches
-// its raw bytes, bounded by size and time. Returns { buffer, contentType } or null.
-export const fetchFaviconImage = async (html, baseUrl) => {
+// its raw bytes, bounded by size and time. 'none' means the site answered without an image;
+// 'unreachable' means it never answered, which says nothing about whether it has one.
+const fetchIcon = async (html, baseUrl) => {
 	let iconUrl;
 
 	try {
 		iconUrl = new URL(findFaviconHref(html) || '/favicon.ico', baseUrl);
 	} catch {
-		return null;
+		return { status: 'none' };
 	}
 
-	if (!ALLOWED_PROTOCOLS.includes(iconUrl.protocol)) return null;
+	if (!ALLOWED_PROTOCOLS.includes(iconUrl.protocol)) return { status: 'none' };
 
 	try {
 		const response = await fetch(iconUrl, {
@@ -159,7 +160,7 @@ export const fetchFaviconImage = async (html, baseUrl) => {
 			headers: { 'User-Agent': USER_AGENT },
 		});
 
-		if (!response.ok || !response.body) return null;
+		if (!response.ok || !response.body) return { status: 'none' };
 
 		const reader = response.body.getReader();
 		const chunks = [];
@@ -185,13 +186,16 @@ export const fetchFaviconImage = async (html, baseUrl) => {
 		// stored under a type a browser will render.
 		const imageType = sniffImageType(buffer);
 
-		if (!imageType) return null;
+		if (!imageType) return { status: 'none' };
 
-		return { buffer, contentType: imageType };
+		return { status: 'found', image: { buffer, contentType: imageType } };
 	} catch {
-		return null;
+		return { status: 'unreachable' };
 	}
 };
+
+// Returns { buffer, contentType } or null.
+export const fetchFaviconImage = async (html, baseUrl) => (await fetchIcon(html, baseUrl)).image ?? null;
 
 // Decodes a representative color from the page's favicon.
 export const detectFaviconColor = async (html, baseUrl) => {
@@ -200,15 +204,21 @@ export const detectFaviconColor = async (html, baseUrl) => {
 	return image ? colorFromImage(image.buffer, image.contentType) : null;
 };
 
-// Fetches a page's favicon and encodes it as a data URI, for previewing before it's saved
-// against a bookmark. Content-type falls back to a generic binary type if the server omits one.
-export const fetchFaviconDataUri = async pageUrl => {
+/**
+ * Looks up a page's favicon for previewing before it's saved against a bookmark.
+ * @param {string} pageUrl Page whose favicon to find.
+ * @returns {Promise<{ status: 'found' | 'none' | 'unreachable', dataUri: string | null }>}
+ * 'none' only when the site answered; an unreachable site is not evidence it lacks an icon.
+ */
+export const detectFavicon = async pageUrl => {
 	const page = await fetchBoundedHtml(pageUrl);
-	const image = page && (await fetchFaviconImage(page.html, page.baseUrl));
 
-	if (!image) return null;
+	if (!page) return { status: 'unreachable', dataUri: null };
 
-	const contentType = image.contentType || 'application/octet-stream';
+	const { status, image } = await fetchIcon(page.html, page.baseUrl);
+	const dataUri = image ? `data:${image.contentType};base64,${image.buffer.toString('base64')}` : null;
 
-	return `data:${contentType};base64,${image.buffer.toString('base64')}`;
+	return { status, dataUri };
 };
+
+export const fetchFaviconDataUri = async pageUrl => (await detectFavicon(pageUrl)).dataUri;
