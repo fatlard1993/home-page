@@ -84,7 +84,17 @@ export default class BookmarksContainer extends styled.Label(
 				color: colors.mostReadable(color || colors.blue, [colors.white, colors.black]),
 			}),
 			...(favicon
-				? { append: [new Elem({ tag: 'img', src: `/bookmarks/${options.id}/favicon` }), name] }
+				? {
+						append: [
+							new Elem({
+								tag: 'img',
+								src: `/bookmarks/${options.id}/favicon`,
+								// A favicon that won't load leaves the name standing alone, not a broken-image glyph.
+								onerror: event => event.target.remove(),
+							}),
+							name,
+						],
+					}
 				: { textContent: name }),
 			...options,
 		};

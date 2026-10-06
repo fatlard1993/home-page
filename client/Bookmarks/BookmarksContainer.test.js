@@ -1,4 +1,4 @@
-import { findByRole, queryByRole } from '@testing-library/dom';
+import { findByRole, queryByRole, getByRole, fireEvent } from '@testing-library/dom';
 
 import BookmarksContainer from './BookmarksContainer';
 
@@ -65,5 +65,25 @@ describe('BookmarksContainer', () => {
 		bc.options.categoryMarkedForDeletion = true;
 
 		expect(bc.elem.classList.contains('categoryMarked')).toBe(true);
+	});
+});
+
+describe('BookmarksContainer favicons', () => {
+	test('a favicon that fails to load is removed, leaving the name', async () => {
+		new BookmarksContainer({
+			bookmarks: [{ id: 'one', name: 'test', url: 'test.com', favicon: 'image/png' }],
+			label: 'heading',
+			appendTo: container,
+		});
+
+		const link = await findByRole(container, 'link');
+		const img = getByRole(link, 'img');
+
+		expect(img.getAttribute('src')).toBe('/bookmarks/one/favicon');
+
+		fireEvent.error(img);
+
+		expect(queryByRole(link, 'img')).toBeNull();
+		expect(link.textContent).toBe('test');
 	});
 });

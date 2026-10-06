@@ -1,5 +1,5 @@
 import bookmarks from '../database/bookmarks';
-import { saveFavicon, deleteFavicon, readFavicon } from '../utils/faviconStorage';
+import { saveFavicon, deleteFavicon, readStoredFavicon } from '../utils/faviconStorage';
 
 import requestMatch from '../utils/requestMatch';
 import { parseBase64DataUri } from '../utils/dataUri';
@@ -19,11 +19,13 @@ const bookmarksRouter = async request => {
 	match = requestMatch('GET', '/bookmarks/:id/favicon', request);
 	if (match) {
 		const item = bookmarks.read(match);
-		const buffer = item?.favicon ? await readFavicon(match.id) : null;
+		const stored = item?.favicon ? await readStoredFavicon(match.id) : null;
 
-		if (!buffer) return new Response(null, { status: 404 });
+		if (!stored) return new Response(null, { status: 404 });
 
-		return new Response(buffer, { headers: { 'Content-Type': item.favicon } });
+		// The sniffed type, not item.favicon: entries saved before fetches were
+		// byte-checked carry whatever type the far end claimed.
+		return new Response(stored.buffer, { headers: { 'Content-Type': stored.contentType } });
 	}
 
 	match = requestMatch('PUT', '/bookmarks/:id/favicon', request);
