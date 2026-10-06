@@ -49,7 +49,7 @@
 		"@leeoniya/ufuzzy": "^1.0.19",
 		"@vanilla-bean/components": "^2.0.3",
 		"@vanilla-bean/hypertether": "^1.0.1",
-		"argi": "github:fatlard1993/argi#fcac703",
+		"argi-cli": "^1.0.0",
 		"lowdb": "^7.0.1",
 		"nanoid": "^6.0.0",
 		"pngjs": "^7.0.0"
