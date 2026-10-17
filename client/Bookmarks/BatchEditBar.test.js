@@ -159,19 +159,19 @@ describe('BatchEditBar', () => {
 		expect(bar.doneButton.options.textContent).toBe('Done');
 	});
 
-	// Button is itself an Icon, so fa-spin turned the entire control rather than the glyph. The
-	// spin belongs to a class the bar's own CSS points at the :before, never to the fa animation.
+	// Button is itself an Icon, so fa-spin turned the entire control rather than the glyph; Icon's
+	// iconAnimation runs the animation on the glyph alone.
 	test('saving spins the glyph without putting fa-spin on the button', () => {
 		const bar = new BatchEditBar({ appendTo: container });
 
 		bar.options.saving = true;
 
-		expect(bar.doneButton.hasClass('savingSpin')).toBe(true);
+		expect(bar.doneButton.hasClass('icon-animation-spin')).toBe(true);
 		expect(bar.doneButton.hasClass('fa-spin')).toBe(false);
 
 		bar.options.saving = false;
 
-		expect(bar.doneButton.hasClass('savingSpin')).toBe(false);
+		expect(bar.doneButton.hasClass('icon-animation-spin')).toBe(false);
 	});
 
 	test('reports the marked count', () => {

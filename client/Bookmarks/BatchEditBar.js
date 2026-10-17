@@ -80,25 +80,6 @@ export default class BatchEditBar extends styled.Component(
 			display: none;
 			flex-basis: 100%;
 		}
-
-		/*
-		 * Only the glyph should turn, but Button animates through a :before padded 3px left / 6px
-		 * right, which puts the rotation center off the glyph unless the padding is evened to 4.5px
-		 * each side — same 9px total, so the label does not shift when saving starts.
-		 *
-		 * TODO(@vanilla-bean/components > 2.0.1): replace with options.iconAnimation = 'spin' and
-		 * delete this rule once a release carrying that option lands.
-		 */
-		.savingSpin:before {
-			padding: 0 4.5px;
-			animation: batchEditSavingSpin 1s linear infinite;
-		}
-
-		@keyframes batchEditSavingSpin {
-			to {
-				transform: rotate(1turn);
-			}
-		}
 	`,
 ) {
 	build() {
@@ -243,7 +224,7 @@ export default class BatchEditBar extends styled.Component(
 		this.cancelButton.options.disabled = !!saving;
 		this.doneButton.options.textContent = saving ? 'Saving…' : 'Done';
 		this.doneButton.options.icon = saving ? 'spinner' : 'check';
-		this.doneButton[saving ? 'addClass' : 'removeClass']('savingSpin');
+		this.doneButton.options.iconAnimation = saving ? 'spin' : null;
 	}
 
 	static schema = {
