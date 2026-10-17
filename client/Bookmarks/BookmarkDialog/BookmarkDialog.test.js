@@ -1,4 +1,4 @@
-import { findByRole, findAllByRole, fireEvent, queryByRole, waitForElementToBeRemoved } from '@testing-library/dom';
+import { findByRole, findAllByRole, fireEvent, queryByRole } from '@testing-library/dom';
 
 import BookmarkDialog from './BookmarkDialog';
 
@@ -11,13 +11,13 @@ describe('BookmarkDialog', () => {
 		}));
 	});
 
-	// Dialog close relies on animation/transition events not fired in test env
-	test.skip('must provide a way to cancel the operation', async () => {
+	test('must provide a way to cancel the operation', async () => {
 		new BookmarkDialog({ appendTo: container });
 
 		fireEvent.click(await findByRole(container, 'button', { name: 'Cancel' }), {});
+		await new Promise(resolve => setTimeout(resolve, 20));
 
-		await waitForElementToBeRemoved(() => queryByRole(container, 'dialog'));
+		expect(queryByRole(container, 'dialog', { hidden: true })).toBeNull();
 	});
 
 	test('must render new bookmark form', async () => {
@@ -34,11 +34,12 @@ describe('BookmarkDialog', () => {
 		await findAllByRole(container, 'textbox');
 	});
 
-	// Validation behavior needs form submission simulation
-	test.skip('must require a Name and URL', async () => {
-		new BookmarkDialog({ appendTo: container });
+	test('must require a Name and URL', async () => {
+		const dialog = new BookmarkDialog({ appendTo: container });
 
-		await findByRole(container, 'textbox', { name: 'Name' });
-		await findByRole(container, 'textbox', { name: 'URL' });
+		await findAllByRole(container, 'textbox');
+
+		expect(await dialog.save()).toBe(false);
+		expect(dialog.elem.isConnected).toBe(true);
 	});
 });
