@@ -3,10 +3,11 @@
 import os from 'os';
 import path from 'path';
 
+import { hotReload } from '@vanilla-bean/components/app';
 import Argi from 'argi-cli';
 
 import database from './database';
-import server, { spawnBuild } from './server';
+import server from './server';
 import { seedEngines } from './utils/search';
 
 import './exit';
@@ -41,7 +42,7 @@ if (process.env.NODE_ENV === 'development') {
 			if (['stop', 'close', 'exit'].includes(line)) process.kill(process.pid, 'SIGTERM');
 			else if (line === 'b') {
 				console.log('>> Building...');
-				spawnBuild();
+				hotReload.rebuild();
 			}
 		}
 	} catch (error) {

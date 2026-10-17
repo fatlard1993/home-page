@@ -1,6 +1,7 @@
+import { requestMatch } from '@vanilla-bean/components/app';
+
 import searchEngines from '../database/searchEngines';
 
-import requestMatch from '../utils/requestMatch';
 
 const searchEnginesRouter = async request => {
 	let match;

@@ -3,7 +3,7 @@ import { Page } from '@vanilla-bean/components';
 import context from './context';
 import router from './router';
 
-import './hotReload';
+import '@vanilla-bean/components/app/reloadOnBuild';
 
 document.addEventListener('keypress', event => {
 	if (!context.searchElem) context.preRenderSearch += event.key;

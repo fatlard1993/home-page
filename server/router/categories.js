@@ -1,6 +1,7 @@
+import { requestMatch } from '@vanilla-bean/components/app';
+
 import categories from '../database/categories';
 
-import requestMatch from '../utils/requestMatch';
 
 const categoriesRouter = async request => {
 	let match;

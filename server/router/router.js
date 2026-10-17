@@ -1,36 +1,25 @@
-import { nanoid } from 'nanoid';
+import { requestMatch, serveStatic } from '@vanilla-bean/components/app';
 
 import { searchProvider } from '../utils/search';
 import { detectBrandColor } from '../utils/brandColor';
 import { detectFavicon } from '../utils/faviconColor';
-import requestMatch from '../utils/requestMatch';
 
 import bookmarksRoutes from './bookmarks';
 import categoriesRoutes from './categories';
 import searchEnginesRoutes from './searchEngines';
-import staticRoutes from './static';
 
 // Every other build asset is content-hashed; the document must always revalidate, or a cached copy
 // points at chunk hashes that no longer exist.
 const indexResponse = () =>
 	new Response(Bun.file('client/build/index.html'), { headers: { 'Cache-Control': 'no-cache' } });
 
-const router = async (request, server) => {
+const router = async request => {
 	try {
 		let match;
 		let response;
 
 		match = requestMatch('GET', '/', request);
 		if (match) return indexResponse();
-
-		if (process.env.NODE_ENV === 'development') {
-			match = requestMatch('GET', '/ws', request);
-			if (match) {
-				const success = server.upgrade(request, { data: { clientId: nanoid() } });
-
-				return success ? undefined : new Response('WebSocket upgrade error', { status: 400 });
-			}
-		}
 
 		response = await bookmarksRoutes(request);
 		if (response) return response;
@@ -62,7 +51,7 @@ const router = async (request, server) => {
 		match = requestMatch('GET', '/favicon-preview', request);
 		if (match) return Response.json(await detectFavicon(match.url));
 
-		response = await staticRoutes(request);
+		response = await serveStatic(request);
 		if (response) return response;
 
 		// SPA fallback — serve index.html for unmatched GET requests

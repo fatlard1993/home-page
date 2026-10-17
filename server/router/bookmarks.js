@@ -1,7 +1,7 @@
+import { requestMatch } from '@vanilla-bean/components/app';
+
 import bookmarks from '../database/bookmarks';
 import { saveFavicon, deleteFavicon, readStoredFavicon } from '../utils/faviconStorage';
-
-import requestMatch from '../utils/requestMatch';
 import { parseBase64DataUri } from '../utils/dataUri';
 import { sniffImageType } from '../utils/imageType';
 
