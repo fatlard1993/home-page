@@ -57,8 +57,6 @@ export default async function deleteWithUndo({ bookmarks, categories = [] }) {
 	const notify = new Notify({
 		type: 'warning',
 		timeout: 10000,
-		x: window.innerWidth - 16,
-		y: window.innerHeight - 16,
 		content: describeDeletion(bookmarks, categories),
 	});
 
@@ -105,8 +103,6 @@ export default async function deleteWithUndo({ bookmarks, categories = [] }) {
 				new Notify({
 					type: 'error',
 					timeout: 6000,
-					x: window.innerWidth - 16,
-					y: window.innerHeight - 16,
 					content: 'Undo failed part way through. Some items may already be restored.',
 				});
 			}

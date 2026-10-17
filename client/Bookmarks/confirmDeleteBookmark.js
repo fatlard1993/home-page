@@ -24,8 +24,6 @@ export default async function confirmDeleteBookmark(bookmark) {
 		new Notify({
 			type: 'error',
 			timeout: 6000,
-			x: window.innerWidth - 16,
-			y: window.innerHeight - 16,
 			content: `Could not delete "${bookmark.name}".`,
 		});
 	}

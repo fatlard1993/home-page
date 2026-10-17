@@ -27,11 +27,6 @@ export const saveRecentColor = color => {
 	localStorage.setItem('recentColors', JSON.stringify(recentColors));
 };
 
-export const validateForm = form => {
-	document.activeElement?.blur();
-	return form.hasErrors();
-};
-
 // Falls back to current position for items never explicitly reordered. The CRUD layer defaults
 // unset fields to '' rather than undefined, so anything non-numeric counts as unset.
 export const sortedIds = collection => {

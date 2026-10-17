@@ -811,8 +811,6 @@ export default class Bookmarks extends View {
 			new Notify({
 				type: 'error',
 				timeout: 6000,
-				x: window.innerWidth - 16,
-				y: window.innerHeight - 16,
 				content: 'Some batch changes could not be saved. Press Done to retry, or refresh to see what was applied.',
 			});
 

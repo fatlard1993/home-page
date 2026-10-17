@@ -1,7 +1,7 @@
 import { Dialog, conditionalList } from '@vanilla-bean/components';
 
 import { createCategory, updateCategory } from '../../api';
-import { saveRecentColor, validateForm } from '../util';
+import { saveRecentColor } from '../util';
 
 import DeleteCategoryDialog from '../DeleteCategoryDialog';
 import CategoryForm from './CategoryForm';
@@ -16,7 +16,7 @@ export default class CategoryDialog extends Dialog {
 			buttons: conditionalList([{ alwaysItem: 'Save' }, { if: isEdit, thenItem: 'Delete' }, { alwaysItem: 'Cancel' }]),
 			onButtonPress: ({ button }) => {
 				if (button === 'Save') {
-					if (validateForm(this.form)) return;
+					if (this.form.hasErrors()) return;
 
 					const { color } = this.form.options.data;
 

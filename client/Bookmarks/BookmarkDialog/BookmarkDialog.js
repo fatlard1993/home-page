@@ -1,7 +1,7 @@
 import { Dialog, conditionalList } from '@vanilla-bean/components';
 
 import { updateBookmark, createBookmark, setBookmarkFaviconFromDataUri, deleteBookmarkFavicon } from '../../api';
-import { saveRecentColor, validateForm } from '../util';
+import { saveRecentColor } from '../util';
 
 import confirmDeleteBookmark from '../confirmDeleteBookmark';
 import BookmarkForm from './BookmarkForm';
@@ -16,7 +16,7 @@ export default class BookmarkDialog extends Dialog {
 			buttons: conditionalList([{ alwaysItem: 'Save' }, { if: isEdit, thenItem: 'Delete' }, { alwaysItem: 'Cancel' }]),
 			onButtonPress: async ({ button }) => {
 				if (button === 'Save') {
-					if (validateForm(this.form)) return;
+					if (this.form.hasErrors()) return;
 
 					const { color, category, favicon, ...rest } = this.form.options.data;
 

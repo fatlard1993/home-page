@@ -1,7 +1,6 @@
 import { Dialog, conditionalList } from '@vanilla-bean/components';
 
 import { createSearchEngine, updateSearchEngine, deleteSearchEngine } from '../../api';
-import { validateForm } from '../util';
 
 import SearchEngineForm from './SearchEngineForm';
 
@@ -15,7 +14,7 @@ export default class SearchEngineDialog extends Dialog {
 			buttons: conditionalList([{ alwaysItem: 'Save' }, { if: isEdit, thenItem: 'Delete' }, { alwaysItem: 'Cancel' }]),
 			onButtonPress: ({ button }) => {
 				if (button === 'Save') {
-					if (validateForm(this.form)) return;
+					if (this.form.hasErrors()) return;
 
 					if (isEdit) {
 						updateSearchEngine(this.options.engine.id, { body: this.form.options.data });
