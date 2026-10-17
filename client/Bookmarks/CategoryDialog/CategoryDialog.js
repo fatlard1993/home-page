@@ -1,41 +1,42 @@
-import { Dialog, conditionalList } from '@vanilla-bean/components';
+import { ColorPicker, FormDialog } from '@vanilla-bean/components';
 
 import { createCategory, updateCategory } from '../../api';
-import { saveRecentColor } from '../util';
+import { getRecentColors, saveRecentColor } from '../util';
 
 import DeleteCategoryDialog from '../DeleteCategoryDialog';
-import CategoryForm from './CategoryForm';
 
-export default class CategoryDialog extends Dialog {
-	constructor(options = {}) {
-		const isEdit = !!options.category?.id;
+export default class CategoryDialog extends FormDialog {
+	static schema = {
+		category: {},
+	};
 
-		super({
-			size: 'large',
-			header: `${isEdit ? 'Edit' : 'Create'} Category${isEdit ? ` | ${options.category.name}` : ''}`,
-			buttons: conditionalList([{ alwaysItem: 'Save' }, { if: isEdit, thenItem: 'Delete' }, { alwaysItem: 'Cancel' }]),
-			onButtonPress: ({ button }) => {
-				if (button === 'Save') {
-					if (this.form.hasErrors()) return;
+	static prepareOptions(options) {
+		const { category } = options;
+		const isEdit = !!category?.id;
+		const data = { name: '', color: '', ...category };
 
-					const { color } = this.form.options.data;
+		return {
+			header: `${isEdit ? 'Edit' : 'Create'} Category${isEdit ? ` | ${category.name}` : ''}`,
+			data,
+			inputs: [
+				{ key: 'name', validations: [[/.+/, 'Required']] },
+				{
+					key: 'color',
+					label: 'Default Color',
+					InputComponent: ColorPicker,
+					swatches: ['random', ...getRecentColors()],
+					collapsed: !data.color,
+				},
+			],
+			onSave: body => {
+				saveRecentColor(body.color);
 
-					saveRecentColor(color);
-
-					if (isEdit) {
-						updateCategory(this.options.category.id, { body: this.form.options.data });
-					} else {
-						createCategory({ body: this.form.options.data });
-					}
-				} else if (button === 'Delete') {
-					new DeleteCategoryDialog({ category: this.options.category });
-				}
-
-				this.close();
+				if (isEdit) updateCategory(category.id, { body });
+				else createCategory({ body });
 			},
+			// Deleting a category asks what becomes of its bookmarks, which is more than a yes or no
+			...(isEdit && { onDelete: () => new DeleteCategoryDialog({ category }) }),
 			...options,
-		});
-
-		this.form = new CategoryForm({ appendTo: this._body, category: this.options.category });
+		};
 	}
 }
