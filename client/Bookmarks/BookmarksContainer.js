@@ -1,12 +1,6 @@
 import { Link, Button, Elem, styled } from '@vanilla-bean/components';
 import { fixLink } from './util';
 
-// Toggle on click, not pointerdown: pointerdown also fires when starting a drag,
-// and a completed drag never emits a click.
-class ClickButton extends Button {
-	static events = ['click'];
-}
-
 export default class BookmarksContainer extends styled.Label(
 	({ colors }) => `
 	margin: 1px 0;
@@ -100,10 +94,10 @@ export default class BookmarksContainer extends styled.Label(
 		};
 
 		if (this.options.batchEdit) {
-			return new ClickButton({
+			return new Button({
 				...shared,
 				draggable: true,
-				onClick: () => this.options.onTapBookmark?.(options.id),
+				onPointerPress: () => this.options.onTapBookmark?.(options.id),
 			});
 		}
 

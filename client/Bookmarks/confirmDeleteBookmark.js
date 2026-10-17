@@ -1,6 +1,5 @@
-import { Notify } from '@vanilla-bean/components';
+import { Dialog, Notify } from '@vanilla-bean/components';
 
-import confirmDialog from './confirmDialog';
 import deleteWithUndo from './deleteWithUndo';
 
 /**
@@ -8,7 +7,7 @@ import deleteWithUndo from './deleteWithUndo';
  * @param {object} bookmark - The bookmark to delete
  */
 export default async function confirmDeleteBookmark(bookmark) {
-	const confirmed = await confirmDialog({
+	const confirmed = await Dialog.confirm({
 		header: `Delete "${bookmark.name}"?`,
 		body: 'You can undo this for a few seconds after deleting.',
 		confirmLabel: 'Delete',

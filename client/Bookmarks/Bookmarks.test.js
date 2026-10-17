@@ -333,7 +333,7 @@ describe('commit', () => {
 	// both stubbed so the branch that suppresses invalidation on the surviving writes — relying on
 	// the final delete to surface them — is what's exercised, not the real dialog or delete flow.
 	// mock.module is process-wide, so the real implementations are captured first and restored in
-	// afterAll — otherwise these stubs would leak into confirmDialog.test.js / deleteWithUndo.test.js.
+	// afterAll — otherwise these stubs would leak into confirm.test.js / deleteWithUndo.test.js.
 	let realConfirmBatchDelete;
 	let realDeleteWithUndo;
 
@@ -508,7 +508,7 @@ describe('leaving batch edit', () => {
 
 	beforeAll(async () => {
 		// Captured and restored (afterAll) so this stub does not leak process-wide into
-		// confirmDialog.test.js, which exercises the real confirmDiscardBatch.
+		// confirm.test.js, which exercises the real confirmDiscardBatch.
 		realConfirmDiscardBatch = (await import('./confirmDiscardBatch')).default;
 
 		mock.module('./confirmDiscardBatch', () => ({

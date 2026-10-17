@@ -1,4 +1,4 @@
-import confirmDialog from './confirmDialog';
+import { Dialog } from '@vanilla-bean/components';
 
 /**
  * Ask the user to confirm a batch deletion before it happens.
@@ -12,7 +12,7 @@ export default function confirmBatchDelete(bookmarkCount, categoryCount) {
 	if (bookmarkCount) parts.push(`${bookmarkCount} bookmark${bookmarkCount === 1 ? '' : 's'}`);
 	if (categoryCount) parts.push(`${categoryCount} categor${categoryCount === 1 ? 'y' : 'ies'}`);
 
-	return confirmDialog({
+	return Dialog.confirm({
 		header: `Delete ${parts.join(' and ')}?`,
 		body: 'You can undo this for a few seconds after deleting.',
 		confirmLabel: 'Delete',

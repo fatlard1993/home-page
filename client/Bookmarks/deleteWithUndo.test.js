@@ -57,7 +57,7 @@ const flush = () => new Promise(resolve => setTimeout(resolve, 30));
 const pressUndo = () => {
 	const undo = [...document.querySelectorAll('button')].find(button => button.textContent.includes('Undo'));
 
-	undo.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+	undo.click();
 
 	return undo;
 };
@@ -161,7 +161,7 @@ describe('deleteWithUndo', () => {
 
 			const undo = pressUndo();
 			// Second synchronous press before the first async run yields: guard must swallow it.
-			undo.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+			undo.click();
 			await flush();
 
 			expect(only('createBookmark')).toHaveLength(1);
