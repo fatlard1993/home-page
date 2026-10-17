@@ -1,6 +1,5 @@
-import { styled, Menu, isDescendantOf } from '@vanilla-bean/components';
+import { styled, ContextMenu as LibraryContextMenu } from '@vanilla-bean/components';
 
-const itemHeight = 37; // Menu item height in px — matches Menu component's rendered li height
 const reticleWidth = 32; // Click indicator width in px
 // The hexangle's own proportion is width * 0.857142857 = 27.43px; 28 keeps the placement offset on
 // whole pixels and is 2% off natural.
@@ -75,7 +74,9 @@ const Reticle = styled.Component(
 `,
 );
 
-export default class ContextMenu extends styled.Popover(
+// The library's menu, with this app's look: it unfolds from the press, dims the page, and marks the point with a reticle
+export default class ContextMenu extends styled(
+	LibraryContextMenu,
 	({ colors }) => `
 		overflow: visible;
 		transform: scaleY(0);
@@ -117,57 +118,12 @@ export default class ContextMenu extends styled.Popover(
 				}
 			}
 		}
-
-		ul {
-			overflow: hidden;
-		}
-
-		li {
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
-		}
 	`,
-	{ autoOpen: false, sticky: false, maxWidth: 240 },
 ) {
-	static schema = {
-		items: {
-			set(value) {
-				if (!this.menu) this.menu = new Menu({ appendTo: this });
-
-				this.menu.options.items = value.map(item => ({
-					...item,
-					...(!this.options.sticky && {
-						onPointerPress: event => {
-							item.onPointerPress(event);
-
-							this.hide();
-						},
-					}),
-				}));
-
-				this.options.maxHeight = (value.length + 1) * itemHeight;
-			},
-		},
-		sticky: {},
-	};
-
 	build() {
-		const keyBinds = ({ key }) => {
-			if (this.isOpen && key === 'Escape') this.hide();
-		};
-		const pointerBinds = ({ target }) => {
-			if (this.isOpen && !isDescendantOf(target, this.menu.elem)) this.hide();
-		};
+		super.build();
 
-		document.addEventListener('keyup', keyBinds);
-		document.addEventListener('pointerdown', pointerBinds);
-
-		this.addCleanup('contextMenu', () => {
-			document.removeEventListener('keyup', keyBinds);
-			document.removeEventListener('pointerdown', pointerBinds);
-			this.contextPointer?.elem.remove();
-		});
+		this.addCleanup('reticle', () => this.contextPointer?.elem.remove());
 	}
 
 	edgeAwarePlacement(options) {
