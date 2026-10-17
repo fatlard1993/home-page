@@ -47,7 +47,7 @@
 		"@ctrl/tinycolor": "^4.2.0",
 		"@leeoniya/ufuzzy": "^1.0.19",
 		"@vanilla-bean/components": "^4.0.0",
-		"@vanilla-bean/hypertether": "^1.0.1",
+		"@vanilla-bean/hypertether": "^1.0.2",
 		"argi-cli": "^1.0.0",
 		"lowdb": "^7.0.1",
 		"nanoid": "^6.0.0",
