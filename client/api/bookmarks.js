@@ -1,7 +1,6 @@
 import { GET, POST, PATCH, DELETE } from '@vanilla-bean/hypertether';
 
-export const getBookmarks = async options =>
-	await GET('/bookmarks', { apiId: 'bookmarks', invalidateAfter: false, ...options });
+export const getBookmarks = async options => await GET('/bookmarks', { apiId: 'bookmarks', ...options });
 
 export const getBookmark = async (id, options) =>
 	await GET('/bookmarks/:id', { apiId: ['bookmarks', id], urlParameters: { id }, ...options });
