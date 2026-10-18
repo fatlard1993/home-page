@@ -88,4 +88,22 @@ describe('createCRUD', () => {
 			expect(await items.delete({ id: 'ghost' })).toBe(false);
 		});
 	});
+
+	describe('keys a plain object inherits are never entries', () => {
+		const inherited = ['__proto__', 'toString', 'constructor', 'hasOwnProperty'];
+
+		test('read, update and delete all treat them as unknown, and the collection is untouched', async () => {
+			const kept = await items.create({ name: 'Kept' });
+
+			for (const id of inherited) {
+				expect(items.read({ id })).toBe(false);
+				expect(await items.update({ id, update: { name: 'x', polluted: true } })).toBe(false);
+				expect(await items.delete({ id })).toBe(false);
+			}
+
+			expect(Object.getPrototypeOf(items.data)).toBe(Object.prototype);
+			expect(Object.keys(items.data)).toEqual([kept.id]);
+			expect({}.polluted).toBeUndefined();
+		});
+	});
 });

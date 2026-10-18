@@ -2,12 +2,12 @@ import { requestMatch } from '@vanilla-bean/components/app';
 
 import searchEngines from '../database/searchEngines';
 
-
 const searchEnginesRouter = async request => {
 	let match;
 
+	// The whole collection: a ?id= search param doesn't narrow it, /:id below does
 	match = requestMatch('GET', '/search/engines', request);
-	if (match) return Response.json(searchEngines.read(match));
+	if (match) return Response.json(searchEngines.read());
 
 	match = requestMatch('POST', '/search/engines', request);
 	if (match) return Response.json(await searchEngines.create(await request.json()), { status: 201 });
