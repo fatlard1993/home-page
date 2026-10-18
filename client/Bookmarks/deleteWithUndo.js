@@ -1,4 +1,4 @@
-import { Notify, Button } from '@vanilla-bean/components';
+import { Notify } from '@vanilla-bean/components';
 
 import {
 	deleteBookmark,
@@ -54,58 +54,48 @@ export default async function deleteWithUndo({ bookmarks, categories = [] }) {
 		await deletion(index === deletions.length - 1 ? undefined : { invalidates: [] });
 	}
 
-	const notify = new Notify({
+	const restore = async () => {
+		try {
+			const categoryIdMap = {};
+
+			for (const category of categories) {
+				const created = await createCategory({
+					body: { name: category.name, color: category.color || '', order: category.order },
+				});
+				categoryIdMap[category.id] = created.body.id;
+			}
+
+			for (const bookmark of bookmarks) {
+				const category = categoryIdMap[bookmark.category] ?? bookmark.category ?? '';
+				const created = await createBookmark({
+					body: {
+						name: bookmark.name,
+						url: bookmark.url,
+						color: bookmark.color || '',
+						category,
+						order: bookmark.order,
+					},
+				});
+
+				if (favicons[bookmark.id]) await setBookmarkFaviconFromDataUri(created.body.id, favicons[bookmark.id]);
+			}
+		} catch (error) {
+			// eslint-disable-next-line no-console
+			console.error(error);
+
+			new Notify({
+				type: 'error',
+				timeout: 6000,
+				content: 'Undo failed part way through. Some items may already be restored.',
+			});
+		}
+	};
+
+	// Restoring is one request per record; the toast's action runs once however often it's pressed
+	new Notify({
 		type: 'warning',
 		timeout: 10000,
 		content: describeDeletion(bookmarks, categories),
-	});
-
-	const undoButton = new Button({
-		appendTo: notify,
-		textContent: 'Undo',
-		onPointerPress: async () => {
-			// Restoring is one request per record: locked on first press so a double-click
-			// cannot run it twice and duplicate everything it restores.
-			if (undoButton.options.disabled) return;
-			undoButton.options.disabled = true;
-
-			try {
-				const categoryIdMap = {};
-
-				for (const category of categories) {
-					const created = await createCategory({
-						body: { name: category.name, color: category.color || '', order: category.order },
-					});
-					categoryIdMap[category.id] = created.body.id;
-				}
-
-				for (const bookmark of bookmarks) {
-					const category = categoryIdMap[bookmark.category] ?? bookmark.category ?? '';
-					const created = await createBookmark({
-						body: {
-							name: bookmark.name,
-							url: bookmark.url,
-							color: bookmark.color || '',
-							category,
-							order: bookmark.order,
-						},
-					});
-
-					if (favicons[bookmark.id]) await setBookmarkFaviconFromDataUri(created.body.id, favicons[bookmark.id]);
-				}
-
-				notify.destroy();
-			} catch (error) {
-				// eslint-disable-next-line no-console
-				console.error(error);
-				notify.destroy();
-
-				new Notify({
-					type: 'error',
-					timeout: 6000,
-					content: 'Undo failed part way through. Some items may already be restored.',
-				});
-			}
-		},
+		actions: [{ textContent: 'Undo', onPress: restore }],
 	});
 }
