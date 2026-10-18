@@ -1,8 +1,8 @@
-import { ValidationError, createStore } from '@vanilla-bean/components/app';
+import { ValidationError } from '@vanilla-bean/components/app';
 
 import { deleteFavicon } from '../utils/faviconStorage';
 import categories from './categories.js';
-import database from '.';
+import { createCRUD } from './crud';
 
 // The store is the real trust boundary: the client neutralizes script-scheme URLs on render, but any
 // LAN device can PATCH/POST straight past it. The URL parser strips interior tabs/newlines and
@@ -29,21 +29,16 @@ const assertSafeUrl = url => {
 	if (protocol !== 'http:' && protocol !== 'https:') throw new ValidationError(`Unsupported URL scheme: ${protocol}`);
 };
 
-export default createStore({
-	db: database,
-	collection: 'bookmarks',
-	fields: ['name', 'url', 'color', 'category', 'favicon', 'order'],
-	hooks: {
-		async beforeCreate(entry, data) {
-			assertSafeUrl(entry.url);
-			if (data.category?.create) entry.category = (await categories.create(data.category.create)).id;
-		},
-		async beforeUpdate(update) {
-			assertSafeUrl(update.url);
-			if (update.category?.create) update.category = (await categories.create(update.category.create)).id;
-		},
-		async afterDelete(id) {
-			await deleteFavicon(id);
-		},
+export default createCRUD('bookmarks', ['name', 'url', 'color', 'category', 'favicon', 'order'], {
+	async beforeCreate(entry, data) {
+		assertSafeUrl(entry.url);
+		if (data.category?.create) entry.category = (await categories.create(data.category.create)).id;
+	},
+	async beforeUpdate(update) {
+		assertSafeUrl(update.url);
+		if (update.category?.create) update.category = (await categories.create(update.category.create)).id;
+	},
+	async afterDelete(id) {
+		await deleteFavicon(id);
 	},
 });
