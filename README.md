@@ -22,6 +22,12 @@ bun start
 bun run dev
 ```
 
+## Run as a service
+
+`bun run service:enable` installs home-page as a background service on port 8033 that starts at login and restarts if it exits (a systemd user unit on Linux, a launchd agent on macOS), through the library's `vbc-service`. `bun run build:dev` rebuilds the client and restarts it. The rest: `service:disable`, `service:start`, `service:stop`, `service:reload`, `service:status`, `service:logs`.
+
+On macOS, an install from before this used the label `com.justfatlard.home-page`: unload it (`launchctl unload ~/Library/LaunchAgents/com.justfatlard.home-page.plist`) before enabling. The Linux unit keeps its name, `home-page.service`.
+
 ## CLI Options
 
 | Flag         | Alias | Default            | Description                    |
@@ -33,7 +39,6 @@ bun run dev
 
 ```sh
 bun run build          # One-off production build
-bun run build:watch    # Watch mode for development
 ```
 
 ## Test

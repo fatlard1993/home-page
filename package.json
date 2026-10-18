@@ -29,11 +29,13 @@
 		"format": "bun run lint:fix && bun --bun prettier --write .",
 		"version": "npm version",
 		"build:dev": "bun run build && bun run service:reload",
-		"service:enable": "bun scripts/service.js enable",
-		"service:disable": "bun scripts/service.js disable",
-		"service:start": "bun scripts/service.js start",
-		"service:stop": "bun scripts/service.js stop",
-		"service:reload": "bun scripts/service.js reload"
+		"service:enable": "vbc-service enable --port 8033",
+		"service:disable": "vbc-service disable",
+		"service:start": "vbc-service start",
+		"service:stop": "vbc-service stop",
+		"service:reload": "vbc-service reload",
+		"service:status": "vbc-service status",
+		"service:logs": "vbc-service logs"
 	},
 	"repository": {
 		"type": "git",
