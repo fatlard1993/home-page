@@ -30,11 +30,15 @@ describe('url scheme guard', () => {
 	test('an obfuscated scheme -- leading space, interior tab -- is still refused', () => {
 		// The browser's URL parser strips these before reading the scheme, so the stored string
 		// would reach the href sink as a live javascript: URL. The guard has to see through it.
-		expect(bookmarks.create({ name: 'sneaky', url: ' java\tscript:alert(1)' })).rejects.toThrow(/Unsupported URL scheme/);
+		expect(bookmarks.create({ name: 'sneaky', url: ' java\tscript:alert(1)' })).rejects.toThrow(
+			/Unsupported URL scheme/,
+		);
 	});
 
 	test('data: is refused like any non-http scheme', () => {
-		expect(bookmarks.create({ name: 'datauri', url: 'data:text/html,<script>1</script>' })).rejects.toThrow(/Unsupported URL scheme/);
+		expect(bookmarks.create({ name: 'datauri', url: 'data:text/html,<script>1</script>' })).rejects.toThrow(
+			/Unsupported URL scheme/,
+		);
 	});
 
 	test('an https url passes', async () => {
@@ -56,6 +60,8 @@ describe('url scheme guard', () => {
 
 	test('update is guarded the same way create is', async () => {
 		const entry = await bookmarks.create({ name: 'flip', url: 'https://fine.test' });
-		expect(bookmarks.update({ id: entry.id, update: { url: 'javascript:alert(1)' } })).rejects.toThrow(/Unsupported URL scheme/);
+		expect(bookmarks.update({ id: entry.id, update: { url: 'javascript:alert(1)' } })).rejects.toThrow(
+			/Unsupported URL scheme/,
+		);
 	});
 });

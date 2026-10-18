@@ -1,23 +1,33 @@
-import { createCRUD } from './crud';
+import { createStore } from '@vanilla-bean/components/app';
 
-const searchEngines = createCRUD(
-	'searchEngines',
-	['label', 'url', 'resultsPath', 'nameResultsPath', 'nameProperty', 'urlProperty', 'limit', 'orderBy', 'default'],
-	{
-		async beforeCreate(entry) {
-			if (entry.default) await searchEngines.clearDefault();
-		},
-		async beforeUpdate(update) {
-			if (update.default) await searchEngines.clearDefault();
-		},
-	},
-);
+import database from '.';
 
-// Only one search engine can be default at a time — unset any others before the create/update is applied.
-searchEngines.clearDefault = async () => {
-	for (const [id, engine] of Object.entries(searchEngines.data)) {
-		if (engine.default) await searchEngines.update({ id, update: { default: false } });
-	}
+// Only one search engine can be default at a time: the others are unset before a create or update that sets it. Set
+// in place rather than through update, which would wait behind the change that's asking; the same write saves both.
+const clearDefault = () => {
+	for (const engine of Object.values(database.data.searchEngines)) if (engine.default) engine.default = false;
 };
 
-export default searchEngines;
+export default createStore({
+	db: database,
+	collection: 'searchEngines',
+	fields: [
+		'label',
+		'url',
+		'resultsPath',
+		'nameResultsPath',
+		'nameProperty',
+		'urlProperty',
+		'limit',
+		'orderBy',
+		'default',
+	],
+	hooks: {
+		beforeCreate(entry) {
+			if (entry.default) clearDefault();
+		},
+		beforeUpdate(update) {
+			if (update.default) clearDefault();
+		},
+	},
+});

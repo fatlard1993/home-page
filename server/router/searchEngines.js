@@ -1,33 +1,5 @@
-import { requestMatch } from '@vanilla-bean/components/app';
+import { crudRoutes } from '@vanilla-bean/components/app';
 
 import searchEngines from '../database/searchEngines';
 
-const searchEnginesRouter = async request => {
-	let match;
-
-	// The whole collection: a ?id= search param doesn't narrow it, /:id below does
-	match = requestMatch('GET', '/search/engines', request);
-	if (match) return Response.json(searchEngines.read());
-
-	match = requestMatch('POST', '/search/engines', request);
-	if (match) return Response.json(await searchEngines.create(await request.json()), { status: 201 });
-
-	match = requestMatch('GET', '/search/engines/:id', request);
-	if (match) {
-		const item = searchEngines.read(match);
-
-		return item ? Response.json(item) : new Response(null, { status: 404 });
-	}
-
-	match = requestMatch('PATCH', '/search/engines/:id', request);
-	if (match) {
-		const item = await searchEngines.update({ ...match, update: await request.json() });
-
-		return item ? Response.json(item) : new Response(null, { status: 404 });
-	}
-
-	match = requestMatch('DELETE', '/search/engines/:id', request);
-	if (match) return new Response(null, { status: (await searchEngines.delete(match)) ? 204 : 404 });
-};
-
-export default searchEnginesRouter;
+export default crudRoutes('/search/engines', searchEngines);

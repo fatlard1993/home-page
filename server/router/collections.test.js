@@ -24,7 +24,7 @@ beforeAll(async () => {
 afterAll(() => rm(tmpDir, { recursive: true, force: true }));
 
 describe('collection routes', () => {
-	// Search engines go through the same createCRUD, but search.test.js mocks their module for the whole run
+	// Search engines go through the same crudRoutes, but search.test.js mocks their module for the whole run
 	for (const path of ['/bookmarks', '/categories']) {
 		test(`${path}: an inherited key is not found, and changing one touches nothing`, async () => {
 			const before = JSON.stringify(database.db.data);

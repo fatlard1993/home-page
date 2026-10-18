@@ -1,49 +1,29 @@
 import fs from 'fs';
 import path from 'path';
 
-import { Low } from 'lowdb';
-import { JSONFile } from 'lowdb/node';
+import { openDatabase } from '@vanilla-bean/components/app';
 
+// The stores are made at import and read this lazily, so they work once init has run
 const database = {
-	_writeQueue: Promise.resolve(),
 	default: {
 		bookmarks: {},
 		categories: {},
 		searchEngines: {},
 	},
+	get data() {
+		return database.db.data;
+	},
+	write() {
+		return database.db.write();
+	},
 	async init({ path: dbPath }) {
-		let resolvedPath = dbPath;
-
-		try {
-			resolvedPath = fs.realpathSync(dbPath);
-		} catch {
-			// path doesn't exist yet (first run) or isn't a symlink, use as-is
-		}
-
-		database.db = new Low(new JSONFile(resolvedPath), database.default);
-
-		await database.db.read();
-
-		database.db.data = { ...database.default, ...(database.db.data || {}) };
-
-		await database.db.write();
+		database.db = await openDatabase({ path: dbPath, defaults: database.default });
 
 		// Sibling dotfolder next to the db file, e.g. ~/.homePage.json -> ~/.homePage-favicons/
-		const { dir, name } = path.parse(resolvedPath);
+		const { dir, name } = path.parse(database.db.path);
 		database.faviconsDir = path.join(dir, `${name}-favicons`);
 
 		fs.mkdirSync(database.faviconsDir, { recursive: true });
-	},
-	write() {
-		database._writeQueue = database._writeQueue
-			.catch(() => {}) // Clear previous rejection so queue continues
-			.then(() => database.db.write())
-			.catch(error => {
-				console.error('Database write failed:', error);
-				throw error;
-			});
-
-		return database._writeQueue;
 	},
 };
 

@@ -1,4 +1,4 @@
-import { requestMatch } from '@vanilla-bean/components/app';
+import { crudRoutes, requestMatch } from '@vanilla-bean/components/app';
 
 import bookmarks from '../database/bookmarks';
 import { saveFavicon, deleteFavicon, readStoredFavicon } from '../utils/faviconStorage';
@@ -7,14 +7,10 @@ import { sniffImageType } from '../utils/imageType';
 
 const MAX_UPLOAD_BYTES = 3_000_000;
 
+const records = crudRoutes('/bookmarks', bookmarks);
+
 const bookmarksRouter = async request => {
 	let match;
-
-	match = requestMatch('GET', '/bookmarks', request);
-	if (match) return Response.json(bookmarks.read());
-
-	match = requestMatch('POST', '/bookmarks', request);
-	if (match) return Response.json(await bookmarks.create(await request.json()), { status: 201 });
 
 	match = requestMatch('GET', '/bookmarks/:id/favicon', request);
 	if (match) {
@@ -66,22 +62,7 @@ const bookmarksRouter = async request => {
 		return Response.json(item);
 	}
 
-	match = requestMatch('GET', '/bookmarks/:id', request);
-	if (match) {
-		const item = bookmarks.read(match);
-
-		return item ? Response.json(item) : new Response(null, { status: 404 });
-	}
-
-	match = requestMatch('PATCH', '/bookmarks/:id', request);
-	if (match) {
-		const item = await bookmarks.update({ ...match, update: await request.json() });
-
-		return item ? Response.json(item) : new Response(null, { status: 404 });
-	}
-
-	match = requestMatch('DELETE', '/bookmarks/:id', request);
-	if (match) return new Response(null, { status: (await bookmarks.delete(match)) ? 204 : 404 });
+	return records(request);
 };
 
 export default bookmarksRouter;
