@@ -1,9 +1,8 @@
-import { Button, Input, debounce } from '@vanilla-bean/components';
+import { Button, Input, Toolbar, debounce } from '@vanilla-bean/components';
 
 import { getSearchEngines } from '../api';
 import context from '../context';
 
-import { Toolbar } from '../Layout';
 import BookmarkDialog from './BookmarkDialog';
 import CategoryDialog from './CategoryDialog';
 import ContextMenu from './ContextMenu';
@@ -12,6 +11,8 @@ import { fixLink } from './util';
 
 export default class BookmarksToolbar extends Toolbar {
 	static schema = {
+		// One line: the search field takes the room the buttons leave
+		wrap: { default: false },
 		// data: the search option collides with the this.search Input created in build()
 		search: { data: true },
 	};

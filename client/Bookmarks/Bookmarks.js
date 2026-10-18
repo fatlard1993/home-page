@@ -1,12 +1,11 @@
 import uFuzzy from '@leeoniya/ufuzzy';
-import { View, Elem, copyToClipboard, Icon, conditionalList, Notify } from '@vanilla-bean/components';
+import { View, Elem, copyToClipboard, Icon, conditionalList, Notify, Content } from '@vanilla-bean/components';
 import { TinyColor, random as randomColor } from '@ctrl/tinycolor';
 
 import { orderBy } from '@vanilla-bean/components';
 
 import { getBookmarks, getCategories, getSearchEngines, getSearchResult, updateBookmark, updateCategory } from '../api';
 
-import { Content } from '../Layout';
 import CategoryDialog from './CategoryDialog';
 import BookmarkDialog from './BookmarkDialog';
 import BookmarksToolbar from './BookmarksToolbar';
@@ -29,6 +28,8 @@ export default class Bookmarks extends View {
 	constructor(options) {
 		super({
 			onContextMenu: event => this.showContextMenu(event),
+			// A touch screen has no right click: holding a bookmark or category brings the same menu
+			onLongPress: event => this.showContextMenu(event),
 			...options,
 		});
 	}
