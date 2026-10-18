@@ -8,6 +8,7 @@ import {
 	Label,
 	Elem,
 	readClipboard,
+	readFile,
 	theme,
 	styled,
 	debounce,
@@ -112,33 +113,27 @@ export default class BookmarkForm extends Form {
 			},
 		});
 
+		// Pressed, or with an image dropped or pasted on it, the button hands the image to the form
+		this.faviconUploadButton = new Button({
+			textContent: 'Upload image…',
+			// The button sits in a form, so its press would otherwise submit it
+			onPointerPress: event => event.preventDefault(),
+		});
+
 		this.faviconUploadInput = new Input({
 			type: 'file',
 			accept: 'image/*',
 			style: { display: 'none' },
-		});
-		this.faviconUploadInput.elem.addEventListener('change', event => {
-			const file = event.target.files[0];
+			dropZone: this.faviconUploadButton,
+			onFiles: async ([file]) => {
+				const dataUri = await readFile(file, 'dataURL');
 
-			if (!file) return;
+				if (!this.rendered) return;
 
-			const reader = new FileReader();
-
-			reader.onload = () => {
 				this.wantsFavicon = true;
-				this._setPendingFavicon(reader.result, { uploaded: true });
-				this._updateFaviconPreview(reader.result);
+				this._setPendingFavicon(dataUri, { uploaded: true });
+				this._updateFaviconPreview(dataUri);
 				this._applyFaviconAvailability();
-			};
-
-			reader.readAsDataURL(file);
-		});
-
-		this.faviconUploadButton = new Button({
-			textContent: 'Upload image…',
-			onPointerPress: event => {
-				event.preventDefault();
-				this.faviconUploadInput.elem.click();
 			},
 		});
 
