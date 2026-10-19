@@ -1,4 +1,5 @@
-import { createCRUD } from './crud';
+import { createStore } from '@vanilla-bean/components/app';
+
 import database from '.';
 
 // Only one search engine can be default at a time: the others are unset before a create or update that sets it. Set
@@ -7,10 +8,21 @@ const clearDefault = () => {
 	for (const engine of Object.values(database.data.searchEngines)) if (engine.default) engine.default = false;
 };
 
-export default createCRUD(
-	'searchEngines',
-	['label', 'url', 'resultsPath', 'nameResultsPath', 'nameProperty', 'urlProperty', 'limit', 'orderBy', 'default'],
-	{
+export default createStore({
+	db: database,
+	collection: 'searchEngines',
+	fields: [
+		'label',
+		'url',
+		'resultsPath',
+		'nameResultsPath',
+		'nameProperty',
+		'urlProperty',
+		'limit',
+		'orderBy',
+		'default',
+	],
+	hooks: {
 		beforeCreate(entry) {
 			if (entry.default) clearDefault();
 		},
@@ -18,4 +30,4 @@ export default createCRUD(
 			if (update.default) clearDefault();
 		},
 	},
-);
+});
