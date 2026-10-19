@@ -311,6 +311,9 @@ describe('commit', () => {
 		return harness;
 	};
 
+	// The real exports, copied before the mock updates the module's namespace in place
+	const realApi = { ...api };
+
 	beforeAll(() => {
 		// mock.module replaces the whole module process-wide; spreading the real exports keeps
 		// every other api function intact for any test file that loads after this one.
@@ -327,6 +330,11 @@ describe('commit', () => {
 				return writeBehavior();
 			},
 		}));
+	});
+
+	// Put back, or the stubbed writes leak into every test file that runs after this one
+	afterAll(() => {
+		mock.module('../api', () => realApi);
 	});
 
 	// The delete branch hands off to confirmBatchDelete (auto-confirmed here) and deleteWithUndo,
