@@ -1,4 +1,4 @@
-import { requestMatch, sameOrigin, serveApp, withErrors } from '@vanilla-bean/components/app';
+import { requestMatch, serveApp } from '@vanilla-bean/components/app';
 
 import { searchProvider } from '../utils/search';
 import { detectBrandColor } from '../utils/brandColor';
@@ -9,9 +9,6 @@ import categoriesRoutes from './categories';
 import searchEnginesRoutes from './searchEngines';
 
 const router = async request => {
-	// Another site's page can't change anything here, though a LAN client outside a browser still can
-	if (!sameOrigin(request)) return new Response('Cross-origin request refused', { status: 403 });
-
 	let match;
 	let response;
 
@@ -46,7 +43,7 @@ const router = async request => {
 	if (match) return Response.json(await detectFavicon(match.url));
 
 	// The page, revalidated on every load, the built files, and the page again for the client's own routes
-	return (await serveApp(request, { api: false })) ?? new Response('Not Found', { status: 404 });
+	return serveApp(request, { api: false });
 };
 
-export default withErrors(router);
+export default router;

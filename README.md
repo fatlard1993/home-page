@@ -51,8 +51,7 @@ bun test
 
 ```
 server/
-  index.js              Entry point — CLI args, database init, seed, server start
-  server.js             Bun.serve setup, WebSocket hot reload (dev)
+  index.js              Entry point — CLI args, database init, seed, server start (the library's serve)
   database/
     database.js         lowdb JSON persistence with serialized write queue
     crud.js             Generic CRUD factory with lifecycle hooks
@@ -74,7 +73,6 @@ client/
   index.js              Entry — keystroke buffering before hydration, page mount
   context.js            Shared state (pre-render search buffer)
   router.js             SPA router
-  build.js              Bun build script with watch mode
   api/                  Thin fetch wrappers with cache invalidation
   Bookmarks/            Main view — bookmark display, search, context menus, dialogs
 ```
