@@ -1,3 +1,5 @@
+import { readStorage, writeStorage } from '@vanilla-bean/components';
+
 const websiteRegex = /^(.+:\/\/)?[\da-z]+([.-][\da-z]+)*\.[a-z]{2,5}(:\d{1,5})?(\/.*)?$/;
 const ipRegex =
 	/^(.+:\/\/)?(25[0-5]|2[0-4]\d|[01]?\d{1,2})\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})(:\d{1,5})?(\/.*)?$/;
@@ -7,16 +9,11 @@ const localhostRegex = /^(.+:\/\/)?localhost(:\d{1,5})?(\/.*)?$/;
 export const isLink = url =>
 	websiteRegex.test(url) || ipRegex.test(url) || localhostRegex.test(url) || hostnameRegex.test(url);
 
-// localStorage is shared, writable state: a corrupt or non-array value must degrade to "no recent
-// colors", not throw from every reader (the batch bar reads this during page build).
+// localStorage is shared, writable state: a non-array value must degrade to "no recent colors"
 export const getRecentColors = () => {
-	try {
-		const parsed = JSON.parse(localStorage.getItem('recentColors'));
+	const stored = readStorage('recentColors', []);
 
-		return Array.isArray(parsed) ? parsed.filter(color => typeof color === 'string' && color) : [];
-	} catch {
-		return [];
-	}
+	return Array.isArray(stored) ? stored.filter(color => typeof color === 'string' && color) : [];
 };
 
 export const saveRecentColor = color => {
@@ -24,7 +21,7 @@ export const saveRecentColor = color => {
 
 	const recentColors = [...new Set([color, ...getRecentColors()])];
 	recentColors.length = Math.min(recentColors.length, 10);
-	localStorage.setItem('recentColors', JSON.stringify(recentColors));
+	writeStorage('recentColors', recentColors);
 };
 
 // Falls back to current position for items never explicitly reordered. The CRUD layer defaults
