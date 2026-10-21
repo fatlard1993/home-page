@@ -164,14 +164,17 @@ export default class Bookmarks extends View {
 		search: {
 			set(value) {
 				if (value) {
-					this.renderLoader();
-
 					for (const engine of Object.values(this.engines.body)) {
+						// The last term's results go now, not when this term's arrive: an engine that fails never replaces them
+						this.searchResults[engine.id] = { ...this.searchResults[engine.id], body: null };
 						this.searchResults[engine.id].refetch({
 							enabled: this.isEngineActive(engine),
 							urlParameters: { provider: engine.id, term: value },
 						});
 					}
+
+					// Bookmark matches show now; each engine's results join them as they arrive
+					if (this.rendered) this.renderContent();
 				} else {
 					this.activatedEngines.clear();
 

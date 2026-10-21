@@ -657,3 +657,52 @@ describe('leaving batch edit', () => {
 		Object.values(cleanups).forEach(remove => remove());
 	});
 });
+
+describe('searching', () => {
+	const searchHarness = () => {
+		const harness = Object.assign(Object.create(Bookmarks.prototype), {
+			rendered: true,
+			activatedEngines: new Set(),
+			engines: { body: { web: { id: 'web', default: true }, wiki: { id: 'wiki' } } },
+			refetched: [],
+			renders: 0,
+			loaders: 0,
+		});
+
+		harness.searchResults = Object.fromEntries(
+			['web', 'wiki'].map(id => [
+				id,
+				{
+					body: [{ name: 'last term', url: 'https://example.com' }],
+					refetch: options => harness.refetched.push([id, options]),
+				},
+			]),
+		);
+		harness.renderContent = () => harness.renders++;
+		harness.renderLoader = () => harness.loaders++;
+
+		return harness;
+	};
+
+	test('a term shows bookmark matches at once instead of waiting on the web engines', () => {
+		const harness = searchHarness();
+
+		Bookmarks.schema.search.set.call(harness, 'term');
+
+		expect(harness.loaders).toBe(0);
+		expect(harness.renders).toBe(1);
+		expect(harness.refetched).toEqual([
+			['web', { enabled: true, urlParameters: { provider: 'web', term: 'term' } }],
+			['wiki', { enabled: false, urlParameters: { provider: 'wiki', term: 'term' } }],
+		]);
+	});
+
+	test('the last term’s engine results are dropped while the new term’s are fetched', () => {
+		const harness = searchHarness();
+
+		Bookmarks.schema.search.set.call(harness, 'term');
+
+		expect(harness.searchResults.web.body).toBeNull();
+		expect(harness.searchResults.wiki.body).toBeNull();
+	});
+});
