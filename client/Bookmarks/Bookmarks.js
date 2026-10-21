@@ -1,6 +1,15 @@
 import uFuzzy from '@leeoniya/ufuzzy';
-import { View, Elem, copyToClipboard, Icon, conditionalList, Notify, Content } from '@vanilla-bean/components';
-import { TinyColor, random as randomColor } from '@ctrl/tinycolor';
+import {
+	View,
+	copyToClipboard,
+	conditionalList,
+	Notify,
+	Content,
+	ContextMenu,
+	EmptyState,
+	theme,
+} from '@vanilla-bean/components';
+import { random as randomColor } from '@ctrl/tinycolor';
 
 import { orderBy } from '@vanilla-bean/components';
 
@@ -12,7 +21,6 @@ import BookmarksToolbar from './BookmarksToolbar';
 import BookmarksContainer from './BookmarksContainer';
 import BatchEditBar from './BatchEditBar';
 import SearchEngineButtons from './SearchEngineButtons';
-import ContextMenu from './ContextMenu';
 import confirmDeleteBookmark from './confirmDeleteBookmark';
 import confirmBatchDelete from './confirmBatchDelete';
 import confirmDiscardBatch from './confirmDiscardBatch';
@@ -51,7 +59,7 @@ export default class Bookmarks extends View {
 			done: () => this.commitBatchEdit(),
 			cancel: () => this.cancelBatchEdit(),
 		});
-		this.content = new Content({ appendTo: this.elem });
+		this.content = new Content({ appendTo: this.elem, padding: `0 ${theme.space.md}` });
 		this.contextMenu = new ContextMenu({ appendTo: this });
 
 		this._setupBatchDnd();
@@ -187,18 +195,7 @@ export default class Bookmarks extends View {
 	renderLoader() {
 		this.content.empty();
 
-		new Icon({
-			appendTo: this.content,
-			icon: 'spinner',
-			animation: 'spin-pulse',
-			styles: ({ colors }) => ({
-				fontSize: '20vh',
-				marginTop: '20%',
-				display: 'flex',
-				justifyContent: 'center',
-				color: colors.blue,
-			}),
-		});
+		new EmptyState({ appendTo: this.content, loading: true });
 	}
 
 	getFilteredBookmarkIds() {
@@ -245,12 +242,7 @@ export default class Bookmarks extends View {
 					categoryId,
 					// A bookmark without its own color inherits the category's, matching the picker's preview
 					bookmarks: categoryBookmarks.map(bookmark => ({ ...bookmark, color: bookmark.color || category.color })),
-					...(category.color && {
-						style: {
-							width: 'calc(100% - 28px)',
-							borderLeft: `4px solid ${new TinyColor(category.color).setAlpha(0.4)}`,
-						},
-					}),
+					accent: category.color || undefined,
 				});
 			}
 		}
@@ -314,14 +306,11 @@ export default class Bookmarks extends View {
 		this.content.empty();
 
 		if (!this.options.search && !filteredIds.length) {
-			new Elem({
-				style: {
-					margin: '6px auto',
-					padding: '6px 12px',
-					textAlign: 'center',
-				},
+			new EmptyState({
 				appendTo: this.content,
-				textContent: 'No bookmarks yet .. Create them with the + button above',
+				icon: 'bookmark',
+				title: 'No bookmarks yet',
+				message: 'Create them with the + button above',
 			});
 		} else {
 			this.renderBookmarksByCategory(filteredIds);
@@ -580,7 +569,7 @@ export default class Bookmarks extends View {
 
 		if (!container) return;
 
-		container.options.style = this._categoryContainerStyle(category);
+		container.options.accent = category.color || undefined;
 
 		this._refreshBatchContainerBookmarks(id);
 	}
@@ -651,13 +640,6 @@ export default class Bookmarks extends View {
 		}));
 	}
 
-	_categoryContainerStyle(category) {
-		return {
-			width: category?.color ? 'calc(100% - 28px)' : '',
-			borderLeft: category?.color ? `4px solid ${new TinyColor(category.color).setAlpha(0.4)}` : '',
-		};
-	}
-
 	moveCategory(categoryId, beforeCategoryId) {
 		const order = this.getBatchCategoryOrder().filter(id => id !== categoryId);
 		const insertIndex = beforeCategoryId ? order.indexOf(beforeCategoryId) : -1;
@@ -693,7 +675,7 @@ export default class Bookmarks extends View {
 				bookmarks: this._batchBookmarksFor(categoryId),
 				onTapBookmark: id => this.tapBookmark(id),
 				onTapCategory: id => this.tapCategory(id),
-				style: this._categoryContainerStyle(category),
+				accent: category.color || undefined,
 			});
 		}
 	}

@@ -1,11 +1,10 @@
-import { Button, Input, Toolbar, debounce } from '@vanilla-bean/components';
+import { Button, ContextMenu, Input, Toolbar, debounce } from '@vanilla-bean/components';
 
 import { getSearchEngines } from '../api';
 import context from '../context';
 
 import BookmarkDialog from './BookmarkDialog';
 import CategoryDialog from './CategoryDialog';
-import ContextMenu from './ContextMenu';
 import SearchEngineDialog from './SearchEngineDialog';
 import { fixLink } from './util';
 
@@ -26,8 +25,6 @@ export default class BookmarksToolbar extends Toolbar {
 			styles: () => `
 				width: auto;
 				flex: 1;
-				margin: 6px;
-				height: 2.4rem;
 			`,
 			value: context.preRenderSearch,
 			// The handler receives the keyboard event itself; there is no wrapper carrying an `event` field
@@ -68,15 +65,6 @@ export default class BookmarksToolbar extends Toolbar {
 
 		new Button({
 			appendTo: this.elem,
-			styles: () => `
-				&:empty {
-					padding: 0;
-					margin: 6px;
-					font-size: 1.3em;
-					height: 2.4rem;
-					width: 2.4rem;
-				}
-			`,
 			icon: 'plus',
 			onPointerPress: event => {
 				event.preventDefault();

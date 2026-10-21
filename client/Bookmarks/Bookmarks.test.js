@@ -190,7 +190,7 @@ describe('paint mode', () => {
 		expect(harness.batch.categories.cat1.color).toBe('hsl(120, 50%, 50%)');
 		expect(harness.batchDirty).toBe(true);
 		expect(harness.refreshed).toEqual(['cat1']);
-		expect(harness._batchContainers.cat1.options.style.borderLeft).toContain('solid');
+		expect(harness._batchContainers.cat1.options.accent).toBe('hsl(120, 50%, 50%)');
 	});
 
 	test('an uncolored bookmark displays its category’s color, a colored one keeps its own', () => {
@@ -209,10 +209,11 @@ describe('paint mode', () => {
 	test('erasing a category drops its border rather than leaving the old one', () => {
 		const harness = paintHarness({ brushColor: '' });
 
+		harness._batchContainers.cat1.options.accent = 'hsl(9, 9%, 9%)';
 		harness.tapCategory('cat1');
 
 		expect(harness.batch.categories.cat1.color).toBe('');
-		expect(harness._batchContainers.cat1.options.style).toEqual({ width: '', borderLeft: '' });
+		expect(harness._batchContainers.cat1.options.accent).toBeUndefined();
 	});
 
 	describe('remembering brush colors', () => {

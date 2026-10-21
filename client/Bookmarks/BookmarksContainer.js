@@ -1,17 +1,19 @@
-import { Link, Button, Elem, styled } from '@vanilla-bean/components';
+import { Card, Link, Button, Elem, styled } from '@vanilla-bean/components';
 import { fixLink } from './util';
 
-export default class BookmarksContainer extends styled.Label(
-	({ colors }) => `
-	margin: 1px 0;
-	padding: 3px 12px 6px 12px;
+export default class BookmarksContainer extends styled(
+	Card,
+	({ colors, space }) => `
+	margin-bottom: ${space.sm};
 
-	label {
-		font-weight: bold;
+	.categoryName {
+		display: block;
+		margin-bottom: ${space.sm};
+		font-weight: 600;
 		pointer-events: none;
 	}
 
-	&.batchEdit label {
+	&.batchEdit .categoryName {
 		pointer-events: auto;
 		cursor: grab;
 	}
@@ -23,7 +25,7 @@ export default class BookmarksContainer extends styled.Label(
 		outline-offset: -3px;
 	}
 
-	&.categoryMarked label {
+	&.categoryMarked .categoryName {
 		text-decoration: line-through;
 		text-decoration-thickness: 3px;
 		text-decoration-color: ${colors.red};
@@ -34,11 +36,10 @@ export default class BookmarksContainer extends styled.Label(
 		outline-offset: 3px;
 	}
 
-	div {
+	.links {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 6px;
-		margin-left: 6px;
 
 		a, button {
 			max-width: 100%;
@@ -105,10 +106,13 @@ export default class BookmarksContainer extends styled.Label(
 	}
 
 	static schema = {
+		label: {
+			set(value) {
+				this._labelText.elem.textContent = value;
+			},
+		},
 		bookmarks: {
 			set(value) {
-				if (!this.linkContainer) this.linkContainer = new Elem({ appendTo: this });
-
 				this.linkContainer.content(value.map(bookmark => this._buildBookmark(bookmark)));
 			},
 		},
@@ -133,7 +137,8 @@ export default class BookmarksContainer extends styled.Label(
 	};
 
 	build() {
-		super.build();
+		this._labelText = new Elem({ tag: 'label', addClass: 'categoryName', appendTo: this });
+		this.linkContainer = new Elem({ addClass: 'links', appendTo: this });
 
 		// Same construction-time split as the bookmarks: outside batch mode the label is inert
 		// (pointer-events: none via CSS), so the toggle listener only exists in batch mode.
