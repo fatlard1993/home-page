@@ -59,73 +59,59 @@ export default class Bookmarks extends View {
 
 		this.renderLoader();
 
-		this._subscriptions = [];
 		this.activatedEngines = new Set();
 
-		this.categories = await this._subscribe(
-			getCategories({
-				onFetching: () => {
-					this._categoriesFetching = true;
-				},
-				onSuccess: response => {
-					this.categories = response;
-					this._categoriesFetching = false;
+		this.categories = await getCategories({
+			scope: this.signal,
+			onFetching: () => {
+				this._categoriesFetching = true;
+			},
+			onSuccess: response => {
+				this.categories = response;
+				this._categoriesFetching = false;
 
-					this._scheduleRenderContent();
-				},
-				onError: () => {
-					this._categoriesFetching = false;
-				},
-			}),
-		);
+				this._scheduleRenderContent();
+			},
+			onError: () => {
+				this._categoriesFetching = false;
+			},
+		});
 
-		this.bookmarks = await this._subscribe(
-			getBookmarks({
-				onFetching: () => {
-					this._bookmarksFetching = true;
-				},
-				onSuccess: response => {
-					this.bookmarks = response;
-					this._bookmarksFetching = false;
+		this.bookmarks = await getBookmarks({
+			scope: this.signal,
+			onFetching: () => {
+				this._bookmarksFetching = true;
+			},
+			onSuccess: response => {
+				this.bookmarks = response;
+				this._bookmarksFetching = false;
 
-					this._scheduleRenderContent();
-				},
-				onError: () => {
-					this._bookmarksFetching = false;
-				},
-			}),
-		);
+				this._scheduleRenderContent();
+			},
+			onError: () => {
+				this._bookmarksFetching = false;
+			},
+		});
 
 		this.searchResults = {};
 
-		this.engines = await this._subscribe(
-			getSearchEngines({
-				onSuccess: async response => {
-					this.engines = response;
+		this.engines = await getSearchEngines({
+			scope: this.signal,
+			onSuccess: async response => {
+				this.engines = response;
 
-					this._unsubscribeSearchResults();
-					await this.subscribeSearchResults();
+				this._unsubscribeSearchResults();
+				await this.subscribeSearchResults();
 
-					if (this.rendered) this.renderContent();
-				},
-			}),
-		);
+				if (this.rendered) this.renderContent();
+			},
+		});
 
 		await this.subscribeSearchResults();
-
-		this.options.onDisconnected = () => this._unsubscribeAll();
 
 		super.render();
 
 		await this.renderContent();
-	}
-
-	async _subscribe(dataPromise) {
-		const data = await dataPromise;
-
-		this._subscriptions.push(data);
-
-		return data;
 	}
 
 	// Bookmarks and categories are separate subscriptions that refetch independently, even
@@ -140,17 +126,7 @@ export default class Bookmarks extends View {
 	}
 
 	_unsubscribeSearchResults() {
-		for (const id of Object.keys(this.searchResults)) {
-			this.searchResults[id]?.unsubscribe?.();
-
-			const index = this._subscriptions.indexOf(this.searchResults[id]);
-			if (index !== -1) this._subscriptions.splice(index, 1);
-		}
-	}
-
-	_unsubscribeAll() {
-		for (const sub of this._subscriptions) sub?.unsubscribe?.();
-		this._subscriptions = [];
+		for (const result of Object.values(this.searchResults)) result?.unsubscribe?.();
 	}
 
 	isEngineActive(engine) {
@@ -161,16 +137,15 @@ export default class Bookmarks extends View {
 		this.searchResults = {};
 
 		for (const engine of Object.values(this.engines.body)) {
-			this.searchResults[engine.id] = await this._subscribe(
-				getSearchResult(engine.id, this.options.search, {
-					enabled: !!this.options.search && this.isEngineActive(engine),
-					onSuccess: response => {
-						this.searchResults[engine.id] = response;
+			this.searchResults[engine.id] = await getSearchResult(engine.id, this.options.search, {
+				scope: this.signal,
+				enabled: !!this.options.search && this.isEngineActive(engine),
+				onSuccess: response => {
+					this.searchResults[engine.id] = response;
 
-						if (this.rendered) this.renderContent();
-					},
-				}),
-			);
+					if (this.rendered) this.renderContent();
+				},
+			});
 		}
 	}
 

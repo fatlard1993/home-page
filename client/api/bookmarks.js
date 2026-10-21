@@ -1,15 +1,13 @@
-import { GET, POST, PATCH, DELETE } from '@vanilla-bean/hypertether';
+import { resource } from '@vanilla-bean/hypertether';
 
-export const getBookmarks = async options => await GET('/bookmarks', { apiId: 'bookmarks', ...options });
+const bookmarks = resource('/bookmarks', { invalidates: ['bookmarks', 'categories'] });
 
-export const getBookmark = async (id, options) =>
-	await GET('/bookmarks/:id', { apiId: ['bookmarks', id], urlParameters: { id }, ...options });
+export const getBookmarks = bookmarks.list;
 
-export const createBookmark = async options =>
-	await POST('/bookmarks', { invalidates: ['bookmarks', 'categories'], ...options });
+export const getBookmark = bookmarks.read;
 
-export const updateBookmark = async (id, options) =>
-	await PATCH('/bookmarks/:id', { invalidates: ['bookmarks', 'categories'], urlParameters: { id }, ...options });
+export const createBookmark = bookmarks.create;
 
-export const deleteBookmark = async (id, options) =>
-	await DELETE('/bookmarks/:id', { invalidates: ['bookmarks', 'categories'], urlParameters: { id }, ...options });
+export const updateBookmark = bookmarks.update;
+
+export const deleteBookmark = bookmarks.delete;
