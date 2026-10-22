@@ -9,7 +9,10 @@
 		<meta name="author" content="justfatlard" />
 		<meta name="description" content="A New Tab Page" />
 
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, viewport-fit=cover"
+		/>
 		<meta name="HandheldFriendly" content="true" />
 		<meta name="MobileOptimized" content="320" />
 
@@ -25,7 +28,7 @@
 
 		<meta name="theme-color" content="#3475b2" />
 
-		<!-- Keeps browser-rendered UI the theme can't reach (select dropdowns, autofill, form controls) dark -->
+		<!-- The canvas is dark before the theme's script loads; without this the first paint is white -->
 		<style>
 			:root {
 				color-scheme: dark;
