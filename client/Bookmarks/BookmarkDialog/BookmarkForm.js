@@ -20,11 +20,11 @@ import { isLink, fixLink, getRecentColors } from '../util';
 
 const FaviconPreview = styled(
 	Component,
-	() => `
+	({ space }) => `
 		width: 20px;
 		height: 20px;
 		vertical-align: middle;
-		margin-right: 6px;
+		margin-right: ${space.sm};
 		display: none;
 
 		&.visible {
@@ -140,7 +140,7 @@ export default class BookmarkForm extends Form {
 		this.faviconLabel = new Label({ label: 'Use site favicon', variant: 'inline' }, this.faviconCheckbox);
 
 		this.faviconRow = new Elem({
-			style: { display: 'flex', alignItems: 'center', gap: '6px', margin: '6px 0' },
+			style: { display: 'flex', alignItems: 'center', gap: theme.space.sm, margin: `${theme.space.sm} 0` },
 			append: [this.faviconLabel, this.faviconPreview, this.faviconUploadButton, this.faviconUploadInput],
 		});
 
