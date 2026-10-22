@@ -4,8 +4,6 @@ const bookmarks = resource('/bookmarks', { invalidates: ['bookmarks', 'categorie
 
 export const getBookmarks = bookmarks.list;
 
-export const getBookmark = bookmarks.read;
-
 export const createBookmark = bookmarks.create;
 
 export const updateBookmark = bookmarks.update;

@@ -4,8 +4,6 @@ const categories = resource('/categories');
 
 export const getCategories = categories.list;
 
-export const getCategory = categories.read;
-
 export const createCategory = categories.create;
 
 export const updateCategory = categories.update;
