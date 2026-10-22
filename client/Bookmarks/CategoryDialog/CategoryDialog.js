@@ -31,8 +31,7 @@ export default class CategoryDialog extends FormDialog {
 			onSave: body => {
 				saveRecentColor(body.color);
 
-				if (isEdit) updateCategory(category.id, { body });
-				else createCategory({ body });
+				return isEdit ? updateCategory(category.id, { body }) : createCategory({ body });
 			},
 			// Deleting a category asks what becomes of its bookmarks, which is more than a yes or no
 			...(isEdit && { onDelete: () => new DeleteCategoryDialog({ category }) }),

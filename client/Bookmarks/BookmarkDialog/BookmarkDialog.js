@@ -3,7 +3,8 @@ import { FormDialog } from '@vanilla-bean/components';
 import { updateBookmark, createBookmark, setBookmarkFaviconFromDataUri, deleteBookmarkFavicon } from '../../api';
 import { saveRecentColor } from '../util';
 
-import { deleteBookmark, deleteQuestion } from '../confirmDeleteBookmark';
+import { deleteQuestion } from '../confirmDeleteBookmark';
+import deleteWithUndo from '../deleteWithUndo';
 import BookmarkForm from './BookmarkForm';
 
 export default class BookmarkDialog extends FormDialog {
@@ -33,13 +34,12 @@ export default class BookmarkDialog extends FormDialog {
 
 				// The favicon field is managed entirely through its own endpoints below —
 				// never sent as part of the regular bookmark update.
-				let id = bookmark?.id;
+				const saved = await (isEdit ? updateBookmark(bookmark.id, { body }) : createBookmark({ body }));
 
-				if (isEdit) {
-					updateBookmark(id, { body });
-				} else {
-					id = (await createBookmark({ body })).body.id;
-				}
+				// A refused save stays open with the server's reason
+				if (saved.status === 'error') return saved;
+
+				const id = bookmark?.id ?? saved.body.id;
 
 				if (form._pendingFaviconDataUri) {
 					setBookmarkFaviconFromDataUri(id, form._pendingFaviconDataUri);
@@ -50,7 +50,7 @@ export default class BookmarkDialog extends FormDialog {
 			...(isEdit && {
 				// Asked over the form, so a no leaves the bookmark open as it was
 				confirmDelete: { ...deleteQuestion(bookmark), variant: null },
-				onDelete: () => deleteBookmark(bookmark),
+				onDelete: () => deleteWithUndo({ bookmarks: [bookmark] }),
 			}),
 			...options,
 		};

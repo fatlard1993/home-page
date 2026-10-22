@@ -34,4 +34,26 @@ describe('CategoryDialog', () => {
 		expect(await dialog.save()).toBe(false);
 		expect(dialog.elem.isConnected).toBe(true);
 	});
+
+	// mock.module is process-wide, so the real api goes back once this test is done with it
+	test("a refused save stays open with the server's reason", async () => {
+		const real = { ...(await import('../../api')) };
+
+		mock.module('../../api', () => ({
+			...real,
+			createCategory: async () => ({ status: 'error', body: { error: 'That name is taken' } }),
+		}));
+
+		try {
+			const dialog = new CategoryDialog({ category: { name: 'Dev' }, appendTo: container });
+
+			await findByRole(container, 'dialog');
+
+			expect(await dialog.save()).toBe(false);
+			expect(dialog.elem.isConnected).toBe(true);
+			expect(dialog.failure.elem.textContent).toBe('That name is taken');
+		} finally {
+			mock.module('../../api', () => real);
+		}
+	});
 });
