@@ -93,7 +93,7 @@ client/
 
 ## API
 
-All endpoints accept and return JSON.
+Endpoints accept and return JSON, except `GET /bookmarks/:id/favicon`, which returns the image bytes.
 
 | Method   | Path                      | Description                                             |
 | -------- | ------------------------- | ------------------------------------------------------- |
