@@ -4,17 +4,17 @@ import { ClearColorSwatch, BrushSwatch } from './swatches';
 import { getRecentColors } from './util';
 
 export default class BatchEditBar extends styled.Component(
-	({ colors }) => `
+	({ colors, space, radius }) => `
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 12px;
-		margin: 12px;
-		padding: 10px 16px;
-		border: 3px dashed ${colors.red};
-		background: ${colors.alpha(colors.red, 0.14)};
-		border-radius: 4px;
-		box-shadow: 0 0 0 1px ${colors.alpha(colors.red, 0.5)};
+		gap: ${space.md};
+		margin: ${space.md};
+		padding: ${space.md} ${space.lg};
+		border: 3px dashed ${colors.danger};
+		background: ${colors.alpha(colors.danger, 0.14)};
+		border-radius: ${radius.sm};
+		box-shadow: 0 0 0 1px ${colors.alpha(colors.danger, 0.5)};
 
 		&.paintMode {
 			border-color: ${colors.purple};
@@ -44,7 +44,7 @@ export default class BatchEditBar extends styled.Component(
 		 */
 		.modeIcon {
 			font-size: 1.4em;
-			color: ${colors.light(colors.red)};
+			color: ${colors.light(colors.danger)};
 		}
 
 		.label {
@@ -59,12 +59,12 @@ export default class BatchEditBar extends styled.Component(
 
 		.markedCount {
 			font-weight: bold;
-			color: ${colors.light(colors.red)};
+			color: ${colors.light(colors.danger)};
 		}
 
 		.modeToggle {
 			display: flex;
-			gap: 4px;
+			gap: ${space.xs};
 		}
 
 		/* No gap: the swatches carry ColorPicker's own 3px margins, so the two would compound and
@@ -131,8 +131,8 @@ export default class BatchEditBar extends styled.Component(
 			icon: 'check',
 			onPointerPress: () => this.options.done?.(),
 			styles: ({ colors }) => ({
-				background: colors.green,
-				color: colors.mostReadable(colors.green, [colors.white, colors.black]),
+				background: colors.success,
+				color: colors.mostReadable(colors.success, [colors.white, colors.black]),
 			}),
 		});
 
