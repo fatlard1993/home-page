@@ -22,14 +22,14 @@ export default class BookmarksContainer extends styled(
 	&.categoryMarked {
 		opacity: 0.5;
 		filter: grayscale(70%);
-		outline: 3px solid ${colors.red};
+		outline: 3px solid ${colors.danger};
 		outline-offset: -3px;
 	}
 
 	&.categoryMarked .categoryName {
 		text-decoration: line-through;
 		text-decoration-thickness: 3px;
-		text-decoration-color: ${colors.red};
+		text-decoration-color: ${colors.danger};
 	}
 
 	&.dragOverCategory {
@@ -40,7 +40,7 @@ export default class BookmarksContainer extends styled(
 	.links {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 6px;
+		gap: ${space.sm};
 
 		a, button {
 			max-width: 100%;
@@ -50,7 +50,7 @@ export default class BookmarksContainer extends styled(
 				width: 16px;
 				height: 16px;
 				vertical-align: middle;
-				margin-right: 4px;
+				margin-right: ${space.xs};
 				pointer-events: none;
 			}
 		}
@@ -64,8 +64,8 @@ export default class BookmarksContainer extends styled(
 			filter: grayscale(70%);
 			text-decoration: line-through;
 			text-decoration-thickness: 3px;
-			text-decoration-color: ${colors.red};
-			outline: 3px solid ${colors.red};
+			text-decoration-color: ${colors.danger};
+			outline: 3px solid ${colors.danger};
 			outline-offset: 2px;
 		}
 	}
