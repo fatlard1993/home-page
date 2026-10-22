@@ -20,7 +20,7 @@ beforeAll(() => {
 		deleteBookmark: (id, options) => {
 			calls.push({ fn: 'deleteBookmark', id, options });
 
-			return Promise.resolve();
+			return Promise.resolve(id === 'refused' ? { status: 'error', body: { error: 'Bookmark not found' } } : {});
 		},
 		deleteCategory: (id, options) => {
 			calls.push({ fn: 'deleteCategory', id, options });
@@ -123,6 +123,19 @@ describe('deleteWithUndo', () => {
 		expect(calls.filter(call => call.fn.startsWith('delete'))).toEqual([
 			{ fn: 'deleteBookmark', id: 'b1', options: undefined },
 		]);
+	});
+
+	test('a refused delete throws its reason, and the deletes after it do not run', async () => {
+		await expect(
+			deleteWithUndo({
+				bookmarks: [
+					{ id: 'refused', name: 'a' },
+					{ id: 'b2', name: 'b' },
+				],
+			}),
+		).rejects.toThrow('Bookmark not found');
+
+		expect(only('deleteBookmark').map(call => call.id)).toEqual(['refused']);
 	});
 
 	describe('undo', () => {

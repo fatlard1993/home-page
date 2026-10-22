@@ -1,4 +1,5 @@
 import { Notify } from '@vanilla-bean/components';
+import { failureReason } from '@vanilla-bean/hypertether';
 
 import {
 	deleteBookmark,
@@ -23,7 +24,8 @@ const describeDeletion = (bookmarks, categories) => {
 
 /**
  * Delete bookmarks and categories, showing a notification with a time-limited Undo button
- * that restores everything (including favicons) if pressed.
+ * that restores everything (including favicons) if pressed. A delete the server refuses throws its reason, and the
+ * deletes after it don't run.
  * @param {object} options - What to delete
  * @param {object[]} options.bookmarks - Bookmarks to delete
  * @param {object[]} [options.categories] - Categories to delete
@@ -51,7 +53,9 @@ export default async function deleteWithUndo({ bookmarks, categories = [] }) {
 	];
 
 	for (const [index, deletion] of deletions.entries()) {
-		await deletion(index === deletions.length - 1 ? undefined : { invalidates: [] });
+		const reason = failureReason(await deletion(index === deletions.length - 1 ? undefined : { invalidates: [] }));
+
+		if (reason) throw new Error(reason);
 	}
 
 	const restore = async () => {
