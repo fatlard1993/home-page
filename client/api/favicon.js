@@ -1,3 +1,4 @@
+import { readFile } from '@vanilla-bean/components';
 import { GET, PUT, DELETE } from '@vanilla-bean/hypertether';
 
 export const getFaviconPreview = async url =>
@@ -14,11 +15,7 @@ export const getBookmarkFaviconDataUri = async id => {
 
 	if (status !== 'success') return null;
 
-	return await new Promise(resolve => {
-		const reader = new FileReader();
-		reader.onload = () => resolve(reader.result);
-		reader.readAsDataURL(body);
-	});
+	return await readFile(body, 'dataURL').catch(() => null);
 };
 
 export const setBookmarkFaviconFromDataUri = async (id, dataUri, options) =>
