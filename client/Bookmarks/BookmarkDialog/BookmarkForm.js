@@ -15,7 +15,7 @@ import {
 } from '@vanilla-bean/components';
 
 import { getCategories, getBrandColor, getFaviconPreview } from '../../api';
-import { ClearColorSwatch, BrandColorSwatch } from '../ColorSwatch';
+import { ClearColorSwatch, BrandColorSwatch } from '../swatches';
 import { isLink, fixLink, getRecentColors } from '../util';
 
 const FaviconPreview = styled(
@@ -237,7 +237,7 @@ export default class BookmarkForm extends Form {
 
 		if (body?.color) {
 			this._detectedBrandColor = body.color;
-			this.brandColorSwatch.setStyle({ backgroundColor: body.color });
+			this.brandColorSwatch.options.color = body.color;
 			this.brandColorSwatch.addClass('detected');
 		}
 	}

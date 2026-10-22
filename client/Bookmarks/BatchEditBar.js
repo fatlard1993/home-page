@@ -1,6 +1,6 @@
 import { Elem, Button, Icon, Label, ColorPicker, styled, theme } from '@vanilla-bean/components';
 
-import { ColorSwatch, ClearColorSwatch, RandomColorSwatch } from './ColorSwatch';
+import { ClearColorSwatch, BrushSwatch } from './swatches';
 import { getRecentColors } from './util';
 
 export default class BatchEditBar extends styled.Component(
@@ -173,17 +173,11 @@ export default class BatchEditBar extends styled.Component(
 		});
 
 		for (const color of getRecentColors()) {
-			addSwatch(color, ColorSwatch, {
-				tooltip: color,
-				'aria-label': `Use ${color}`,
-				style: {
-					backgroundColor: color,
-					color: theme.colors.mostReadable(color, [theme.colors.white, theme.colors.black]),
-				},
-			});
+			addSwatch(color, BrushSwatch, { color, tooltip: color, 'aria-label': `Use ${color}` });
 		}
 
-		addSwatch('random', RandomColorSwatch, {
+		addSwatch('random', BrushSwatch, {
+			color: 'random',
 			tooltip: 'Random color — a new one on every click',
 			'aria-label': 'Use a random color on every click',
 		});
