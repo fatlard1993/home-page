@@ -4,7 +4,8 @@ import { fixLink } from './util';
 export default class BookmarksContainer extends styled(
 	Card,
 	({ colors, space }) => `
-	margin-bottom: ${space.sm};
+	margin: 0 0 2px;
+	border-radius: 0;
 
 	.categoryName {
 		display: block;
@@ -98,11 +99,12 @@ export default class BookmarksContainer extends styled(
 			return new Button({
 				...shared,
 				draggable: true,
+				variant: 'raised',
 				onPointerPress: () => this.options.onTapBookmark?.(options.id),
 			});
 		}
 
-		return new Link({ href: fixLink(url), variant: 'button', draggable: false, ...shared });
+		return new Link({ href: fixLink(url), variant: 'raised', draggable: false, ...shared });
 	}
 
 	static schema = {
