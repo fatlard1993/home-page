@@ -52,7 +52,6 @@
 		"@vanilla-bean/hypertether": "^1.1.1",
 		"argi-cli": "^1.0.0",
 		"lowdb": "^7.0.1",
-		"nanoid": "^6.0.0",
 		"pngjs": "^7.0.0"
 	},
 	"devDependencies": {
