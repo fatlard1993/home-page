@@ -1,4 +1,5 @@
-import { Dialog, Select, Input, Label } from '@vanilla-bean/components';
+import { Dialog, Select, Input, Label, Notify } from '@vanilla-bean/components';
+import { failureReason } from '@vanilla-bean/hypertether';
 
 import { getCategories, deleteCategory } from '../api';
 
@@ -45,12 +46,25 @@ export default class DeleteCategoryDialog extends Dialog {
 			},
 		});
 
-		this.options.onButtonPress = ({ button, closeDialog }) => {
+		this.options.onButtonPress = async ({ button, closeDialog }) => {
 			if (button === 'Delete') {
-				deleteCategory(
-					this.options.category.id,
-					this.options.keepBookmarks ? { searchParameters: { moveTo: moveTo.value } } : {},
+				const reason = failureReason(
+					await deleteCategory(
+						this.options.category.id,
+						this.options.keepBookmarks ? { searchParameters: { moveTo: moveTo.value } } : {},
+					),
 				);
+
+				// A refused delete leaves the question open, as it was
+				if (reason) {
+					new Notify({
+						type: 'error',
+						timeout: 6000,
+						content: `Could not delete "${this.options.category.name}": ${reason}`,
+					});
+
+					return;
+				}
 			}
 
 			closeDialog();
