@@ -1,4 +1,4 @@
-import { findByRole } from '@testing-library/dom';
+import { findByRole, getAllByRole } from '@testing-library/dom';
 
 import DeleteCategoryDialog from './DeleteCategoryDialog';
 
@@ -22,6 +22,26 @@ describe('DeleteCategoryDialog', () => {
 
 			expect(dialog.elem.isConnected).toBe(true);
 			expect(document.body.textContent).toContain('Could not delete "Dev": Category not found');
+		} finally {
+			mock.module('../api', () => real);
+		}
+	});
+
+	test('a refused category list still offers Default, and says why', async () => {
+		const real = { ...(await import('../api')) };
+
+		mock.module('../api', () => ({
+			...real,
+			getCategories: async () => ({ status: 'error', body: { error: 'Database busy' }, unsubscribe: () => {} }),
+		}));
+
+		try {
+			new DeleteCategoryDialog({ category: { id: 'c1', name: 'Dev' }, appendTo: container });
+
+			const moveTo = await findByRole(container, 'combobox', { hidden: true });
+
+			expect(getAllByRole(moveTo, 'option', { hidden: true }).map(option => option.label)).toEqual(['Default']);
+			expect(document.body.textContent).toContain('Could not load the categories: Database busy');
 		} finally {
 			mock.module('../api', () => real);
 		}

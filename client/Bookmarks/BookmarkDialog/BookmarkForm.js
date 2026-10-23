@@ -7,12 +7,14 @@ import {
 	Button,
 	Label,
 	Elem,
+	Notify,
 	readClipboard,
 	readFile,
 	theme,
 	styled,
 	debounce,
 } from '@vanilla-bean/components';
+import { failureReason } from '@vanilla-bean/hypertether';
 
 import { getCategories, getBrandColor, getFaviconPreview } from '../../api';
 import { ClearColorSwatch, BrandColorSwatch } from '../swatches';
@@ -301,9 +303,16 @@ export default class BookmarkForm extends Form {
 	}
 
 	async _populateAsyncFields() {
-		const { body: categories } = await getCategories();
+		const categoriesResult = await getCategories();
 
 		if (!this.rendered) return;
+
+		const refused = failureReason(categoriesResult);
+
+		// Without its categories the form still saves, into Default or a New one
+		if (refused) new Notify({ type: 'error', timeout: 6000, content: `Could not load the categories: ${refused}` });
+
+		const categories = refused ? {} : categoriesResult.body;
 
 		this._categoriesById = categories;
 

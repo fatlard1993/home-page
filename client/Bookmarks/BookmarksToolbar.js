@@ -1,4 +1,5 @@
-import { Button, ContextMenu, Input, Toolbar, debounce } from '@vanilla-bean/components';
+import { Button, ContextMenu, Input, Notify, Toolbar, debounce } from '@vanilla-bean/components';
+import { failureReason } from '@vanilla-bean/hypertether';
 
 import { getSearchEngines } from '../api';
 import context from '../context';
@@ -46,9 +47,16 @@ export default class BookmarksToolbar extends Toolbar {
 			event.preventDefault();
 			event.stopPropagation();
 
-			const engines = (await getSearchEngines()).body;
+			const engines = await getSearchEngines();
+			const refused = failureReason(engines);
 
-			this.contextMenu.options.items = Object.values(engines).map(engine => ({
+			if (refused) {
+				new Notify({ type: 'error', timeout: 6000, content: `Could not load the search engines: ${refused}` });
+
+				return;
+			}
+
+			this.contextMenu.options.items = Object.values(engines.body).map(engine => ({
 				textContent: engine.label,
 				onPointerPress: () => new SearchEngineDialog({ engine }),
 			}));

@@ -19,7 +19,12 @@ export default class DeleteCategoryDialog extends Dialog {
 
 	async render() {
 		const categoriesResponse = await getCategories();
-		const categories = categoriesResponse.body;
+		const refused = failureReason(categoriesResponse);
+
+		// Default is still somewhere to move the bookmarks to
+		if (refused) new Notify({ type: 'error', timeout: 6000, content: `Could not load the categories: ${refused}` });
+
+		const categories = refused ? {} : categoriesResponse.body;
 
 		this.options.onDisconnected = () => {
 			categoriesResponse.unsubscribe();

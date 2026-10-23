@@ -6,6 +6,7 @@ import BookmarkForm from './BookmarkForm';
 
 // The preview endpoint's answer per url; anything unlisted is a site that never answered.
 let previews;
+let categoriesResult = { body: {} };
 
 beforeAll(() => {
 	global.isSecureContext = true;
@@ -14,7 +15,7 @@ beforeAll(() => {
 	// other api function intact for any test file that loads after this one.
 	mock.module('../../api', () => ({
 		...api,
-		getCategories: async () => ({ body: {} }),
+		getCategories: async () => categoriesResult,
 		getBrandColor: async () => ({ body: {} }),
 		getFaviconPreview: async url => ({ body: previews[url] ?? { status: 'unreachable', dataUri: null } }),
 	}));
@@ -104,5 +105,23 @@ describe('BookmarkForm favicon detection', () => {
 		await settled(() => expect(form._siteFaviconStatus).toBe('none'));
 		expect(checkbox.disabled).toBe(false);
 		expect(form._pendingFaviconDataUri).toBe('data:image/png;base64,upload');
+	});
+});
+
+describe('BookmarkForm categories', () => {
+	test('a refused category list leaves Default and New, and says why', async () => {
+		categoriesResult = { status: 'error', body: { error: 'Database busy' } };
+
+		try {
+			const { form } = await render();
+
+			await settled(() => expect(document.body.textContent).toContain('Could not load the categories: Database busy'));
+			expect(form.inputElements.category.options.options.map(option => option.label ?? option)).toEqual([
+				'Default',
+				'New',
+			]);
+		} finally {
+			categoriesResult = { body: {} };
+		}
 	});
 });
