@@ -33,10 +33,13 @@ export default class DeleteCategoryDialog extends Dialog {
 		const moveTo = new Select({
 			options: [
 				{ label: 'Default', value: '' },
-				...Object.keys(categories).map(id => ({
-					label: categories?.[id]?.name,
-					value: id,
-				})),
+				// The category going away is no place to keep its bookmarks
+				...Object.keys(categories)
+					.filter(id => id !== this.options.category.id)
+					.map(id => ({
+						label: categories?.[id]?.name,
+						value: id,
+					})),
 			],
 			value: '',
 		});

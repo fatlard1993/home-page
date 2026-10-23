@@ -46,4 +46,27 @@ describe('DeleteCategoryDialog', () => {
 			mock.module('../api', () => real);
 		}
 	});
+
+	test('Move To leaves out the category being deleted', async () => {
+		const real = { ...(await import('../api')) };
+
+		mock.module('../api', () => ({
+			...real,
+			getCategories: async () => ({
+				status: 'success',
+				body: { c1: { id: 'c1', name: 'Dev' }, c2: { id: 'c2', name: 'News' } },
+				unsubscribe: () => {},
+			}),
+		}));
+
+		try {
+			new DeleteCategoryDialog({ category: { id: 'c1', name: 'Dev' }, appendTo: container });
+
+			const moveTo = await findByRole(container, 'combobox', { hidden: true });
+
+			expect(getAllByRole(moveTo, 'option', { hidden: true }).map(option => option.label)).toEqual(['Default', 'News']);
+		} finally {
+			mock.module('../api', () => real);
+		}
+	});
 });
