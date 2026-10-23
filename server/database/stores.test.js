@@ -54,6 +54,20 @@ describe('stores', () => {
 		expect(bookmarks.read({ id: moved.id })).toBe(false);
 	});
 
+	test('a category moved into itself, or into one that is gone, lands its bookmarks in Default', async () => {
+		const from = await categories.create({ name: 'From' });
+		const toSelf = await bookmarks.create({ name: 'a', category: from.id });
+
+		await categories.delete({ id: from.id, moveTo: from.id });
+		expect(bookmarks.read({ id: toSelf.id }).category).toBe('');
+
+		const other = await categories.create({ name: 'Other' });
+		const toGone = await bookmarks.create({ name: 'b', category: other.id });
+
+		await categories.delete({ id: other.id, moveTo: 'missing' });
+		expect(bookmarks.read({ id: toGone.id }).category).toBe('');
+	});
+
 	// Read from the data itself: search.test.js mocks this store's read for the whole run
 	test('one search engine is the default at a time', async () => {
 		const stored = id => database.data.searchEngines[id];
