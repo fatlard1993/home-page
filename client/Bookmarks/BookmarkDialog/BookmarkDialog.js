@@ -1,4 +1,5 @@
-import { FormDialog } from '@vanilla-bean/components';
+import { FormDialog, Notify } from '@vanilla-bean/components';
+import { failureReason } from '@vanilla-bean/hypertether';
 
 import { updateBookmark, createBookmark, setBookmarkFaviconFromDataUri, deleteBookmarkFavicon } from '../../api';
 import { saveRecentColor } from '../util';
@@ -41,10 +42,23 @@ export default class BookmarkDialog extends FormDialog {
 
 				const id = bookmark?.id ?? saved.body.id;
 
+				let favicon;
+
 				if (form._pendingFaviconDataUri) {
-					setBookmarkFaviconFromDataUri(id, form._pendingFaviconDataUri);
+					favicon = await setBookmarkFaviconFromDataUri(id, form._pendingFaviconDataUri);
 				} else if (!form.useFavicon && form.existingFaviconId) {
-					deleteBookmarkFavicon(id);
+					favicon = await deleteBookmarkFavicon(id);
+				}
+
+				const faviconRefused = failureReason(favicon);
+
+				// The bookmark itself is saved, so the dialog closes (a retry would create it twice); only the favicon is reported
+				if (faviconRefused) {
+					new Notify({
+						type: 'error',
+						timeout: 6000,
+						content: `Saved "${body.name}", but not its favicon: ${faviconRefused}`,
+					});
 				}
 			},
 			...(isEdit && {

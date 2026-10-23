@@ -2,13 +2,15 @@ import { findByRole, findAllByRole, fireEvent, queryByRole } from '@testing-libr
 
 import BookmarkDialog from './BookmarkDialog';
 
+const api = {
+	getCategories: async () => ({ body: {} }),
+};
+
 describe('BookmarkDialog', () => {
 	beforeAll(() => {
 		global.isSecureContext = true;
 
-		mock.module('../../api', () => ({
-			getCategories: async () => ({ body: {} }),
-		}));
+		mock.module('../../api', () => api);
 	});
 
 	test('must provide a way to cancel the operation', async () => {
@@ -41,5 +43,26 @@ describe('BookmarkDialog', () => {
 
 		expect(await dialog.save()).toBe(false);
 		expect(dialog.elem.isConnected).toBe(true);
+	});
+
+	test('a refused favicon closes the saved bookmark and says why', async () => {
+		mock.module('../../api', () => ({
+			...api,
+			updateBookmark: async (id, { body }) => ({ status: 'success', body: { id, ...body } }),
+			setBookmarkFaviconFromDataUri: async () => ({ status: 'error', body: { error: 'Not an image' } }),
+		}));
+
+		try {
+			const dialog = new BookmarkDialog({ bookmark: { id: 'b1', name: 'Mail', url: 'url' }, appendTo: container });
+
+			await findAllByRole(container, 'textbox');
+
+			dialog.form._pendingFaviconDataUri = 'data:text/plain;base64,bm90';
+
+			expect(await dialog.save()).toBe(true);
+			expect(document.body.textContent).toContain('Saved "Mail", but not its favicon: Not an image');
+		} finally {
+			mock.module('../../api', () => api);
+		}
 	});
 });
