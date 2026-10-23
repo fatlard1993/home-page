@@ -22,7 +22,7 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run lint
       - run: bun test
-      # The document gates, same as the pre-commit hook enforces locally -- CI is the copy of
+      # The document gates: the pre-push hook lints them locally, and CI is the copy of
       # that gate a fresh clone can't opt out of. `lld` exits nonzero only on a claim its run
       # proved false; pending and surviving mutations stay advisory. The full run with mutation
       # measures under 20s on this corpus, so there is nothing to trim.

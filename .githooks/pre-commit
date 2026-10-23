@@ -1,4 +1,0 @@
-#!/usr/bin/env sh
-
-# Lint, tests, and lldtdd lint on staged .lld.md documents: the library's shared pre-commit
-sh node_modules/@vanilla-bean/components/githooks/pre-commit || exit 1
