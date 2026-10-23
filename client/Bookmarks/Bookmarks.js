@@ -261,7 +261,8 @@ export default class Bookmarks extends View {
 
 			const results = this.searchResults[engine.id]?.body;
 
-			if (!results?.length) continue;
+			// A failed search (its body is the server's reason, as text) lists nothing, as no results would
+			if (failureReason(this.searchResults[engine.id]) || !results?.length) continue;
 
 			const sorted = engine.orderBy ? [...results].sort(orderBy(engine.orderBy)) : results;
 

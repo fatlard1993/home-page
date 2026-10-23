@@ -721,3 +721,19 @@ describe('searching', () => {
 		expect(harness.searchResults.wiki.body).toBeNull();
 	});
 });
+
+describe('search results', () => {
+	test('a failed search lists nothing for that engine', () => {
+		const render = () =>
+			Bookmarks.prototype.renderSearchResults.call({
+				engines: { body: { e1: { id: 'e1', label: 'Example', default: true } } },
+				searchResults: { e1: { status: 'error', body: 'Search Failed' } },
+				isEngineActive: Bookmarks.prototype.isEngineActive,
+				activatedEngines: new Set(),
+				content: container,
+			});
+
+		expect(render).not.toThrow();
+		expect(container.textContent).not.toContain('Example');
+	});
+});
