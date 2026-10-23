@@ -31,6 +31,8 @@ beforeAll(() => {
 			const newId = `newcat-${createdSeq++}`;
 			calls.push({ fn: 'createCategory', body });
 
+			if (body.name === 'Refused') return Promise.resolve({ status: 'error', body: { error: 'Name is required' } });
+
 			return Promise.resolve({ body: { id: newId, ...body } });
 		},
 		createBookmark: ({ body }) => {
@@ -179,6 +181,20 @@ describe('deleteWithUndo', () => {
 
 			expect(only('createBookmark')).toHaveLength(1);
 			expect(only('setFavicon')).toHaveLength(1);
+		});
+
+		test('a refused restore stops there and says why', async () => {
+			await deleteWithUndo({
+				bookmarks: [{ id: 'b1', name: 'a', url: 'http://a', category: 'c1', order: 0 }],
+				categories: [{ id: 'c1', name: 'Refused', color: '', order: 0 }],
+			});
+
+			pressUndo();
+			await flush();
+
+			// No bookmark is recreated against a category that never came back
+			expect(only('createBookmark')).toHaveLength(0);
+			expect(document.body.textContent).toContain('Undo failed part way through: Name is required.');
 		});
 	});
 });
