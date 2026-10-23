@@ -423,6 +423,20 @@ describe('commit', () => {
 		expect(harness._batchCommitting).toBe(false);
 	});
 
+	test('a refused write leaves the board open and says why', async () => {
+		writeBehavior = () => Promise.resolve({ status: 'error', body: { error: 'Bookmark not found' } });
+
+		const harness = commitHarness();
+
+		harness.batch.bookmarks.b1.order = 5;
+
+		await harness.commitBatchEdit();
+
+		expect(harness.exited).toBe(false);
+		expect(harness.bookmarks.refetched).toBe(1);
+		expect(document.body.textContent).toContain('Some batch changes could not be saved: Bookmark not found.');
+	});
+
 	test('a second Done press during a pending commit does nothing', async () => {
 		let releaseWrite;
 

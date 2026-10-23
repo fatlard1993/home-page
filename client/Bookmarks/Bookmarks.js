@@ -12,6 +12,7 @@ import {
 import { random as randomColor } from '@ctrl/tinycolor';
 
 import { orderBy } from '@vanilla-bean/components';
+import { failureReason } from '@vanilla-bean/hypertether';
 
 import { getBookmarks, getCategories, getSearchEngines, getSearchResult, updateBookmark, updateCategory } from '../api';
 
@@ -732,7 +733,7 @@ export default class Bookmarks extends View {
 			// Each write's default `invalidates` would wake the bookmarks and categories
 			// subscriptions, costing two extra round trips per record. Suppressed here and
 			// replaced by a single refetch of each once every write has landed.
-			await Promise.all([
+			const written = await Promise.all([
 				...changedBookmarks.map(bookmark =>
 					updateBookmark(bookmark.id, {
 						body: { category: bookmark.category, order: bookmark.order, color: bookmark.color || '' },
@@ -746,6 +747,11 @@ export default class Bookmarks extends View {
 					}),
 				),
 			]);
+
+			// A refused write resolves rather than throws, so it's read here to land in the catch
+			const refused = written.map(failureReason).find(Boolean);
+
+			if (refused) throw new Error(refused);
 
 			this._rememberBrushColors();
 
@@ -772,7 +778,7 @@ export default class Bookmarks extends View {
 			new Notify({
 				type: 'error',
 				timeout: 6000,
-				content: 'Some batch changes could not be saved. Press Done to retry, or refresh to see what was applied.',
+				content: `Some batch changes could not be saved: ${error.message}. Press Done to retry, or refresh to see what was applied.`,
 			});
 
 			return;
