@@ -32,6 +32,9 @@ import DeleteCategoryDialog from './DeleteCategoryDialog';
 // Tolerant fuzzy: allows insertions, substitutions, transpositions, and deletions within matches
 const fuzzy = new uFuzzy({ intraMode: 1, intraIns: 5, intraSub: 1, intraTrn: 1, intraDel: 1 });
 
+// Search engines are extra: a failed load of them leaves search to the bookmarks rather than taking the page down
+export const engineList = engines => (engines?.status === 'error' ? [] : Object.values(engines?.body ?? {}));
+
 export default class Bookmarks extends View {
 	constructor(options) {
 		super({
@@ -80,8 +83,11 @@ export default class Bookmarks extends View {
 
 				this._scheduleRenderContent();
 			},
-			onError: () => {
+			onError: response => {
+				this.categories = response;
 				this._categoriesFetching = false;
+
+				this._scheduleRenderContent();
 			},
 		});
 
@@ -96,8 +102,11 @@ export default class Bookmarks extends View {
 
 				this._scheduleRenderContent();
 			},
-			onError: () => {
+			onError: response => {
+				this.bookmarks = response;
 				this._bookmarksFetching = false;
+
+				this._scheduleRenderContent();
 			},
 		});
 
@@ -137,6 +146,21 @@ export default class Bookmarks extends View {
 		for (const result of Object.values(this.searchResults)) result?.unsubscribe?.();
 	}
 
+	// Why the bookmarks can't be shown: either list failing to load leaves nothing to sort them by
+	loadFailure() {
+		for (const result of [this.bookmarks, this.categories]) {
+			if (result?.status === 'error') return failureReason(result) || 'The server could not be reached';
+		}
+
+		return null;
+	}
+
+	retryLoad() {
+		this.renderLoader();
+
+		for (const result of [this.bookmarks, this.categories]) if (result?.status === 'error') result.refetch();
+	}
+
 	isEngineActive(engine) {
 		return !!engine.default || this.activatedEngines.has(engine.id);
 	}
@@ -144,7 +168,7 @@ export default class Bookmarks extends View {
 	async subscribeSearchResults() {
 		this.searchResults = {};
 
-		for (const engine of Object.values(this.engines.body)) {
+		for (const engine of engineList(this.engines)) {
 			this.searchResults[engine.id] = await getSearchResult(engine.id, this.options.search, {
 				scope: this.signal,
 				enabled: !!this.options.search && this.isEngineActive(engine),
@@ -172,7 +196,7 @@ export default class Bookmarks extends View {
 		search: {
 			set(value) {
 				if (value) {
-					for (const engine of Object.values(this.engines.body)) {
+					for (const engine of engineList(this.engines)) {
 						// The last term's results go now, not when this term's arrive: an engine that fails never replaces them
 						this.searchResults[engine.id] = { ...this.searchResults[engine.id], body: null };
 						this.searchResults[engine.id].refetch({
@@ -251,7 +275,7 @@ export default class Bookmarks extends View {
 	renderSearchResults() {
 		const inactiveEngines = [];
 
-		for (const engine of Object.values(this.engines.body)) {
+		for (const engine of engineList(this.engines)) {
 			if (!this.isEngineActive(engine)) {
 				inactiveEngines.push(engine);
 
@@ -298,6 +322,22 @@ export default class Bookmarks extends View {
 	async renderContent() {
 		if (this.batchEdit) {
 			this._renderBatchContent();
+
+			return;
+		}
+
+		const failure = this.loadFailure();
+
+		if (failure) {
+			this.content.empty();
+
+			new EmptyState({
+				appendTo: this.content,
+				icon: 'triangle-exclamation',
+				title: "Couldn't load your bookmarks",
+				message: failure,
+				action: { textContent: 'Try again', onPointerPress: () => this.retryLoad() },
+			});
 
 			return;
 		}

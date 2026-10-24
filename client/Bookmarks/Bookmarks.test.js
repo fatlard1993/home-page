@@ -1,8 +1,9 @@
 import { afterAll, beforeAll, beforeEach, describe, test, expect } from 'bun:test';
-import { findByRole } from '@testing-library/dom';
+import { findByRole, findByText } from '@testing-library/dom';
+import { Content } from '@vanilla-bean/components';
 
 import * as api from '../api';
-import Bookmarks from './Bookmarks';
+import Bookmarks, { engineList } from './Bookmarks';
 import { batchFieldsChanged } from './util';
 
 // Requires mocking all API calls (getBookmarks, getCategories, getSearchEngines) before unskipping
@@ -735,5 +736,52 @@ describe('search results', () => {
 
 		expect(render).not.toThrow();
 		expect(container.textContent).not.toContain('Example');
+	});
+});
+
+// A load that failed leaves its subscription's result in place with an error status, its body the server's answer
+describe('a failed load', () => {
+	const loaded = body => ({ status: 'success', body });
+	const failed = (body = { error: 'Database unavailable' }) => {
+		const result = { status: 'error', body, response: { status: 500 }, refetches: 0 };
+
+		result.refetch = () => result.refetches++;
+
+		return result;
+	};
+	const view = state => {
+		const self = Object.create(Bookmarks.prototype);
+
+		Object.assign(self, { options: {}, content: new Content({ appendTo: container }) }, state);
+
+		return self;
+	};
+
+	test('shows why with a way to try again, and the retry refetches only what failed', async () => {
+		const bookmarks = failed();
+		const categories = loaded({});
+		const self = view({ bookmarks, categories });
+
+		await self.renderContent();
+
+		expect(await findByText(container, "Couldn't load your bookmarks")).toBeTruthy();
+		expect(await findByText(container, 'Database unavailable')).toBeTruthy();
+
+		(await findByRole(container, 'button', { name: 'Try again' })).click();
+
+		expect(bookmarks.refetches).toBe(1);
+	});
+
+	test('failed categories stop the page too: there is nothing to sort the bookmarks by', () => {
+		expect(view({ bookmarks: loaded({}), categories: failed() }).loadFailure()).toBe('Database unavailable');
+	});
+
+	test('a loaded but empty collection is not a failure', () => {
+		expect(view({ bookmarks: loaded({}), categories: loaded({}) }).loadFailure()).toBeNull();
+	});
+
+	test('failed search engines leave no engines rather than its error text', () => {
+		expect(engineList(failed('Bad gateway'))).toEqual([]);
+		expect(engineList(loaded({ ddg: { id: 'ddg' } }))).toEqual([{ id: 'ddg' }]);
 	});
 });
