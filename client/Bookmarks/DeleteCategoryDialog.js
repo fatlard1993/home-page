@@ -1,5 +1,4 @@
-import { Dialog, Select, Input, Label, Notify } from '@vanilla-bean/components';
-import { failureReason } from '@vanilla-bean/hypertether';
+import { Dialog, Select, Input, Label, Notify, failureReason } from '@vanilla-bean/components';
 
 import { getCategories, deleteCategory } from '../api';
 
@@ -22,7 +21,7 @@ export default class DeleteCategoryDialog extends Dialog {
 		const refused = failureReason(categoriesResponse);
 
 		// Default is still somewhere to move the bookmarks to
-		if (refused) new Notify({ type: 'error', timeout: 6000, content: `Could not load the categories: ${refused}` });
+		if (refused) new Notify({ intent: 'danger', timeout: 6000, content: `Could not load the categories: ${refused}` });
 
 		const categories = refused ? {} : categoriesResponse.body;
 
@@ -66,7 +65,7 @@ export default class DeleteCategoryDialog extends Dialog {
 				// A refused delete leaves the question open, as it was
 				if (reason) {
 					new Notify({
-						type: 'error',
+						intent: 'danger',
 						timeout: 6000,
 						content: `Could not delete "${this.options.category.name}": ${reason}`,
 					});

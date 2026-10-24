@@ -6,6 +6,9 @@ const ipRegex =
 const hostnameRegex = /^(.+:\/\/)[^:]+?(:\d{1,5})?(\/.*)?$/;
 const localhostRegex = /^(.+:\/\/)?localhost(:\d{1,5})?(\/.*)?$/;
 
+// A field's validate: an empty value is refused
+export const required = value => (value ? null : 'Required');
+
 export const isLink = url =>
 	websiteRegex.test(url) || ipRegex.test(url) || localhostRegex.test(url) || hostnameRegex.test(url);
 

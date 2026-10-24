@@ -13,12 +13,12 @@ import {
 	theme,
 	styled,
 	debounce,
+	failureReason,
 } from '@vanilla-bean/components';
-import { failureReason } from '@vanilla-bean/hypertether';
 
 import { getCategories, getBrandColor, getFaviconPreview } from '../../api';
 import { ClearColorSwatch, BrandColorSwatch } from '../swatches';
-import { isLink, fixLink, getRecentColors } from '../util';
+import { isLink, fixLink, getRecentColors, required } from '../util';
 
 const FaviconPreview = styled(
 	Component,
@@ -149,10 +149,7 @@ export default class BookmarkForm extends Form {
 		this.newCategoryInput = new Input({
 			type: 'text',
 			style: { display: 'none' },
-			validations: [
-				[/.+/, 'Required'],
-				[value => value !== 'New' && value !== 'Default', value => `Must not be reserved name: ${value}`],
-			],
+			validate: [required, value => (value === 'New' || value === 'Default') && `Must not be reserved name: ${value}`],
 			onChange: ({ value }) => {
 				this.newCategoryInput.options.value = value;
 
@@ -164,8 +161,8 @@ export default class BookmarkForm extends Form {
 
 		this.setOptions({
 			inputs: [
-				{ key: 'name', validations: [[/.+/, 'Required']] },
-				{ key: 'url', validations: [[/.+/, 'Required']] },
+				{ key: 'name', validate: required },
+				{ key: 'url', validate: required },
 				{
 					key: 'category',
 					InputComponent: Select,
@@ -310,7 +307,7 @@ export default class BookmarkForm extends Form {
 		const refused = failureReason(categoriesResult);
 
 		// Without its categories the form still saves, into Default or a New one
-		if (refused) new Notify({ type: 'error', timeout: 6000, content: `Could not load the categories: ${refused}` });
+		if (refused) new Notify({ intent: 'danger', timeout: 6000, content: `Could not load the categories: ${refused}` });
 
 		const categories = refused ? {} : categoriesResult.body;
 

@@ -1,5 +1,5 @@
 import { afterAll, beforeEach, describe, expect, mock, test } from 'bun:test';
-import { resetRequest } from '@vanilla-bean/hypertether';
+import { resetRequest } from '@vanilla-bean/components';
 
 import { getBookmarks, updateBookmark } from './bookmarks';
 import { getCategories, updateCategory } from './categories';

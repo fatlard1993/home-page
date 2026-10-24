@@ -1,5 +1,4 @@
-import { Button, ContextMenu, Input, Notify, Toolbar, debounce } from '@vanilla-bean/components';
-import { failureReason } from '@vanilla-bean/hypertether';
+import { Button, ContextMenu, Input, Notify, Toolbar, debounce, failureReason } from '@vanilla-bean/components';
 
 import { getSearchEngines } from '../api';
 import context from '../context';
@@ -51,7 +50,7 @@ export default class BookmarksToolbar extends Toolbar {
 			const refused = failureReason(engines);
 
 			if (refused) {
-				new Notify({ type: 'error', timeout: 6000, content: `Could not load the search engines: ${refused}` });
+				new Notify({ intent: 'danger', timeout: 6000, content: `Could not load the search engines: ${refused}` });
 
 				return;
 			}
@@ -61,7 +60,7 @@ export default class BookmarksToolbar extends Toolbar {
 				onPointerPress: () => new SearchEngineDialog({ engine }),
 			}));
 
-			this.contextMenu.show({ x: event.clientX, y: event.clientY });
+			this.contextMenu.open({ x: event.clientX, y: event.clientY });
 		});
 
 		requestAnimationFrame(() => {
@@ -93,7 +92,7 @@ export default class BookmarksToolbar extends Toolbar {
 					},
 				];
 
-				this.contextMenu.show({ x: event.clientX, y: event.clientY });
+				this.contextMenu.open({ x: event.clientX, y: event.clientY });
 			},
 		});
 	}

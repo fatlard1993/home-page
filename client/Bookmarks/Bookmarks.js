@@ -8,11 +8,10 @@ import {
 	ContextMenu,
 	EmptyState,
 	theme,
+	failureReason,
+	orderBy,
 } from '@vanilla-bean/components';
 import { random as randomColor } from '@ctrl/tinycolor';
-
-import { orderBy } from '@vanilla-bean/components';
-import { failureReason } from '@vanilla-bean/hypertether';
 
 import { getBookmarks, getCategories, getSearchEngines, getSearchResult, updateBookmark, updateCategory } from '../api';
 
@@ -406,7 +405,7 @@ export default class Bookmarks extends View {
 			},
 		]);
 
-		this.contextMenu.show({ x: event.clientX, y: event.clientY });
+		this.contextMenu.open({ x: event.clientX, y: event.clientY });
 	}
 
 	enterBatchEdit() {
@@ -777,7 +776,7 @@ export default class Bookmarks extends View {
 			await Promise.allSettled([this.bookmarks.refetch(), this.categories.refetch()]);
 
 			new Notify({
-				type: 'error',
+				intent: 'danger',
 				timeout: 6000,
 				content: `Some batch changes could not be saved: ${error.message}. Press Done to retry, or refresh to see what was applied.`,
 			});

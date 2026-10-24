@@ -1,6 +1,7 @@
 import { FormDialog, Input, Select } from '@vanilla-bean/components';
 
 import { createSearchEngine, updateSearchEngine, deleteSearchEngine } from '../../api';
+import { required } from '../util';
 
 export default class SearchEngineDialog extends FormDialog {
 	static schema = {
@@ -27,7 +28,7 @@ export default class SearchEngineDialog extends FormDialog {
 			header: `${isEdit ? 'Edit' : 'Add'} Search Engine${isEdit ? ` | ${engine.label}` : ''}`,
 			data,
 			inputs: [
-				{ key: 'label', validations: [[/.+/, 'Required']] },
+				{ key: 'label', validate: required },
 				{
 					key: 'default',
 					label: 'Default (runs automatically with every search, others load on-demand)',
@@ -37,13 +38,13 @@ export default class SearchEngineDialog extends FormDialog {
 					key: 'url',
 					label: 'URL',
 					placeholder: 'https://api.example.com/search?q=:term',
-					validations: [[/.+/, 'Required']],
+					validate: required,
 				},
 				{
 					key: 'resultsPath',
 					label: 'Results Path',
 					placeholder: 'JSON key for results array',
-					validations: [[/.+/, 'Required']],
+					validate: required,
 				},
 				{
 					key: 'nameResultsPath',

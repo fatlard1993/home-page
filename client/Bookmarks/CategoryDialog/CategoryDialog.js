@@ -1,7 +1,7 @@
 import { ColorPicker, FormDialog } from '@vanilla-bean/components';
 
 import { createCategory, updateCategory } from '../../api';
-import { getRecentColors, saveRecentColor } from '../util';
+import { getRecentColors, required, saveRecentColor } from '../util';
 
 import DeleteCategoryDialog from '../DeleteCategoryDialog';
 
@@ -19,7 +19,7 @@ export default class CategoryDialog extends FormDialog {
 			header: `${isEdit ? 'Edit' : 'Create'} Category${isEdit ? ` | ${category.name}` : ''}`,
 			data,
 			inputs: [
-				{ key: 'name', validations: [[/.+/, 'Required']] },
+				{ key: 'name', validate: required },
 				{
 					key: 'color',
 					label: 'Default Color',

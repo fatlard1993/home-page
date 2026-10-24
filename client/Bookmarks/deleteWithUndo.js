@@ -1,5 +1,4 @@
-import { Notify } from '@vanilla-bean/components';
-import { failureReason } from '@vanilla-bean/hypertether';
+import { Notify, failureReason } from '@vanilla-bean/components';
 
 import {
 	deleteBookmark,
@@ -100,7 +99,7 @@ export default async function deleteWithUndo({ bookmarks, categories = [] }) {
 			console.error(error);
 
 			new Notify({
-				type: 'error',
+				intent: 'danger',
 				timeout: 6000,
 				content: `Undo failed part way through: ${error.message}. Some items may already be restored.`,
 			});
@@ -109,9 +108,9 @@ export default async function deleteWithUndo({ bookmarks, categories = [] }) {
 
 	// Restoring is one request per record; the toast's action runs once however often it's pressed
 	new Notify({
-		type: 'warning',
+		intent: 'warning',
 		timeout: 10000,
 		content: describeDeletion(bookmarks, categories),
-		actions: [{ textContent: 'Undo', onPress: restore }],
+		actions: [{ textContent: 'Undo', onPointerPress: restore }],
 	});
 }

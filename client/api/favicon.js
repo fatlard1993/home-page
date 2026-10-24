@@ -1,5 +1,4 @@
-import { readFile } from '@vanilla-bean/components';
-import { GET, PUT, DELETE } from '@vanilla-bean/hypertether';
+import { readFile, GET, PUT, DELETE } from '@vanilla-bean/components';
 
 export const getFaviconPreview = async url =>
 	GET('/favicon-preview', { searchParameters: { url }, cacheId: `faviconPreview:${url}` });

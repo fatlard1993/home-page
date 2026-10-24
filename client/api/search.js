@@ -1,4 +1,4 @@
-import { GET, POST, PATCH, DELETE } from '@vanilla-bean/hypertether';
+import { GET, POST, PATCH, DELETE } from '@vanilla-bean/components';
 
 export const getSearchEngines = async options =>
 	await GET('/search/engines', { cacheId: 'search:engines', ...options });
