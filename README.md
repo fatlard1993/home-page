@@ -38,6 +38,15 @@ In development the server rebuilds the client when its files change and reloads 
 
 On macOS, an install from before this used the label `com.justfatlard.home-page`: unload it (`launchctl unload ~/Library/LaunchAgents/com.justfatlard.home-page.plist`) before enabling. The Linux unit keeps its name, `home-page.service`.
 
+## Favicons
+
+A bookmark's favicon is fetched when it is saved with "Use site favicon" checked, or uploaded. A database copied from another machine, or one from before favicons were checked against their bytes, can hold entries whose icon is missing or unusable. One pass repairs them all:
+
+```sh
+bun scripts/fetch-favicons.js                        # ~/.homePage.json
+HOME_PAGE_DB=/path/to/other.json bun scripts/fetch-favicons.js
+```
+
 ## CLI Options
 
 | Flag         | Alias | Default            | Description                    |
@@ -77,6 +86,9 @@ server/
     defaultEngines.js   Seed data for search engines (Google, Stardew Wiki, Scryfall, Wikipedia, GitHub, npm)
     brandColor.js       A site's brand color, offered as a swatch in the bookmark dialog
     faviconColor.js     A site's favicon and its color, for the bookmark dialog's preview
+    fetchHtml.js        A page's head, fetched bounded by size and time, for the two above
+    imageType.js        An image's type from its bytes, never from what the server said
+    dataUri.js          Parses the base64 data URI a favicon upload arrives as
     faviconStorage.js   Favicon files, kept in a `<database name>-favicons` folder beside the database
     repairFavicons.js   Re-fetches, relabels or clears favicons a browser can't draw
 
