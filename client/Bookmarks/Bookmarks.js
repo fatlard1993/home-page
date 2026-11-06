@@ -25,7 +25,7 @@ import confirmBatchDelete from './confirmBatchDelete';
 import confirmDiscardBatch from './confirmDiscardBatch';
 import deleteWithUndo from './deleteWithUndo';
 
-import { fixLink, batchFieldsChanged, saveRecentColor, sortedIds } from './util';
+import { batchFieldsChanged, saveRecentColor, sortedIds } from './util';
 import DeleteCategoryDialog from './DeleteCategoryDialog';
 
 // Tolerant fuzzy: allows insertions, substitutions, transpositions, and deletions within matches
@@ -290,20 +290,8 @@ export default class Bookmarks extends View {
 			new BookmarksContainer({
 				appendTo: this.content,
 				label: engine.label,
-				bookmarks: results.map(item => ({
-					name: item.name,
-					url: item.url,
-					onContextMenu: event =>
-						this.showContextMenu({
-							event,
-							items: [
-								{
-									textContent: `Bookmark "${item.name}"`,
-									onPointerPress: () => new BookmarkDialog({ bookmark: { name: item.name, url: fixLink(item.url) } }),
-								},
-							],
-						}),
-				})),
+				// The view's own menu offers to bookmark any link that isn't one yet
+				bookmarks: results.map(({ name, url }) => ({ name, url })),
 			});
 		}
 

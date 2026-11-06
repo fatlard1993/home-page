@@ -73,7 +73,8 @@ export default class BookmarksContainer extends styled(
 ) {
 	_buildBookmark({ name, url, favicon, markedForDeletion, order, category, deleted, color, ...options }) {
 		const shared = {
-			'data-bookmark-id': options.id,
+			// A search result has no id, and no attribute to say so
+			...(options.id && { 'data-bookmark-id': options.id }),
 			addClass: markedForDeletion ? ['markedForDeletion'] : [],
 			styles: ({ colors }) => ({
 				background: color || colors.blue,
