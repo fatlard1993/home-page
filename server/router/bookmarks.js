@@ -19,9 +19,15 @@ const bookmarksRouter = async request => {
 
 		if (!stored) return new Response(null, { status: 404 });
 
+		// The icon's address never changes while its bytes can, so the browser asks each time and is told when it
+		// already has them
+		const headers = { ETag: `"${Bun.hash(stored.buffer).toString(16)}"`, 'Cache-Control': 'no-cache' };
+
+		if (request.headers.get('if-none-match') === headers.ETag) return new Response(null, { status: 304, headers });
+
 		// The sniffed type, not item.favicon: entries saved before fetches were
 		// byte-checked carry whatever type the far end claimed.
-		return new Response(stored.buffer, { headers: { 'Content-Type': stored.contentType } });
+		return new Response(stored.buffer, { headers: { ...headers, 'Content-Type': stored.contentType } });
 	}
 
 	match = requestMatch('PUT', '/bookmarks/:id/favicon', request);
