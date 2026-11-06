@@ -44,7 +44,7 @@ export const batchFieldsChanged = (record, stored) =>
 	(record.color || '') !== (stored.color || '');
 
 export const fixLink = url => {
-	const search = `http://google.com/search?q=${encodeURIComponent(url)}`;
+	const search = `https://google.com/search?q=${encodeURIComponent(url)}`;
 
 	if (!isLink(url)) return search;
 

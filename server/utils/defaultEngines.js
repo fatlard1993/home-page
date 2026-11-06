@@ -1,7 +1,7 @@
 const searchEngines = [
 	{
 		label: 'Google Search Results',
-		url: 'http://suggestqueries.google.com/complete/search?client=chrome&q=:term',
+		url: 'https://suggestqueries.google.com/complete/search?client=chrome&q=:term',
 		resultsPath: '1',
 		limit: 5,
 	},

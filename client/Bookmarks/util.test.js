@@ -26,10 +26,10 @@ describe('fixLink', () => {
 		expect(fixLink('GitHub.com')).toBe('http://GitHub.com');
 	});
 	test('converts non-links to Google search', () => {
-		expect(fixLink('hello world')).toBe('http://google.com/search?q=hello%20world');
+		expect(fixLink('hello world')).toBe('https://google.com/search?q=hello%20world');
 	});
 	test('encodes special chars in search query', () => {
-		expect(fixLink('a & b')).toBe('http://google.com/search?q=a%20%26%20b');
+		expect(fixLink('a & b')).toBe('https://google.com/search?q=a%20%26%20b');
 	});
 	test('preserves an http URL', () => {
 		expect(fixLink('http://example.com')).toBe('http://example.com');
@@ -38,12 +38,12 @@ describe('fixLink', () => {
 		// isLink's hostname form accepts javascript://…, which would run on click or once saved.
 		const payload = 'javascript://%0aalert(document.cookie)';
 
-		expect(fixLink(payload)).toBe(`http://google.com/search?q=${encodeURIComponent(payload)}`);
+		expect(fixLink(payload)).toBe(`https://google.com/search?q=${encodeURIComponent(payload)}`);
 	});
 	test('does not return a data: URL as a link', () => {
 		const payload = 'data://text/html,<script>alert(1)</script>';
 
-		expect(fixLink(payload)).toBe(`http://google.com/search?q=${encodeURIComponent(payload)}`);
+		expect(fixLink(payload)).toBe(`https://google.com/search?q=${encodeURIComponent(payload)}`);
 	});
 	test('does not return whitespace-obfuscated script URLs as links', () => {
 		// The browser trims leading control chars and strips interior tabs/newlines before reading a
@@ -56,7 +56,7 @@ describe('fixLink', () => {
 			' vbscript://foo',
 			' data://text/html,<script>1</script>',
 		]) {
-			expect(fixLink(payload)).toBe(`http://google.com/search?q=${encodeURIComponent(payload)}`);
+			expect(fixLink(payload)).toBe(`https://google.com/search?q=${encodeURIComponent(payload)}`);
 		}
 	});
 	test('a host with a port is a link, not a scheme', () => {
