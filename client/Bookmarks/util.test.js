@@ -7,6 +7,12 @@ describe('isLink', () => {
 	test('recognizes IPv4 addresses', () => expect(isLink('192.168.1.1')).toBe(true));
 	test('recognizes localhost', () => expect(isLink('localhost')).toBe(true));
 	test('recognizes localhost with port', () => expect(isLink('localhost:3000')).toBe(true));
+	test('a host keeps its case: a capital is not a search', () => {
+		expect(isLink('GitHub.com')).toBe(true);
+		expect(isLink('Example.COM/Path')).toBe(true);
+		expect(isLink('LOCALHOST:3000')).toBe(true);
+	});
+	test('a long top-level domain is still a host', () => expect(isLink('shop.technology')).toBe(true));
 	test('returns false for plain search terms', () => expect(isLink('hello world')).toBe(false));
 	test('returns false for bare words', () => expect(isLink('justasearch')).toBe(false));
 });
@@ -17,6 +23,7 @@ describe('fixLink', () => {
 	});
 	test('prepends http:// to bare domain', () => {
 		expect(fixLink('example.com')).toBe('http://example.com');
+		expect(fixLink('GitHub.com')).toBe('http://GitHub.com');
 	});
 	test('converts non-links to Google search', () => {
 		expect(fixLink('hello world')).toBe('http://google.com/search?q=hello%20world');

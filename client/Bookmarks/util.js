@@ -1,10 +1,11 @@
 import { readStorage, writeStorage } from '@vanilla-bean/components';
 
-const websiteRegex = /^(.+:\/\/)?[\da-z]+([.-][\da-z]+)*\.[a-z]{2,5}(:\d{1,5})?(\/.*)?$/;
+// Hosts are case-insensitive, and a top-level domain runs to 63 characters (.technology, .photography)
+const websiteRegex = /^(.+:\/\/)?[\da-z]+([.-][\da-z]+)*\.[a-z]{2,63}(:\d{1,5})?(\/.*)?$/i;
 const ipRegex =
 	/^(.+:\/\/)?(25[0-5]|2[0-4]\d|[01]?\d{1,2})\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})(:\d{1,5})?(\/.*)?$/;
 const hostnameRegex = /^(.+:\/\/)[^:]+?(:\d{1,5})?(\/.*)?$/;
-const localhostRegex = /^(.+:\/\/)?localhost(:\d{1,5})?(\/.*)?$/;
+const localhostRegex = /^(.+:\/\/)?localhost(:\d{1,5})?(\/.*)?$/i;
 
 // A field's validate: an empty value is refused
 export const required = value => (value ? null : 'Required');
