@@ -34,8 +34,7 @@ const bookmarksRouter = async request => {
 	if (match) {
 		if (!bookmarks.read(match)) return new Response(null, { status: 404 });
 
-		const { dataUri } = await request.json();
-		const parsed = parseBase64DataUri(dataUri);
+		const parsed = parseBase64DataUri((await request.json())?.dataUri);
 
 		if (!parsed) return new Response('Expected a JSON { dataUri } body', { status: 400 });
 

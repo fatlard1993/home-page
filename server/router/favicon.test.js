@@ -46,4 +46,8 @@ describe('favicon routes', () => {
 		expect(again.status).toBe(304);
 	});
 
+	test('a body that is not the expected object is refused, not a crash', async () => {
+		expect((await call('PUT', `/bookmarks/${bookmark.id}/favicon`, null)).status).toBe(400);
+		expect((await call('PUT', `/bookmarks/${bookmark.id}/favicon`, 'data:image/png;base64,AAAA')).status).toBe(400);
+	});
 });
