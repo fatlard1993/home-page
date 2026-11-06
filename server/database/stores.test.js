@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { access, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
@@ -52,6 +52,26 @@ describe('stores', () => {
 
 		await categories.delete({ id: to.id });
 		expect(bookmarks.read({ id: moved.id })).toBe(false);
+	});
+
+	test('a category deleted with its bookmarks takes their favicon files along', async () => {
+		const category = await categories.create({ name: 'Gone' });
+		const doomed = await bookmarks.create({ name: 'a', category: category.id, favicon: 'image/png' });
+		const kept = await bookmarks.create({ name: 'b', favicon: 'image/png' });
+		const faviconFile = id => join(database.faviconsDir, id);
+		const exists = id =>
+			access(faviconFile(id)).then(
+				() => true,
+				() => false,
+			);
+
+		await writeFile(faviconFile(doomed.id), 'png bytes');
+		await writeFile(faviconFile(kept.id), 'png bytes');
+
+		await categories.delete({ id: category.id });
+
+		expect(await exists(doomed.id)).toBe(false);
+		expect(await exists(kept.id)).toBe(true);
 	});
 
 	test('a category moved into itself, or into one that is gone, lands its bookmarks in Default', async () => {

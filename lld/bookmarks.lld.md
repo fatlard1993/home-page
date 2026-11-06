@@ -45,6 +45,11 @@ A bookmark is a link with enough context to be found and used again. The URL is 
 **module:** `server/database/categories.js`
 **method:** `afterDelete`
 
+Deleting a category settles its bookmarks in the same change: they move to the category asked for, or
+go with it. The bookmarks are changed in place rather than through their own store, so the category's
+write saves them all at once, and a bookmark that goes takes its favicon file along, as its own delete
+would.
+
 - deleting a category removes or reassigns its bookmarks -- no bookmark is left orphaned
   - does the deleted category become absent from the categories collection?
   - are the deleted category's bookmarks gone from the bookmarks collection?
@@ -56,11 +61,5 @@ A bookmark is a link with enough context to be found and used again. The URL is 
 
 - if a destination category is provided via `moveTo`, affected bookmarks are moved to it rather than deleted
   - does deleting with a moveTo destination reassign the affected bookmark's category?
-
-## Category deletion is fault-tolerant
-
-**module:** `server/database/categories.js`
-**method:** `afterDelete`
-
-- a snapshot of affected bookmarks is taken before the operation; any failure mid-loop restores them from the snapshot
-  - do the affected bookmarks survive a failed deletion unchanged?
+- a destination that is gone, the deleted category itself included, lands them in Default rather than in a category that doesn't exist
+  - does deleting with the category's own id as moveTo leave its bookmarks with an empty category?

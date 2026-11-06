@@ -1,5 +1,6 @@
 import { createStore } from '@vanilla-bean/components/app';
 
+import { deleteFavicon } from '../utils/faviconStorage';
 import database from '.';
 
 export default createStore({
@@ -7,23 +8,22 @@ export default createStore({
 	collection: 'categories',
 	fields: ['name', 'color', 'order'],
 	hooks: {
-		// Coupled to bookmarks: moves or deletes bookmarks belonging to the removed category.
-		// Snapshot-based so partial mutation doesn't leave bookmarks in a broken state.
+		// Coupled to bookmarks: its bookmarks move to another category, or go with it. Changed in place rather than
+		// through the bookmarks store, so the category's own write saves them all at once.
 		async afterDelete(id, { moveTo }) {
 			const { bookmarks, categories } = database.db.data;
 			// Moving to a category that isn't there (the deleted one, one deleted since) lands them in Default
 			const target = categories[moveTo] ? moveTo : '';
-			const affected = Object.keys(bookmarks).filter(bid => bookmarks[bid]?.category === id);
-			const snapshot = Object.fromEntries(affected.map(bid => [bid, { ...bookmarks[bid] }]));
+			const affected = Object.keys(bookmarks).filter(bookmarkId => bookmarks[bookmarkId]?.category === id);
 
-			try {
-				for (const bookmarkId of affected) {
-					if (moveTo !== undefined) bookmarks[bookmarkId].category = target;
-					else delete bookmarks[bookmarkId];
+			for (const bookmarkId of affected) {
+				if (moveTo !== undefined) {
+					bookmarks[bookmarkId].category = target;
+				} else {
+					// A bookmark that goes takes its favicon file with it, as its own delete would
+					delete bookmarks[bookmarkId];
+					await deleteFavicon(bookmarkId);
 				}
-			} catch (error) {
-				for (const [bid, data] of Object.entries(snapshot)) bookmarks[bid] = data;
-				throw error;
 			}
 		},
 	},
