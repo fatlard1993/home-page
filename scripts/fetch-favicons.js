@@ -1,6 +1,6 @@
 // One pass over the bookmarks, making every favicon one a browser can draw.
 // A machine seeded from another's json (or a fresh symlink into a config
-// repo) starts with bookmark entries whose favicon content types name bytes
+// repository) starts with bookmark entries whose favicon content types name bytes
 // that never traveled, and installs older than the byte check hold soft-404
 // HTML or icons stored under the wrong type. Each renders broken until
 // repaired: missing or non-image files are re-fetched, mislabeled icons are
@@ -8,8 +8,9 @@
 // and network-tolerant: a dark site is skipped and retried on the next run.
 //
 // HOME_PAGE_DB overrides the database path, so a dev machine can fetch
-// into another profile's tree (a symlinked db resolves its favicons dir
-// beside the real file, where a config repo can carry the icons along).
+// into another profile's tree (a db reached through a symlink keeps its
+// favicons dir beside the real file, where a config repository can carry
+// the icons along).
 
 import os from 'os';
 import path from 'path';
