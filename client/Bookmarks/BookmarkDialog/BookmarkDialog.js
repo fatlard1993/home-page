@@ -23,14 +23,14 @@ export default class BookmarkDialog extends FormDialog {
 			header: `${isEdit ? 'Edit' : 'Create'} Bookmark${isEdit ? ` | ${bookmark.name}` : ''}`,
 			data: bookmark,
 			formOptions: { category },
-			onSave: async ({ color, category: chosenCategory, favicon: _favicon, ...rest }, { form }) => {
+			onSave: async ({ color, category: _category, favicon: _favicon, ...rest }, { form }) => {
 				// An untouched color is only a preview of what the bookmark would inherit
 				// (category, then a default) — leave it unset so it keeps following that.
 				const explicitColor = form.colorTouched ? color : '';
 
 				if (explicitColor) saveRecentColor(explicitColor);
 
-				const body = { ...rest, color: explicitColor, category: chosenCategory === 'Default' ? '' : chosenCategory };
+				const body = { ...rest, color: explicitColor, category: form.chosenCategory };
 
 				// The favicon field is managed entirely through its own endpoints below —
 				// never sent as part of the regular bookmark update.

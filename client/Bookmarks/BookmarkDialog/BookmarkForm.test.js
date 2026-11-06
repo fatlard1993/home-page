@@ -109,6 +109,61 @@ describe('BookmarkForm favicon detection', () => {
 });
 
 describe('BookmarkForm categories', () => {
+	test('choosing New shows a name field; Default and an existing category hide it again', async () => {
+		categoriesResult = { body: { c1: { id: 'c1', name: 'Dev' } } };
+
+		try {
+			const { form } = await render();
+			const row = form.newCategoryRow.elem;
+
+			await settled(() => expect(form._categoriesById).toBeDefined());
+			expect(row.style.display).toBe('none');
+
+			form.options.data.category = form.uniqueId;
+			expect(row.style.display).toBe('');
+			expect(form.creatingCategory).toBe(true);
+
+			form.options.data.category = 'c1';
+			expect(row.style.display).toBe('none');
+			expect(form.chosenCategory).toBe('c1');
+
+			form.options.data.category = 'Default';
+			expect(form.chosenCategory).toBe('');
+		} finally {
+			categoriesResult = { body: {} };
+		}
+	});
+
+	test('a New category needs a name, and saves as one to create', async () => {
+		const { form } = await render({ data: { name: 'Docs', url: 'http://docs.test' } });
+
+		form.options.data.category = form.uniqueId;
+		expect(form.hasErrors()).toBe(true);
+
+		form.newCategoryInput.options.value = 'Work';
+		expect(form.hasErrors()).toBe(false);
+		expect(form.chosenCategory).toEqual({ create: { name: 'Work' } });
+	});
+
+	test('a name still being typed when Enter saves is taken as it stands', async () => {
+		const { form } = await render({ data: { name: 'Docs', url: 'http://docs.test' } });
+
+		form.options.data.category = form.uniqueId;
+		form.newCategoryInput.elem.value = 'Work';
+
+		expect(form.hasErrors()).toBe(false);
+		expect(form.chosenCategory).toEqual({ create: { name: 'Work' } });
+	});
+
+	test('the reserved names stay refused', async () => {
+		const { form } = await render({ data: { name: 'Docs', url: 'http://docs.test' } });
+
+		form.options.data.category = form.uniqueId;
+		form.newCategoryInput.options.value = 'Default';
+
+		expect(form.hasErrors()).toBe(true);
+	});
+
 	test('a refused category list leaves Default and New, and says why', async () => {
 		categoriesResult = { status: 'error', body: { error: 'Database busy' } };
 

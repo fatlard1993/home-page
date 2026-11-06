@@ -45,6 +45,35 @@ describe('BookmarkDialog', () => {
 		expect(dialog.elem.isConnected).toBe(true);
 	});
 
+	test('a bookmark saved into a New category sends the category to create inline', async () => {
+		let sent;
+
+		mock.module('../../api', () => ({
+			...api,
+			createBookmark: async ({ body }) => {
+				sent = body;
+
+				return { status: 'success', body: { id: 'b9', ...body } };
+			},
+		}));
+
+		try {
+			const dialog = new BookmarkDialog({ appendTo: container });
+
+			await findAllByRole(container, 'textbox');
+
+			dialog.form.options.data.name = 'Docs';
+			dialog.form.options.data.url = 'http://docs.test';
+			dialog.form.options.data.category = dialog.form.uniqueId;
+			dialog.form.newCategoryInput.options.value = 'Work';
+
+			expect(await dialog.save()).toBe(true);
+			expect(sent.category).toEqual({ create: { name: 'Work' } });
+		} finally {
+			mock.module('../../api', () => api);
+		}
+	});
+
 	test('a refused favicon closes the saved bookmark and says why', async () => {
 		mock.module('../../api', () => ({
 			...api,

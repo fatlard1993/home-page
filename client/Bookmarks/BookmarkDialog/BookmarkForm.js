@@ -146,18 +146,19 @@ export default class BookmarkForm extends Form {
 			append: [this.faviconLabel, this.faviconPreview, this.faviconUploadButton, this.faviconUploadInput],
 		});
 
+		// The new category's name lives beside the form's data, not in it: the category field holds the choice (an id,
+		// Default, or New), and chosenCategory joins the two on save
 		this.newCategoryInput = new Input({
 			type: 'text',
-			style: { display: 'none' },
+			placeholder: 'New category name',
 			validate: [required, value => (value === 'New' || value === 'Default') && `Must not be reserved name: ${value}`],
 			onChange: ({ value }) => {
 				this.newCategoryInput.options.value = value;
-
-				this.options.data.category = this.newCategoryInput.parent.options.value = { create: { name: value } };
-
 				this.newCategoryInput.validate();
 			},
 		});
+
+		this.newCategoryRow = new Label({ label: 'New Category', style: { display: 'none' } }, this.newCategoryInput);
 
 		this.setOptions({
 			inputs: [
@@ -167,7 +168,6 @@ export default class BookmarkForm extends Form {
 					key: 'category',
 					InputComponent: Select,
 					options: ['Default', { label: 'New', value: this.uniqueId }],
-					append: [this.newCategoryInput],
 				},
 				{
 					key: 'color',
@@ -187,12 +187,16 @@ export default class BookmarkForm extends Form {
 		// The url field renders as a plain <input>, a void element that can't take children,
 		// so the favicon row can't go through the field's own `append` — insert it after instead.
 		this.inputElements.url.elem.parentElement.insertAdjacentElement('afterend', this.faviconRow.elem);
+		// Nor can a <select> hold an <input>: the browser draws only its options
+		this.inputElements.category.elem.parentElement.insertAdjacentElement('afterend', this.newCategoryRow.elem);
 
 		this._populateAsyncFields();
 
 		this.options.data.subscribe({
 			key: 'category',
 			callback: categoryId => {
+				this._showNewCategory(categoryId === this.uniqueId);
+
 				if (!this.colorTouched) this._applyImplicitColor(categoryId);
 			},
 		});
@@ -215,6 +219,42 @@ export default class BookmarkForm extends Form {
 			// until the url changes or the box is toggled.
 			this._queueFaviconPreview(this.options.data.url, { detectOnly: !!this.existingFaviconId });
 		}
+	}
+
+	_showNewCategory(shown) {
+		if (shown === (this.newCategoryRow.elem.style.display !== 'none')) return;
+
+		this.newCategoryRow.elem.style.display = shown ? '' : 'none';
+
+		if (shown) this.newCategoryInput.elem.focus();
+	}
+
+	get creatingCategory() {
+		return this.options.data.category === this.uniqueId;
+	}
+
+	/**
+	 * Read by BookmarkDialog on save.
+	 * @returns {string|{ create: { name: string } }} The category to store: an id, '' for Default, or the one to create.
+	 */
+	get chosenCategory() {
+		const { category } = this.options.data;
+
+		if (this.creatingCategory) return { create: { name: this.newCategoryInput.options.value } };
+
+		return category === 'Default' ? '' : category;
+	}
+
+	// The new category's name is outside the form's inputs, so it's checked here alongside them. What's typed is taken
+	// as it stands: Enter in the field saves before the field has reported its change
+	hasErrors(options) {
+		const errors = super.hasErrors(options);
+
+		if (!this.creatingCategory) return errors;
+
+		this.newCategoryInput.options.value = this.newCategoryInput.elem.value;
+
+		return !!this.newCategoryInput.validate() || errors;
 	}
 
 	_applyImplicitColor(categoryId) {
