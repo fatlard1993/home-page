@@ -166,16 +166,21 @@ const fetchIcon = async (html, baseUrl) => {
 		const chunks = [];
 		let bytes = 0;
 
-		while (bytes < MAX_IMAGE_BYTES) {
+		for (;;) {
 			const { done, value } = await reader.read();
 
 			if (done) break;
 
 			chunks.push(value);
 			bytes += value.length;
-		}
 
-		reader.cancel().catch(() => {});
+			// Past the cap the rest is left unread, and so is what came: a cut-off image draws broken, or not at all
+			if (bytes > MAX_IMAGE_BYTES) {
+				reader.cancel().catch(() => {});
+
+				return { status: 'none' };
+			}
+		}
 
 		const buffer = Buffer.concat(chunks.map(chunk => Buffer.from(chunk)));
 

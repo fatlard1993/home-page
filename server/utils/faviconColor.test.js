@@ -16,6 +16,11 @@ const sites = {
 		'/': '<html><head></head></html>',
 		'/favicon.ico': '<!doctype html><html>Not Found</html>',
 	},
+	// A PNG header followed by far more than an icon's worth of bytes
+	'https://huge-icon.test': {
+		'/': '<html><head><link rel="icon" href="/icon.png"></head></html>',
+		'/icon.png': new Uint8Array([...PNG, ...new Uint8Array(400_000)]),
+	},
 	// The page answers but the icon request never does.
 	'https://icon-times-out.test': {
 		'/': '<html><head><link rel="icon" href="/icon.png"></head></html>',
@@ -52,6 +57,10 @@ describe('detectFavicon', () => {
 
 	test('a site whose /favicon.ico answers with an html page has none', async () => {
 		expect(await detectFavicon('https://soft-404.test/')).toEqual({ status: 'none', dataUri: null });
+	});
+
+	test('an icon past the size cap is not kept cut off', async () => {
+		expect(await detectFavicon('https://huge-icon.test/')).toEqual({ status: 'none', dataUri: null });
 	});
 
 	test('a site that never answers is unreachable, not iconless', async () => {
