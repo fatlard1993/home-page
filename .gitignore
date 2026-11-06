@@ -6,3 +6,7 @@ node_modules/
 build/
 
 .vscode
+
+# lldtdd scratch, cleaned on exit unless the run is killed
+.lldtdd-mut-*
+.lldtdd-tmp/
