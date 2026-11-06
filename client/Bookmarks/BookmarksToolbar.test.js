@@ -10,6 +10,40 @@ describe('BookmarksToolbar', () => {
 		await findByRole(container, 'button');
 	});
 
+	// The key handler is debounced, so each assertion waits past it
+	const settled = () => new Promise(resolve => setTimeout(resolve, 450));
+
+	test('a term is handed on trimmed; Enter on only spaces opens nothing', async () => {
+		const searches = [];
+		const opened = [];
+		const realOpen = window.open;
+
+		window.open = url => opened.push(url);
+
+		try {
+			const toolbar = new BookmarksToolbar({ search: term => searches.push(term), appendTo: container });
+			const input = await findByRole(container, 'searchbox');
+
+			input.value = '  docs ';
+			fireEvent.keyUp(input, { key: 's' });
+			await settled();
+			expect(searches.at(-1)).toBe('docs');
+
+			input.value = '   ';
+			fireEvent.keyUp(input, { key: 'Enter' });
+			await settled();
+			expect(opened).toEqual([]);
+
+			input.value = ' nas.lan:8123 ';
+			fireEvent.keyUp(input, { key: 'Enter' });
+			await settled();
+			expect(opened).toEqual(['http://nas.lan:8123']);
+			expect(toolbar.elem.isConnected).toBe(true);
+		} finally {
+			window.open = realOpen;
+		}
+	});
+
 	// mock.module is process-wide, so the real api goes back once this test is done with it
 	test('a refused engine list opens no menu and says why', async () => {
 		const real = { ...(await import('../api')) };

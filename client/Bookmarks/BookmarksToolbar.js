@@ -19,6 +19,9 @@ export default class BookmarksToolbar extends Toolbar {
 	build() {
 		this.contextMenu = new ContextMenu({ appendTo: this });
 
+		// Spaces around a term are typing, not searching: the engines would be asked for a blank term
+		const handOn = value => this.options.search(value.trim());
+
 		this.search = new Input({
 			type: 'search',
 			appendTo: this.elem,
@@ -35,11 +38,14 @@ export default class BookmarksToolbar extends Toolbar {
 				}
 			},
 			onKeyUp: debounce(({ key, value }) => {
-				if (key === 'Enter') return window.open(fixLink(value));
+				const term = value.trim();
 
-				this.options.search(value);
+				// Enter opens what was typed; with nothing typed, or only spaces, there is nothing to open
+				if (key === 'Enter') return term && window.open(fixLink(term));
+
+				this.options.search(term);
 			}),
-			onSearch: debounce(({ value }) => this.options.search(value)),
+			onSearch: debounce(({ value }) => handOn(value)),
 		});
 
 		this.search.elem.addEventListener('contextmenu', async event => {
@@ -66,7 +72,7 @@ export default class BookmarksToolbar extends Toolbar {
 		requestAnimationFrame(() => {
 			this.search.value = context.preRenderSearch;
 			this.search.elem.focus();
-			if (context.preRenderSearch.length > 0) this.options.search(context.preRenderSearch);
+			if (context.preRenderSearch.trim()) handOn(context.preRenderSearch);
 			context.searchElem = this.search.elem;
 		});
 
