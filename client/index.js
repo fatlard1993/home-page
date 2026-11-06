@@ -12,7 +12,8 @@ const isTypingInField = target =>
 document.addEventListener('keypress', event => {
 	if (isTypingInField(event.target) && event.target !== context.searchElem) return;
 
-	if (!context.searchElem) context.preRenderSearch += event.key;
+	// Only a character is typing: Enter, Tab and the rest name themselves and would land as words
+	if (!context.searchElem) context.preRenderSearch += event.key.length === 1 ? event.key : '';
 	else if (event.key === '/' && document.activeElement !== context.searchElem) {
 		event.preventDefault();
 		context.searchElem.focus();
