@@ -3,6 +3,14 @@ import { FormDialog, Input, Select } from '@vanilla-bean/components';
 import { createSearchEngine, updateSearchEngine, deleteSearchEngine } from '../../api';
 import { required } from '../util';
 
+// The stored orderBy is { property, direction }, or a bare property name on an engine written by hand. The form holds
+// the two flat: a Form key is one data key, so a dotted key would be a field of its own, which the store drops
+const orderByFields = orderBy => {
+	const { property = '', direction = 'asc' } = typeof orderBy === 'string' ? { property: orderBy } : (orderBy ?? {});
+
+	return { orderByProperty: property, orderByDirection: direction };
+};
+
 export default class SearchEngineDialog extends FormDialog {
 	static schema = {
 		engine: {},
@@ -11,6 +19,7 @@ export default class SearchEngineDialog extends FormDialog {
 	static prepareOptions(options) {
 		const { engine } = options;
 		const isEdit = !!engine?.id;
+		const { orderBy, ...fields } = engine ?? {};
 		const data = {
 			label: '',
 			url: '',
@@ -20,8 +29,8 @@ export default class SearchEngineDialog extends FormDialog {
 			urlProperty: '',
 			limit: 5,
 			default: false,
-			orderBy: { property: '', direction: 'asc' },
-			...engine,
+			...fields,
+			...orderByFields(orderBy),
 		};
 
 		return {
@@ -54,16 +63,26 @@ export default class SearchEngineDialog extends FormDialog {
 				{ key: 'nameProperty', label: 'Name Property', placeholder: 'Field for display name (blank = item itself)' },
 				{ key: 'urlProperty', label: 'URL Property', placeholder: 'Field for URL (blank = item itself)' },
 				{ key: 'limit', InputComponent: Input, type: 'number' },
-				{ key: 'orderBy.property', label: 'Order By', placeholder: 'Sort field (blank = no sort)' },
 				{
-					key: 'orderBy.direction',
+					key: 'orderByProperty',
+					label: 'Order By',
+					InputComponent: Select,
+					// Results are normalized to name and url before they are sorted, so those are the only fields to sort on
+					options: [{ label: 'Engine order', value: '' }, 'name', 'url'],
+				},
+				{
+					key: 'orderByDirection',
 					label: 'Direction',
 					InputComponent: Select,
 					options: ['asc', 'desc'],
-					collapsed: !data.orderBy?.property,
+					condition: ({ orderByProperty }) => !!orderByProperty,
 				},
 			],
-			onSave: body => (isEdit ? updateSearchEngine(engine.id, { body }) : createSearchEngine({ body })),
+			onSave: ({ orderByProperty, orderByDirection, ...body }) => {
+				body.orderBy = { property: orderByProperty, direction: orderByDirection };
+
+				return isEdit ? updateSearchEngine(engine.id, { body }) : createSearchEngine({ body });
+			},
 			...(isEdit && { onDelete: () => deleteSearchEngine(engine.id) }),
 			...options,
 		};

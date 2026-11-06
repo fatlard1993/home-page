@@ -88,6 +88,49 @@ describe('searchProvider', () => {
 		expect((await searchProvider('e', 'x')).map(({ name }) => name)).toEqual(['a', 'b']);
 	});
 
+	test("orderBy in the dialog's { property, direction } shape sorts too, honoring the direction", async () => {
+		engines.e = {
+			id: 'e',
+			url: 'https://api.example/:term',
+			resultsPath: 'items',
+			nameProperty: 'name',
+			orderBy: { property: 'name', direction: 'desc' },
+		};
+		fetchResponse.json = async () => ({ items: [{ name: 'a' }, { name: 'c' }, { name: 'b' }] });
+
+		expect((await searchProvider('e', 'x')).map(({ name }) => name)).toEqual(['c', 'b', 'a']);
+	});
+
+	test('an orderBy with no property, as the dialog saves when none is chosen, keeps the engine order', async () => {
+		engines.e = {
+			id: 'e',
+			url: 'https://api.example/:term',
+			resultsPath: 'items',
+			nameProperty: 'name',
+			orderBy: { property: '', direction: 'asc' },
+		};
+		fetchResponse.json = async () => ({ items: [{ name: 'b' }, { name: 'a' }] });
+
+		expect((await searchProvider('e', 'x')).map(({ name }) => name)).toEqual(['b', 'a']);
+	});
+
+	test('a results path reaches into nested objects, like the name and url properties do', async () => {
+		engines.e = { id: 'e', url: 'https://api.example/:term', resultsPath: 'data.items' };
+		fetchResponse.json = async () => ({ data: { items: ['x', 'y'] } });
+
+		expect(await searchProvider('e', 'x')).toEqual([
+			{ name: 'x', url: 'x' },
+			{ name: 'y', url: 'y' },
+		]);
+	});
+
+	test('a results path that lands on something other than a list finds nothing instead of failing', async () => {
+		engines.e = { id: 'e', url: 'https://api.example/:term', resultsPath: 'total' };
+		fetchResponse.json = async () => ({ total: 12 });
+
+		expect(await searchProvider('e', 'x')).toEqual([]);
+	});
+
 	test('a disallowed protocol throws instead of fetching', async () => {
 		engines.e = { id: 'e', url: 'ftp://api.example/:term', resultsPath: 'items' };
 

@@ -9,7 +9,6 @@ import {
 	EmptyState,
 	theme,
 	failureReason,
-	orderBy,
 } from '@vanilla-bean/components';
 import { random as randomColor } from '@ctrl/tinycolor';
 
@@ -287,12 +286,11 @@ export default class Bookmarks extends View {
 			// A failed search (its body is the server's reason, as text) lists nothing, as no results would
 			if (failureReason(this.searchResults[engine.id]) || !results?.length) continue;
 
-			const sorted = engine.orderBy ? [...results].sort(orderBy(engine.orderBy)) : results;
-
+			// Already in the engine's order: the server sorts, so every client lists the same results the same way
 			new BookmarksContainer({
 				appendTo: this.content,
 				label: engine.label,
-				bookmarks: sorted.map(item => ({
+				bookmarks: results.map(item => ({
 					name: item.name,
 					url: item.url,
 					onContextMenu: event =>

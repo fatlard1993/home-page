@@ -12,7 +12,19 @@ export const seedEngines = async () => {
 
 const ALLOWED_PROTOCOLS = ['http:', 'https:'];
 
-const getPath = (item, path) => path.split('.').reduce((value, key) => value?.[key], item);
+const getPath = (item, path) =>
+	String(path)
+		.split('.')
+		.reduce((value, key) => value?.[key], item);
+
+// An engine's orderBy is either a field name or the dialog's { property, direction }; an empty property is no sort
+const sortSpec = orderBy => {
+	const { property, direction = 'asc' } = typeof orderBy === 'string' ? { property: orderBy } : (orderBy ?? {});
+
+	return property ? { property, direction } : null;
+};
+
+const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 
 export const searchProvider = async (providerId, term) => {
 	const engine = searchEnginesDb.read({ id: providerId });
@@ -38,10 +50,17 @@ export const searchProvider = async (providerId, term) => {
 
 	const json = await response.json();
 
-	const results = json[engine.resultsPath] || [];
-	const nameResults = engine.nameResultsPath ? json[engine.nameResultsPath] || [] : null;
+	// A path that lands anywhere but on a list is an engine set up wrong, which finds nothing rather than failing the search
+	const listAt = path => {
+		const value = path ? getPath(json, path) : undefined;
 
-	const mapped = results.slice(0, engine.limit || 5).map((item, index) => {
+		return Array.isArray(value) ? value : [];
+	};
+
+	const results = listAt(engine.resultsPath);
+	const nameResults = engine.nameResultsPath ? listAt(engine.nameResultsPath) : null;
+
+	const mapped = results.slice(0, Number(engine.limit) || 5).map((item, index) => {
 		let name = item;
 
 		if (nameResults) name = nameResults[index] || item;
@@ -53,8 +72,12 @@ export const searchProvider = async (providerId, term) => {
 		};
 	});
 
-	if (engine.orderBy && mapped.length > 0 && engine.orderBy in mapped[0]) {
-		mapped.sort((a, b) => String(a[engine.orderBy]).localeCompare(String(b[engine.orderBy])));
+	const sort = sortSpec(engine.orderBy);
+
+	if (sort) {
+		const sign = sort.direction === 'desc' ? -1 : 1;
+
+		mapped.sort((a, b) => sign * collator.compare(String(a[sort.property] ?? ''), String(b[sort.property] ?? '')));
 	}
 
 	return mapped;

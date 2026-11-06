@@ -24,11 +24,7 @@ const router = async request => {
 	match = requestMatch('GET', '/search/:provider/:term', request);
 	if (match) {
 		try {
-			const results = await searchProvider(match.provider, match.term);
-
-			if (!results) return new Response('Provider not found', { status: 404 });
-
-			return Response.json(results);
+			return Response.json(await searchProvider(match.provider, match.term));
 		} catch (error) {
 			console.error(error);
 
