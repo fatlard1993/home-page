@@ -79,6 +79,7 @@ export default class BookmarksToolbar extends Toolbar {
 		new Button({
 			appendTo: this.elem,
 			icon: 'plus',
+			title: 'Add',
 			onPointerPress: event => {
 				event.preventDefault();
 				event.stopPropagation();
