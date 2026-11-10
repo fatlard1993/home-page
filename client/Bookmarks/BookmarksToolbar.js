@@ -25,6 +25,7 @@ export default class BookmarksToolbar extends Toolbar {
 		this.search = new Input({
 			type: 'search',
 			appendTo: this.elem,
+			'aria-label': 'Search',
 			styles: () => `
 				width: auto;
 				flex: 1;
