@@ -27,6 +27,27 @@ describe('DeleteCategoryDialog', () => {
 		}
 	});
 
+	test('the Keep Bookmarks checkbox has its label after it, on its line', async () => {
+		const real = { ...(await import('../api')) };
+
+		mock.module('../api', () => ({
+			...real,
+			getCategories: async () => ({ status: 'success', body: {}, unsubscribe: () => {} }),
+		}));
+
+		try {
+			new DeleteCategoryDialog({ category: { id: 'c1', name: 'Dev' }, appendTo: container });
+
+			const checkbox = await findByRole(container, 'checkbox', { name: 'Keep Bookmarks?', hidden: true });
+
+			// Where the label sits is the Label's variant, which no role reports
+			// eslint-disable-next-line testing-library/no-node-access
+			expect(checkbox.closest('.variant-inline-after')).not.toBeNull();
+		} finally {
+			mock.module('../api', () => real);
+		}
+	});
+
 	// mock.module is process-wide, so the real api goes back once this test is done with it
 	test('a refused delete stays open and says why', async () => {
 		const real = { ...(await import('../api')) };

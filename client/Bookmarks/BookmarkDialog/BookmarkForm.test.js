@@ -108,6 +108,14 @@ describe('BookmarkForm favicon detection', () => {
 	});
 });
 
+describe('BookmarkForm favicon label', () => {
+	test('the Use site favicon checkbox has its label after it, on its line', async () => {
+		const { form } = await render();
+
+		expect(form.faviconLabel.hasClass('variant-inline-after')).toBe(true);
+	});
+});
+
 describe('BookmarkForm categories', () => {
 	test('choosing New shows a name field; Default and an existing category hide it again', async () => {
 		categoriesResult = { body: { c1: { id: 'c1', name: 'Dev' } } };

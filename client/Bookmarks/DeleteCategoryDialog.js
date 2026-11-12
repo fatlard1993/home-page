@@ -77,7 +77,10 @@ export default class DeleteCategoryDialog extends Dialog {
 			closeDialog();
 		};
 
-		this.options.body = [new Label('Keep Bookmarks?', checkbox), new Label('Move To', moveTo)];
+		this.options.body = [
+			new Label({ label: 'Keep Bookmarks?', variant: 'inline-after' }, checkbox),
+			new Label('Move To', moveTo),
+		];
 
 		super.render();
 	}

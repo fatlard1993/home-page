@@ -141,7 +141,7 @@ export default class BookmarkForm extends Form {
 			},
 		});
 
-		this.faviconLabel = new Label({ label: 'Use site favicon', variant: 'inline' }, this.faviconCheckbox);
+		this.faviconLabel = new Label({ label: 'Use site favicon', variant: 'inline-after' }, this.faviconCheckbox);
 
 		this.faviconRow = new Elem({
 			style: { display: 'flex', alignItems: 'center', gap: theme.space.sm, margin: `${theme.space.sm} 0` },
