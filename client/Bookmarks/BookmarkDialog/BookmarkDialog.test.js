@@ -65,10 +65,12 @@ describe('BookmarkDialog', () => {
 			dialog.form.options.data.name = 'Docs';
 			dialog.form.options.data.url = 'http://docs.test';
 			dialog.form.options.data.category = dialog.form.uniqueId;
-			dialog.form.newCategoryInput.options.value = 'Work';
+			dialog.form.options.data.newCategory = 'Work';
 
 			expect(await dialog.save()).toBe(true);
 			expect(sent.category).toEqual({ create: { name: 'Work' } });
+			// The name rides inside the category, not as a field of the bookmark
+			expect('newCategory' in sent).toBe(false);
 		} finally {
 			mock.module('../../api', () => api);
 		}

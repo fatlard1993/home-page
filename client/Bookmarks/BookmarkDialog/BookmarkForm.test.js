@@ -114,7 +114,7 @@ describe('BookmarkForm categories', () => {
 
 		try {
 			const { form } = await render();
-			const row = form.newCategoryRow.elem;
+			const row = form.inputElements.newCategory.parent.elem;
 
 			await settled(() => expect(form._categoriesById).toBeDefined());
 			expect(row.style.display).toBe('none');
@@ -122,6 +122,8 @@ describe('BookmarkForm categories', () => {
 			form.options.data.category = form.uniqueId;
 			expect(row.style.display).toBe('');
 			expect(form.creatingCategory).toBe(true);
+			// A declared field: its Label names it, and it takes the focus as it appears
+			expect(await findByRole(container, 'textbox', { name: 'New Category' })).toHaveFocus();
 
 			form.options.data.category = 'c1';
 			expect(row.style.display).toBe('none');
@@ -140,7 +142,7 @@ describe('BookmarkForm categories', () => {
 		form.options.data.category = form.uniqueId;
 		expect(form.hasErrors()).toBe(true);
 
-		form.newCategoryInput.options.value = 'Work';
+		form.options.data.newCategory = 'Work';
 		expect(form.hasErrors()).toBe(false);
 		expect(form.chosenCategory).toEqual({ create: { name: 'Work' } });
 	});
@@ -149,7 +151,8 @@ describe('BookmarkForm categories', () => {
 		const { form } = await render({ data: { name: 'Docs', url: 'http://docs.test' } });
 
 		form.options.data.category = form.uniqueId;
-		form.newCategoryInput.elem.value = 'Work';
+		form.inputElements.newCategory.elem.focus();
+		form.inputElements.newCategory.elem.value = 'Work';
 
 		expect(form.hasErrors()).toBe(false);
 		expect(form.chosenCategory).toEqual({ create: { name: 'Work' } });
@@ -159,7 +162,7 @@ describe('BookmarkForm categories', () => {
 		const { form } = await render({ data: { name: 'Docs', url: 'http://docs.test' } });
 
 		form.options.data.category = form.uniqueId;
-		form.newCategoryInput.options.value = 'Default';
+		form.options.data.newCategory = 'Default';
 
 		expect(form.hasErrors()).toBe(true);
 	});

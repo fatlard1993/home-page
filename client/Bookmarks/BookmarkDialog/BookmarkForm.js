@@ -51,6 +51,8 @@ export default class BookmarkForm extends Form {
 				name: '',
 				url: '',
 				category: options.category?.id || 'Default',
+				// The name of the category to create, asked only when the category chosen is New
+				newCategory: '',
 				...options.data,
 				color: storedColor || options.category?.color || theme.colors.blue.toHslString(),
 			},
@@ -146,20 +148,6 @@ export default class BookmarkForm extends Form {
 			append: [this.faviconLabel, this.faviconPreview, this.faviconUploadButton, this.faviconUploadInput],
 		});
 
-		// The new category's name lives beside the form's data, not in it: the category field holds the choice (an id,
-		// Default, or New), and chosenCategory joins the two on save
-		this.newCategoryInput = new Input({
-			type: 'text',
-			placeholder: 'New category name',
-			validate: [required, value => (value === 'New' || value === 'Default') && `Must not be reserved name: ${value}`],
-			onChange: ({ value }) => {
-				this.newCategoryInput.options.value = value;
-				this.newCategoryInput.validate();
-			},
-		});
-
-		this.newCategoryRow = new Label({ label: 'New Category', style: { display: 'none' } }, this.newCategoryInput);
-
 		this.setOptions({
 			inputs: [
 				{ key: 'name', validate: required },
@@ -168,6 +156,17 @@ export default class BookmarkForm extends Form {
 					key: 'category',
 					InputComponent: Select,
 					options: ['Default', { label: 'New', value: this.uniqueId }],
+				},
+				// The category field holds the choice (an id, Default, or New); chosenCategory joins the two on save
+				{
+					key: 'newCategory',
+					label: 'New Category',
+					placeholder: 'New category name',
+					condition: ({ category }) => category === this.uniqueId,
+					validate: [
+						required,
+						value => (value === 'New' || value === 'Default') && `Must not be reserved name: ${value}`,
+					],
 				},
 				{
 					key: 'color',
@@ -187,15 +186,14 @@ export default class BookmarkForm extends Form {
 		// The url field renders as a plain <input>, a void element that can't take children,
 		// so the favicon row can't go through the field's own `append` — insert it after instead.
 		this.inputElements.url.elem.parentElement.insertAdjacentElement('afterend', this.faviconRow.elem);
-		// Nor can a <select> hold an <input>: the browser draws only its options
-		this.inputElements.category.elem.parentElement.insertAdjacentElement('afterend', this.newCategoryRow.elem);
 
 		this._populateAsyncFields();
 
 		this.options.data.subscribe({
 			key: 'category',
 			callback: categoryId => {
-				this._showNewCategory(categoryId === this.uniqueId);
+				// The form has already shown the name field, by its condition
+				if (categoryId === this.uniqueId) this.inputElements.newCategory.elem.focus();
 
 				if (!this.colorTouched) this._applyImplicitColor(categoryId);
 			},
@@ -221,14 +219,6 @@ export default class BookmarkForm extends Form {
 		}
 	}
 
-	_showNewCategory(shown) {
-		if (shown === (this.newCategoryRow.elem.style.display !== 'none')) return;
-
-		this.newCategoryRow.elem.style.display = shown ? '' : 'none';
-
-		if (shown) this.newCategoryInput.elem.focus();
-	}
-
 	get creatingCategory() {
 		return this.options.data.category === this.uniqueId;
 	}
@@ -240,21 +230,9 @@ export default class BookmarkForm extends Form {
 	get chosenCategory() {
 		const { category } = this.options.data;
 
-		if (this.creatingCategory) return { create: { name: this.newCategoryInput.options.value } };
+		if (this.creatingCategory) return { create: { name: this.options.data.newCategory } };
 
 		return category === 'Default' ? '' : category;
-	}
-
-	// The new category's name is outside the form's inputs, so it's checked here alongside them. What's typed is taken
-	// as it stands: Enter in the field saves before the field has reported its change
-	hasErrors(options) {
-		const errors = super.hasErrors(options);
-
-		if (!this.creatingCategory) return errors;
-
-		this.newCategoryInput.options.value = this.newCategoryInput.elem.value;
-
-		return !!this.newCategoryInput.validate() || errors;
 	}
 
 	_applyImplicitColor(categoryId) {
