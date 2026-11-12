@@ -4,7 +4,6 @@ import { fixLink } from './util';
 export default class BookmarksContainer extends styled(
 	Card,
 	({ colors, space }) => `
-	margin: 0 0 2px;
 	border-radius: 0;
 
 	.categoryName {

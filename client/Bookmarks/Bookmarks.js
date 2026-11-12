@@ -60,7 +60,12 @@ export default class Bookmarks extends View {
 			done: () => this.commitBatchEdit(),
 			cancel: () => this.cancelBatchEdit(),
 		});
-		this.content = new Content({ appendTo: this.elem, padding: `0 ${theme.space.md}` });
+		// A column of cards, spaced by the container's gap rather than margins on the cards
+		this.content = new Content({
+			appendTo: this.elem,
+			padding: `0 ${theme.space.md}`,
+			style: { display: 'flex', flexDirection: 'column', gap: theme.space.xs },
+		});
 		this.contextMenu = new ContextMenu({ appendTo: this });
 
 		this._setupBatchDnd();

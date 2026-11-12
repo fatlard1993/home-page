@@ -1,6 +1,6 @@
-import { afterAll, beforeAll, beforeEach, describe, test, expect } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, test, expect, mock } from 'bun:test';
 import { findByRole, findByText } from '@testing-library/dom';
-import { Content } from '@vanilla-bean/components';
+import { Content, theme } from '@vanilla-bean/components';
 
 import * as api from '../api';
 import Bookmarks, { engineList } from './Bookmarks';
@@ -778,5 +778,32 @@ describe('a failed load', () => {
 	test('failed search engines leave no engines rather than its error text', () => {
 		expect(engineList(failed('Bad gateway'))).toEqual([]);
 		expect(engineList(loaded({ ddg: { id: 'ddg' } }))).toEqual([{ id: 'ddg' }]);
+	});
+});
+
+describe('layout', () => {
+	// mock.module is process-wide, so the real api goes back once this test is done with it
+	test('the cards are spaced by the content column’s gap, not margins of their own', async () => {
+		const real = { ...api };
+		const pending = () => new Promise(() => {});
+
+		mock.module('../api', () => ({
+			...real,
+			getCategories: pending,
+			getBookmarks: pending,
+			getSearchEngines: pending,
+		}));
+
+		try {
+			const view = new Bookmarks({ appendTo: container });
+
+			await new Promise(resolve => setTimeout(resolve, 0));
+
+			expect(view.content.elem.style.display).toBe('flex');
+			expect(view.content.elem.style.flexDirection).toBe('column');
+			expect(view.content.elem.style.gap).toBe(theme.space.xs);
+		} finally {
+			mock.module('../api', () => real);
+		}
 	});
 });
