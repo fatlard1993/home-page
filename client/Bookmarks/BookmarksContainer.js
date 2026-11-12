@@ -1,4 +1,4 @@
-import { Card, Link, Button, Elem, styled } from '@vanilla-bean/components';
+import { Card, Link, Button, Elem, SectionLabel, styled } from '@vanilla-bean/components';
 import { fixLink } from './util';
 
 export default class BookmarksContainer extends styled(
@@ -7,9 +7,6 @@ export default class BookmarksContainer extends styled(
 	border-radius: 0;
 
 	.categoryName {
-		display: block;
-		margin-bottom: ${space.sm};
-		font-weight: 600;
 		pointer-events: none;
 	}
 
@@ -156,18 +153,23 @@ export default class BookmarksContainer extends styled(
 	};
 
 	build() {
-		this._labelText = new Elem({ tag: 'label', addClass: 'categoryName', appendTo: this });
+		// Same construction-time split as the bookmarks: outside batch mode the heading is inert
+		// (pointer-events: none via CSS); in batch mode it presses, by keyboard too, to mark the category.
+		const marksCategory = !!(this.options.batchEdit && this.options.categoryId);
+
+		this._labelText = new SectionLabel({
+			addClass: 'categoryName',
+			appendTo: this,
+			...(marksCategory && {
+				pressable: true,
+				onPointerPress: event => {
+					event.preventDefault();
+					event.stopPropagation();
+
+					this.options.onTapCategory?.(this.options.categoryId);
+				},
+			}),
+		});
 		this.linkContainer = new Elem({ addClass: 'links', appendTo: this });
-
-		// Same construction-time split as the bookmarks: outside batch mode the label is inert
-		// (pointer-events: none via CSS), so the toggle listener only exists in batch mode.
-		if (this.options.batchEdit && this.options.categoryId) {
-			this._labelText.elem.addEventListener('click', event => {
-				event.preventDefault();
-				event.stopPropagation();
-
-				this.options.onTapCategory?.(this.options.categoryId);
-			});
-		}
 	}
 }

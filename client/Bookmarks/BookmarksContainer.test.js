@@ -71,6 +71,37 @@ describe('BookmarksContainer', () => {
 		expect(getByRole(container, 'button', { name: 'two', pressed: true })).toBe(two);
 	});
 
+	test("the category's name is a heading over its links", async () => {
+		new BookmarksContainer({ bookmarks: [], label: 'Dev', categoryId: 'c1', appendTo: container });
+
+		const heading = await findByRole(container, 'heading', { name: 'Dev' });
+
+		expect(heading).not.toHaveAttribute('tabindex');
+	});
+
+	// In batch mode the name marks the category, by keyboard as well as pointer
+	test('in batch mode the category name presses by Enter too', async () => {
+		const tapped = [];
+
+		new BookmarksContainer({
+			batchEdit: true,
+			bookmarks: [],
+			label: 'Dev',
+			categoryId: 'c1',
+			appendTo: container,
+			onTapCategory: id => tapped.push(id),
+		});
+
+		const heading = await findByRole(container, 'heading', { name: 'Dev' });
+
+		expect(heading).toHaveAttribute('tabindex', '0');
+
+		fireEvent.keyDown(heading, { key: 'Enter' });
+		heading.click();
+
+		expect(tapped).toEqual(['c1', 'c1']);
+	});
+
 	test('reflects post-construction option updates', async () => {
 		const bc = new BookmarksContainer({
 			batchEdit: true,
