@@ -10,6 +10,12 @@ describe('BookmarksToolbar', () => {
 		await findByRole(container, 'button');
 	});
 
+	test("is the view's header bar", () => {
+		const toolbar = new BookmarksToolbar({ search: () => {}, appendTo: container });
+
+		expect(toolbar.hasClass('variant-bar')).toBe(true);
+	});
+
 	// The key handler is debounced, so each assertion waits past it
 	const settled = () => new Promise(resolve => setTimeout(resolve, 450));
 

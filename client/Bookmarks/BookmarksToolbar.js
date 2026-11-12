@@ -10,6 +10,8 @@ import { fixLink } from './util';
 
 export default class BookmarksToolbar extends Toolbar {
 	static schema = {
+		// The view's header: a top bar, then the Content below it
+		variant: { default: 'bar' },
 		// One line: the search field takes the room the buttons leave
 		wrap: { default: false },
 		// data: the search option collides with the this.search Input created in build()
