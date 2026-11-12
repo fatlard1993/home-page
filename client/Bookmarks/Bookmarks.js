@@ -420,7 +420,7 @@ export default class Bookmarks extends View {
 				if: categoryId,
 				thenItems: [
 					{
-						textContent: `Add Bookmark to ${category.name}`,
+						textContent: `Add a bookmark to ${category.name}`,
 						onPointerPress: () => new BookmarkDialog({ category }),
 					},
 					{
@@ -436,22 +436,22 @@ export default class Bookmarks extends View {
 			{
 				if: event.target.href,
 				thenItem: {
-					textContent: 'Copy URL To Clipboard',
+					textContent: 'Copy link',
 					onPointerPress: () => copyToClipboard(event.target.href),
 				},
 			},
 			{
 				alwaysItems: [
 					{
-						textContent: 'Add Bookmark',
+						textContent: 'Add a bookmark',
 						onPointerPress: () => new BookmarkDialog(),
 					},
 					{
-						textContent: 'Add Category',
+						textContent: 'Add a category',
 						onPointerPress: () => new CategoryDialog(),
 					},
 					{
-						textContent: 'Batch Edit',
+						textContent: 'Edit in batch',
 						onPointerPress: () => this.enterBatchEdit(),
 					},
 				],

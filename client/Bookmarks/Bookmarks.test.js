@@ -839,3 +839,32 @@ describe('no match', () => {
 		expect(container.textContent).not.toContain('No bookmarks match');
 	});
 });
+
+describe('context menu', () => {
+	test('its labels start with a verb, in sentence case', () => {
+		const category = { id: 'c1', name: 'Dev' };
+		const self = Object.assign(Object.create(Bookmarks.prototype), {
+			categories: { body: { c1: category } },
+			bookmarks: { body: {} },
+			contextMenu: { options: {}, open: () => {} },
+		});
+		const target = {
+			href: 'https://r.test',
+			textContent: 'Result',
+			closest: () => ({ dataset: { categoryId: 'c1' } }),
+		};
+
+		self.showContextMenu({ target, preventDefault: () => {}, stopPropagation: () => {} });
+
+		expect(self.contextMenu.options.items.map(item => item.textContent)).toEqual([
+			'Bookmark "Result"',
+			'Add a bookmark to Dev',
+			'Edit Dev',
+			'Delete Dev',
+			'Copy link',
+			'Add a bookmark',
+			'Add a category',
+			'Edit in batch',
+		]);
+	});
+});

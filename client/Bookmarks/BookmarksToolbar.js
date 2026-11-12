@@ -89,15 +89,15 @@ export default class BookmarksToolbar extends Toolbar {
 
 				this.contextMenu.options.items = [
 					{
-						textContent: 'Add Bookmark',
+						textContent: 'Add a bookmark',
 						onPointerPress: () => new BookmarkDialog(),
 					},
 					{
-						textContent: 'Add Category',
+						textContent: 'Add a category',
 						onPointerPress: () => new CategoryDialog(),
 					},
 					{
-						textContent: 'Add Search Engine',
+						textContent: 'Add a search engine',
 						onPointerPress: () => new SearchEngineDialog(),
 					},
 				];

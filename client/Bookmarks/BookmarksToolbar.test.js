@@ -16,6 +16,18 @@ describe('BookmarksToolbar', () => {
 		expect(toolbar.hasClass('variant-bar')).toBe(true);
 	});
 
+	test('the + menu labels start with a verb, in sentence case', async () => {
+		const toolbar = new BookmarksToolbar({ search: () => {}, appendTo: container });
+
+		(await findByRole(container, 'button', { name: 'Add' })).click();
+
+		expect(toolbar.contextMenu.options.items.map(item => item.textContent)).toEqual([
+			'Add a bookmark',
+			'Add a category',
+			'Add a search engine',
+		]);
+	});
+
 	// The key handler is debounced, so each assertion waits past it
 	const settled = () => new Promise(resolve => setTimeout(resolve, 450));
 
