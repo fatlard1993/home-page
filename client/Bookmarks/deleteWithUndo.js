@@ -100,7 +100,6 @@ export default async function deleteWithUndo({ bookmarks, categories = [] }) {
 
 			new Notify({
 				intent: 'danger',
-				timeout: 6000,
 				content: `Undo failed part way through: ${error.message}. Some items may already be restored.`,
 			});
 		}

@@ -54,7 +54,6 @@ export default class BookmarkDialog extends FormDialog {
 				if (faviconRefused) {
 					new Notify({
 						intent: 'danger',
-						timeout: 6000,
 						content: `Saved "${body.name}", but not its favicon: ${faviconRefused}`,
 					});
 				}

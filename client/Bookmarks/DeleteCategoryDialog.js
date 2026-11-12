@@ -21,7 +21,7 @@ export default class DeleteCategoryDialog extends Dialog {
 		const refused = failureReason(categoriesResponse);
 
 		// Default is still somewhere to move the bookmarks to
-		if (refused) new Notify({ intent: 'danger', timeout: 6000, content: `Could not load the categories: ${refused}` });
+		if (refused) new Notify({ intent: 'danger', content: `Could not load the categories: ${refused}` });
 
 		const categories = refused ? {} : categoriesResponse.body;
 
@@ -66,7 +66,6 @@ export default class DeleteCategoryDialog extends Dialog {
 				if (reason) {
 					new Notify({
 						intent: 'danger',
-						timeout: 6000,
 						content: `Could not delete "${this.options.category.name}": ${reason}`,
 					});
 

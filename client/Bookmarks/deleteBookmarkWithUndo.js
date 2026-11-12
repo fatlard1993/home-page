@@ -16,7 +16,6 @@ export default async function deleteBookmarkWithUndo(bookmark) {
 
 		new Notify({
 			intent: 'danger',
-			timeout: 6000,
 			content: `Could not delete "${bookmark.name}": ${error.message}`,
 		});
 	}

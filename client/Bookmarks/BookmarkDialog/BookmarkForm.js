@@ -347,7 +347,7 @@ export default class BookmarkForm extends Form {
 		const refused = failureReason(categoriesResult);
 
 		// Without its categories the form still saves, into Default or a New one
-		if (refused) new Notify({ intent: 'danger', timeout: 6000, content: `Could not load the categories: ${refused}` });
+		if (refused) new Notify({ intent: 'danger', content: `Could not load the categories: ${refused}` });
 
 		const categories = refused ? {} : categoriesResult.body;
 

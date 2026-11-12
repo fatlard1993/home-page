@@ -796,7 +796,6 @@ export default class Bookmarks extends View {
 
 			new Notify({
 				intent: 'danger',
-				timeout: 6000,
 				content: `Some batch changes could not be saved: ${error.message}. Press Done to retry, or refresh to see what was applied.`,
 			});
 

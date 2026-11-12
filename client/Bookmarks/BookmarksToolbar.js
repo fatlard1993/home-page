@@ -57,7 +57,7 @@ export default class BookmarksToolbar extends Toolbar {
 			const refused = failureReason(engines);
 
 			if (refused) {
-				new Notify({ intent: 'danger', timeout: 6000, content: `Could not load the search engines: ${refused}` });
+				new Notify({ intent: 'danger', content: `Could not load the search engines: ${refused}` });
 
 				return;
 			}
