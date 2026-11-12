@@ -4,7 +4,7 @@ import { ClearColorSwatch, BrushSwatch } from './swatches';
 import { getRecentColors } from './util';
 
 export default class BatchEditBar extends styled.Component(
-	({ colors, space, radius }) => `
+	({ colors, space, radius, fontSize }) => `
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
@@ -43,7 +43,7 @@ export default class BatchEditBar extends styled.Component(
 		 * row, so styling .icon here would size and recolor those along with the mode indicator.
 		 */
 		.modeIcon {
-			font-size: 1.4em;
+			font-size: ${fontSize.xxl};
 			color: ${colors.light(colors.danger)};
 		}
 
@@ -51,7 +51,7 @@ export default class BatchEditBar extends styled.Component(
 			flex: 1;
 			min-width: 220px;
 			font-weight: bold;
-			font-size: 1.05em;
+			font-size: ${fontSize.md};
 			text-transform: uppercase;
 			letter-spacing: 0.03em;
 			color: ${colors.superWhite};

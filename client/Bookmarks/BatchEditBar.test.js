@@ -1,6 +1,7 @@
 import { beforeEach, describe, test, expect } from 'bun:test';
 
 import { getAllByRole } from '@testing-library/dom';
+import { theme } from '@vanilla-bean/components';
 
 import BatchEditBar from './BatchEditBar';
 
@@ -47,6 +48,18 @@ describe('BatchEditBar', () => {
 		expect(bar.cancelButton.hasClass('variant-flat')).toBe(true);
 		expect(bar.doneButton.options.variant).toBeUndefined();
 		expect(bar.doneButton.options.styles).toBeUndefined();
+	});
+
+	// The test DOM applies no stylesheet, so the bar's own generated rules are read as written
+	test('its font sizes come from the theme', () => {
+		new BatchEditBar({ appendTo: container });
+
+		// A stylesheet has no role to query it by
+		// eslint-disable-next-line testing-library/no-node-access
+		const css = [...document.querySelectorAll('style')].map(style => style.textContent).join('\n');
+
+		expect(css).toContain(`font-size: ${theme.fontSize.xxl};`);
+		expect(css).not.toMatch(/font-size: 1\.(4|05)em/);
 	});
 
 	test('the mode buttons report the mode they switch to', () => {
