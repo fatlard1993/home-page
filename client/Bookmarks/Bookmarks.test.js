@@ -807,3 +807,35 @@ describe('layout', () => {
 		}
 	});
 });
+
+describe('no match', () => {
+	const view = ({ search, results = null }) =>
+		Object.assign(Object.create(Bookmarks.prototype), {
+			options: { search },
+			bookmarks: { status: 'success', body: { b1: { id: 'b1', name: 'Mail', url: 'mail.test', category: '' } } },
+			categories: { status: 'success', body: {} },
+			engines: { body: { web: { id: 'web', label: 'Web', default: true }, wiki: { id: 'wiki', label: 'Wiki' } } },
+			searchResults: { web: { status: 'success', body: results } },
+			activatedEngines: new Set(),
+			content: new Content({ appendTo: container }),
+		});
+
+	test('a term nothing matches says what was searched for, above the engines still to ask', async () => {
+		await view({ search: 'zzz' }).renderContent();
+
+		const title = await findByText(container, 'No bookmarks match "zzz"');
+
+		expect(container.textContent.indexOf(title.textContent)).toBeLessThan(container.textContent.indexOf('Wiki'));
+	});
+
+	test('a term that matches a bookmark, or an engine that answered, shows no empty state', async () => {
+		await view({ search: 'mail' }).renderContent();
+		expect(container.textContent).not.toContain('No bookmarks match');
+
+		container.replaceChildren();
+
+		await view({ search: 'zzz', results: [{ name: 'Result', url: 'https://r.test' }] }).renderContent();
+		expect(container.textContent).toContain('Result');
+		expect(container.textContent).not.toContain('No bookmarks match');
+	});
+});

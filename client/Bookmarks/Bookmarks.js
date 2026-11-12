@@ -275,8 +275,13 @@ export default class Bookmarks extends View {
 		}
 	}
 
+	/**
+	 * List each active engine's results, then the engines not yet asked.
+	 * @returns {number} How many engines listed results
+	 */
 	renderSearchResults() {
 		const inactiveEngines = [];
+		let listed = 0;
 
 		for (const engine of engineList(this.engines)) {
 			if (!this.isEngineActive(engine)) {
@@ -297,6 +302,8 @@ export default class Bookmarks extends View {
 				// The view's own menu offers to bookmark any link that isn't one yet
 				bookmarks: results.map(({ name, url }) => ({ name, url })),
 			});
+
+			listed++;
 		}
 
 		if (inactiveEngines.length > 0) {
@@ -307,6 +314,8 @@ export default class Bookmarks extends View {
 				onActivate: engineId => this.activateSearchEngine(engineId),
 			});
 		}
+
+		return listed;
 	}
 
 	async renderContent() {
@@ -346,7 +355,21 @@ export default class Bookmarks extends View {
 		} else {
 			this.renderBookmarksByCategory(filteredIds);
 
-			if (this.options.search) this.renderSearchResults();
+			const listed = this.options.search ? this.renderSearchResults() : 0;
+
+			// Nothing to show for the term: said first, above any engines still to ask. True while engines are
+			// still answering too, as it speaks of the bookmarks; results that arrive replace it. It would grow to fill
+			// the column, so with engines listed after it, it keeps to its own height and they stay beside it.
+			if (this.options.search && !filteredIds.length && !listed) {
+				this.content.elem.prepend(
+					new EmptyState({
+						icon: 'magnifying-glass',
+						title: `No bookmarks match "${this.options.search}"`,
+						message: 'Try another term',
+						...(this.content.elem.childElementCount > 0 && { style: { flex: 'none' } }),
+					}).elem,
+				);
+			}
 		}
 	}
 
