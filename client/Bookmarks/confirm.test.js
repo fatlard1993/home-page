@@ -17,6 +17,13 @@ describe('confirmDiscardBatch', () => {
 		expect(footerLabels(currentDialog())).toEqual(['Keep editing', 'Discard']);
 	});
 
+	// Discarded edits are gone for good, so the confirm says so in danger
+	test('asks in danger', () => {
+		confirmDiscardBatch();
+
+		expect(currentDialog().classList.contains('intent-danger')).toBe(true);
+	});
+
 	test('resolves true only for Discard, false for Keep editing', async () => {
 		const discarded = confirmDiscardBatch();
 		const [, discard] = footerButtons(currentDialog());

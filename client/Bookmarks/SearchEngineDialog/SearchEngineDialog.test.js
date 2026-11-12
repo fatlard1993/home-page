@@ -1,4 +1,4 @@
-import { findByRole } from '@testing-library/dom';
+import { findByRole, screen } from '@testing-library/dom';
 
 import SearchEngineDialog from './SearchEngineDialog';
 
@@ -53,6 +53,42 @@ describe('SearchEngineDialog', () => {
 			expect(sent.body.orderBy).toEqual({ property: 'url', direction: 'desc' });
 			expect('orderByProperty' in sent.body).toBe(false);
 			expect('orderByDirection' in sent.body).toBe(false);
+		} finally {
+			mock.module('../../api', () => real);
+		}
+	});
+
+	// Nothing brings a deleted engine back, so Delete asks in danger and deletes only on its yes
+	test('Delete asks in danger before deleting', async () => {
+		const real = { ...(await import('../../api')) };
+		const deleted = [];
+
+		mock.module('../../api', () => ({
+			...real,
+			deleteSearchEngine: async id => {
+				deleted.push(id);
+
+				return { status: 'success', body: {} };
+			},
+		}));
+
+		try {
+			const dialog = new SearchEngineDialog({ engine, appendTo: container });
+
+			await findByRole(container, 'dialog', { hidden: true });
+
+			const deleting = dialog.delete();
+			const confirm = screen.getAllByRole('dialog', { hidden: true }).at(-1);
+
+			expect(confirm).not.toBe(dialog.elem);
+			expect(confirm.classList.contains('intent-danger')).toBe(true);
+			expect(confirm.textContent).toContain('Delete the search engine "Wiki"?');
+			expect(deleted).toEqual([]);
+
+			(await findByRole(confirm, 'button', { name: 'Delete', hidden: true })).click();
+
+			expect(await deleting).toBe(true);
+			expect(deleted).toEqual(['e1']);
 		} finally {
 			mock.module('../../api', () => real);
 		}

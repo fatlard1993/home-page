@@ -83,7 +83,11 @@ export default class SearchEngineDialog extends FormDialog {
 
 				return isEdit ? updateSearchEngine(engine.id, { body }) : createSearchEngine({ body });
 			},
-			...(isEdit && { onDelete: () => deleteSearchEngine(engine.id) }),
+			// Nothing brings a deleted engine back, so Delete asks first
+			...(isEdit && {
+				onDelete: () => deleteSearchEngine(engine.id),
+				confirmDelete: `Delete the search engine "${engine.label}"? This cannot be undone.`,
+			}),
 			...options,
 		};
 	}

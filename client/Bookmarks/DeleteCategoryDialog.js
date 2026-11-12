@@ -8,10 +8,11 @@ export default class DeleteCategoryDialog extends Dialog {
 
 		super({
 			size: 'standard',
+			intent: 'danger',
 			header: `Delete ${options.category.name}?`,
 			// Safe choice first: the dialog focuses its first button, so a reflexive Enter cancels
-			// instead of deleting.
-			buttons: ['Cancel', 'Delete'],
+			// instead of deleting. Marked cancel, it keeps out of the danger color the Delete takes.
+			buttons: [{ textContent: 'Cancel', 'data-action': 'cancel' }, 'Delete'],
 			...options,
 		});
 	}

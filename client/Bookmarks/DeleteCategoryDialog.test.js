@@ -3,6 +3,30 @@ import { findByRole, getAllByRole } from '@testing-library/dom';
 import DeleteCategoryDialog from './DeleteCategoryDialog';
 
 describe('DeleteCategoryDialog', () => {
+	// This path has no undo, so it asks in danger, with Cancel first and out of the danger color
+	test('asks in danger, Cancel first', async () => {
+		const real = { ...(await import('../api')) };
+
+		mock.module('../api', () => ({
+			...real,
+			getCategories: async () => ({ status: 'success', body: {}, unsubscribe: () => {} }),
+		}));
+
+		try {
+			const dialog = new DeleteCategoryDialog({ category: { id: 'c1', name: 'Dev' }, appendTo: container });
+
+			await findByRole(container, 'dialog', { hidden: true });
+
+			const buttons = getAllByRole(dialog.elem, 'button', { hidden: true });
+
+			expect(dialog.elem.classList.contains('intent-danger')).toBe(true);
+			expect(buttons.map(button => button.textContent)).toEqual(['Cancel', 'Delete']);
+			expect(buttons[0].dataset.action).toBe('cancel');
+		} finally {
+			mock.module('../api', () => real);
+		}
+	});
+
 	// mock.module is process-wide, so the real api goes back once this test is done with it
 	test('a refused delete stays open and says why', async () => {
 		const real = { ...(await import('../api')) };
