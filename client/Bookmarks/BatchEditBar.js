@@ -125,26 +125,20 @@ export default class BatchEditBar extends styled.Component(
 
 		this.countElem = new Elem({ appendTo: this, addClass: ['markedCount'] });
 
+		// The safe way out first, then the main verb, the one filled button
+		this.cancelButton = new Button({
+			appendTo: this,
+			textContent: 'Cancel',
+			icon: 'xmark',
+			variant: 'flat',
+			onPointerPress: () => this.options.cancel?.(),
+		});
+
 		this.doneButton = new Button({
 			appendTo: this,
 			textContent: 'Done',
 			icon: 'check',
 			onPointerPress: () => this.options.done?.(),
-			styles: ({ colors }) => ({
-				background: colors.success,
-				color: colors.mostReadable(colors.success, [colors.white, colors.black]),
-			}),
-		});
-
-		this.cancelButton = new Button({
-			appendTo: this,
-			textContent: 'Cancel',
-			icon: 'xmark',
-			onPointerPress: () => this.options.cancel?.(),
-			styles: ({ colors }) => ({
-				background: colors.gray,
-				color: colors.mostReadable(colors.gray, [colors.white, colors.black]),
-			}),
 		});
 
 		this._renderMode(this.options.mode);

@@ -1,5 +1,7 @@
 import { beforeEach, describe, test, expect } from 'bun:test';
 
+import { getAllByRole } from '@testing-library/dom';
+
 import BatchEditBar from './BatchEditBar';
 
 describe('BatchEditBar', () => {
@@ -35,6 +37,16 @@ describe('BatchEditBar', () => {
 		expect(bar.brush.hasClass('brush')).toBe(true);
 		expect(bar.customColorLabel.hasClass('customColor')).toBe(true);
 		expect(bar.countElem.hasClass('markedCount')).toBe(true);
+	});
+
+	test('ends with Cancel, flat, then Done, filled', () => {
+		const bar = new BatchEditBar({ appendTo: container });
+		const [cancel, done] = getAllByRole(bar.elem, 'button', { name: /^(Cancel|Done)$/ });
+
+		expect([cancel, done]).toEqual([bar.cancelButton.elem, bar.doneButton.elem]);
+		expect(bar.cancelButton.hasClass('variant-flat')).toBe(true);
+		expect(bar.doneButton.options.variant).toBeUndefined();
+		expect(bar.doneButton.options.styles).toBeUndefined();
 	});
 
 	test('the mode buttons report the mode they switch to', () => {
