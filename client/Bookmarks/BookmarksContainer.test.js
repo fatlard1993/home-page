@@ -49,6 +49,28 @@ describe('BookmarksContainer', () => {
 		expect(tapped).toEqual(['one']);
 	});
 
+	// A bookmark marked for deletion says so as a pressed toggle, and marking it again keeps the same button (and focus)
+	test('in batch mode a marked bookmark is pressed, and marking changes it in place', async () => {
+		const bc = new BookmarksContainer({
+			batchEdit: true,
+			bookmarks: [
+				{ id: 'one', name: 'one', url: 'one.com', markedForDeletion: true },
+				{ id: 'two', name: 'two', url: 'two.com' },
+			],
+			label: 'heading',
+			appendTo: container,
+		});
+
+		const one = await findByRole(container, 'button', { name: 'one', pressed: true });
+		const two = getByRole(container, 'button', { name: 'two', pressed: false });
+
+		bc.markBookmark('one', false);
+		bc.markBookmark('two', true);
+
+		expect(getByRole(container, 'button', { name: 'one', pressed: false })).toBe(one);
+		expect(getByRole(container, 'button', { name: 'two', pressed: true })).toBe(two);
+	});
+
 	test('reflects post-construction option updates', async () => {
 		const bc = new BookmarksContainer({
 			batchEdit: true,

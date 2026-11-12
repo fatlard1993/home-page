@@ -195,8 +195,8 @@ export default class BatchEditBar extends styled.Component(
 			? 'Paint Mode: click to apply the brush, drag to reorder or move'
 			: 'Batch Edit Mode: click to mark for deletion, drag to reorder or move';
 
-		this.deleteModeButton.options.disabled = !painting;
-		this.paintModeButton.options.disabled = painting;
+		this.deleteModeButton.options.pressed = !painting;
+		this.paintModeButton.options.pressed = painting;
 	}
 
 	_renderMarkedCount(value) {

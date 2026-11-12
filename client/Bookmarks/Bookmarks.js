@@ -606,8 +606,7 @@ export default class Bookmarks extends View {
 
 		this._refreshMarkedCount();
 
-		const link = this.content.elem.querySelector(`[data-bookmark-id="${id}"]`);
-		link?.classList.toggle('markedForDeletion', marked);
+		this._batchContainers[this.batch.bookmarks[id].category || '']?.markBookmark(id, marked);
 	}
 
 	toggleCategoryMark(id) {

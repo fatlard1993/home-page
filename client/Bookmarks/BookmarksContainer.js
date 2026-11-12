@@ -59,7 +59,8 @@ export default class BookmarksContainer extends styled(
 			cursor: grab;
 		}
 
-		.markedForDeletion {
+		/* Marked for deletion: pressed's selected fill loses to the bookmark's own color, so it's drawn here too */
+		[aria-pressed='true'] {
 			opacity: 0.5;
 			filter: grayscale(70%);
 			text-decoration: line-through;
@@ -75,7 +76,6 @@ export default class BookmarksContainer extends styled(
 		const shared = {
 			// A search result has no id, and no attribute to say so
 			...(options.id && { 'data-bookmark-id': options.id }),
-			addClass: markedForDeletion ? ['markedForDeletion'] : [],
 			styles: ({ colors }) => ({
 				background: color || colors.blue,
 				color: colors.mostReadable(color || colors.blue, [colors.white, colors.black]),
@@ -97,15 +97,31 @@ export default class BookmarksContainer extends styled(
 		};
 
 		if (this.options.batchEdit) {
-			return new Button({
+			const button = new Button({
 				...shared,
 				draggable: true,
 				variant: 'raised',
+				pressed: !!markedForDeletion,
 				onPointerPress: () => this.options.onTapBookmark?.(options.id),
 			});
+
+			if (options.id) this._bookmarkButtons[options.id] = button;
+
+			return button;
 		}
 
 		return new Link({ href: fixLink(url), variant: 'raised', draggable: false, ...shared });
+	}
+
+	/**
+	 * Show a batch-mode bookmark marked for deletion, or not, in place: rebuilding the row would drop its focus.
+	 * @param {string} id - The bookmark's id
+	 * @param {boolean} marked - Whether it is marked
+	 */
+	markBookmark(id, marked) {
+		const button = this._bookmarkButtons[id];
+
+		if (button) button.options.pressed = marked;
 	}
 
 	static schema = {
@@ -116,6 +132,7 @@ export default class BookmarksContainer extends styled(
 		},
 		bookmarks: {
 			set(value) {
+				this._bookmarkButtons = {};
 				this.linkContainer.content(value.map(bookmark => this._buildBookmark(bookmark)));
 			},
 		},

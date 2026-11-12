@@ -112,9 +112,9 @@ describe('paint mode', () => {
 			batchDirty: false,
 			batchBar: { options: { mode, brushColor } },
 			_brushesUsed: new Set(),
-			_batchContainers: { cat1: { options: {} } },
+			_batchContainers: { cat1: { options: {}, markBookmark: (id, marked) => harness.marked.push([id, marked]) } },
 			refreshed: [],
-			content: { elem: { querySelector: () => null } },
+			marked: [],
 			_refreshMarkedCount: () => {},
 		});
 
@@ -150,6 +150,8 @@ describe('paint mode', () => {
 
 		expect(harness.batch.bookmarks.b1.deleted).toBe(true);
 		expect(harness.batch.bookmarks.b1.color).toBeUndefined();
+		// Its category's container shows it pressed, in place
+		expect(harness.marked).toEqual([['b1', true]]);
 	});
 
 	test('an erase brush clears a bookmark’s own color', () => {

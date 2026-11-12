@@ -47,11 +47,18 @@ describe('BatchEditBar', () => {
 		expect(modes).toEqual(['paint', 'delete']);
 	});
 
-	test('the active mode button is the disabled one', () => {
+	test('the active mode button is the pressed one, and both stay enabled', () => {
 		const bar = new BatchEditBar({ appendTo: container, mode: 'paint' });
 
-		expect(bar.paintModeButton.elem.disabled).toBe(true);
+		expect(bar.paintModeButton.elem.getAttribute('aria-pressed')).toBe('true');
+		expect(bar.deleteModeButton.elem.getAttribute('aria-pressed')).toBe('false');
+		expect(bar.paintModeButton.elem.disabled).toBe(false);
 		expect(bar.deleteModeButton.elem.disabled).toBe(false);
+
+		bar.options.mode = 'delete';
+
+		expect(bar.paintModeButton.elem.getAttribute('aria-pressed')).toBe('false');
+		expect(bar.deleteModeButton.elem.getAttribute('aria-pressed')).toBe('true');
 	});
 
 	test('offers a swatch per remembered color, plus erase and random', () => {
