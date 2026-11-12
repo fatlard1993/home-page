@@ -23,7 +23,8 @@ export default class SearchEngineButtons extends styled.Component(
 					value.map(
 						engine =>
 							new Button({
-								variant: 'chip',
+								variant: 'flat',
+								size: 'small',
 								textContent: shortLabel(engine.label),
 								onPointerPress: () => this.options.onActivate?.(engine.id),
 							}),
