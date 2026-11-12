@@ -20,8 +20,7 @@ import BookmarksToolbar from './BookmarksToolbar';
 import BookmarksContainer from './BookmarksContainer';
 import BatchEditBar from './BatchEditBar';
 import SearchEngineButtons from './SearchEngineButtons';
-import confirmDeleteBookmark from './confirmDeleteBookmark';
-import confirmBatchDelete from './confirmBatchDelete';
+import deleteBookmarkWithUndo from './deleteBookmarkWithUndo';
 import confirmDiscardBatch from './confirmDiscardBatch';
 import deleteWithUndo from './deleteWithUndo';
 
@@ -385,7 +384,7 @@ export default class Bookmarks extends View {
 					},
 					{
 						textContent: `Delete ${bookmark.name}`,
-						onPointerPress: () => confirmDeleteBookmark(bookmark),
+						onPointerPress: () => deleteBookmarkWithUndo(bookmark),
 					},
 				],
 			},
@@ -732,19 +731,13 @@ export default class Bookmarks extends View {
 			const survivingCategories = categories.filter(category => !deletedCategoryIds.has(category.id));
 			const doomedCategories = categories.filter(category => deletedCategoryIds.has(category.id));
 
-			if (doomedBookmarks.length > 0 || doomedCategories.length > 0) {
-				const confirmed = await confirmBatchDelete(doomedBookmarks.length, doomedCategories.length);
-
-				if (!confirmed) return;
-			}
-
 			// The commit diffs against `stored`, a snapshot taken at batch entry, with no concurrency
 			// check. Two limitations follow, accepted here for a single-user LAN app:
 			//   - a second tab or device that edits a touched record mid-batch is silently overwritten
 			//     (last write wins) — nothing refetches and compares before writing;
 			//   - a category delete cascades server-side over every bookmark in the category at delete
-			//     time, so a bookmark added to a doomed category after entry is destroyed, is not in the
-			//     confirmed count, and cannot be restored by Undo.
+			//     time, so a bookmark added to a doomed category after entry is destroyed and cannot be
+			//     restored by Undo.
 			const { stored } = this.batch;
 
 			const changedBookmarks = survivingBookmarks.filter(bookmark =>

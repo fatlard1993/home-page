@@ -3,7 +3,6 @@ import { FormDialog, Notify, failureReason } from '@vanilla-bean/components';
 import { updateBookmark, createBookmark, setBookmarkFaviconFromDataUri, deleteBookmarkFavicon } from '../../api';
 import { saveRecentColor } from '../util';
 
-import { deleteQuestion } from '../confirmDeleteBookmark';
 import deleteWithUndo from '../deleteWithUndo';
 import BookmarkForm from './BookmarkForm';
 
@@ -61,8 +60,7 @@ export default class BookmarkDialog extends FormDialog {
 				}
 			},
 			...(isEdit && {
-				// Asked over the form, so a no leaves the bookmark open as it was
-				confirmDelete: { ...deleteQuestion(bookmark), intent: null },
+				// Not confirmed: the delete is toasted with Undo instead
 				onDelete: () => deleteWithUndo({ bookmarks: [bookmark] }),
 			}),
 			...options,

@@ -1,6 +1,7 @@
 import { beforeAll, beforeEach, describe, test, expect } from 'bun:test';
 
 import * as api from '../api';
+import deleteBookmarkWithUndo from './deleteBookmarkWithUndo';
 import deleteWithUndo from './deleteWithUndo';
 
 // The write/read functions are the only thing under deleteWithUndo it cannot own, so '../api' is
@@ -196,5 +197,29 @@ describe('deleteWithUndo', () => {
 			expect(only('createBookmark')).toHaveLength(0);
 			expect(document.body.textContent).toContain('Undo failed part way through: Name is required.');
 		});
+	});
+});
+
+describe('deleteBookmarkWithUndo', () => {
+	test('deletes straight away and toasts Undo, with no confirm first', async () => {
+		const dialogsBefore = document.querySelectorAll('dialog').length;
+
+		await deleteBookmarkWithUndo({ id: 'b1', name: 'Straight' });
+
+		expect(only('deleteBookmark').map(call => call.id)).toEqual(['b1']);
+		expect(document.querySelectorAll('dialog').length).toBe(dialogsBefore);
+
+		// A done delete is a success toast, which Notify gives the status role
+		const toast = [...document.querySelectorAll('[role="status"]')].find(notify =>
+			notify.textContent.includes('Deleted "Straight"'),
+		);
+
+		expect(toast.textContent).toContain('Undo');
+	});
+
+	test('a refused delete is reported, and offers no Undo', async () => {
+		await deleteBookmarkWithUndo({ id: 'refused', name: 'Kept' });
+
+		expect(document.body.textContent).toContain('Could not delete "Kept": Bookmark not found');
 	});
 });

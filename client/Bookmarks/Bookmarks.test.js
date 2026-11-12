@@ -271,7 +271,6 @@ describe('commit', () => {
 	let writes;
 	let writeBehavior;
 	let deleteWithUndoArgs;
-	let confirmDeleteResult;
 
 	const makeSub = () => ({
 		invalidated: 0,
@@ -339,19 +338,16 @@ describe('commit', () => {
 		mock.module('../api', () => realApi);
 	});
 
-	// The delete branch hands off to confirmBatchDelete (auto-confirmed here) and deleteWithUndo,
-	// both stubbed so the branch that suppresses invalidation on the surviving writes — relying on
-	// the final delete to surface them — is what's exercised, not the real dialog or delete flow.
-	// mock.module is process-wide, so the real implementations are captured first and restored in
-	// afterAll — otherwise these stubs would leak into confirm.test.js / deleteWithUndo.test.js.
-	let realConfirmBatchDelete;
+	// The delete branch hands off to deleteWithUndo, stubbed so the branch that suppresses
+	// invalidation on the surviving writes — relying on the final delete to surface them — is what's
+	// exercised, not the real delete flow.
+	// mock.module is process-wide, so the real implementation is captured first and restored in
+	// afterAll — otherwise the stub would leak into deleteWithUndo.test.js.
 	let realDeleteWithUndo;
 
 	beforeAll(async () => {
-		realConfirmBatchDelete = (await import('./confirmBatchDelete')).default;
 		realDeleteWithUndo = (await import('./deleteWithUndo')).default;
 
-		mock.module('./confirmBatchDelete', () => ({ default: () => Promise.resolve(confirmDeleteResult) }));
 		mock.module('./deleteWithUndo', () => ({
 			default: async args => {
 				deleteWithUndoArgs = args;
@@ -360,7 +356,6 @@ describe('commit', () => {
 	});
 
 	afterAll(() => {
-		mock.module('./confirmBatchDelete', () => ({ default: realConfirmBatchDelete }));
 		mock.module('./deleteWithUndo', () => ({ default: realDeleteWithUndo }));
 	});
 
@@ -368,7 +363,6 @@ describe('commit', () => {
 		writes = [];
 		writeBehavior = () => Promise.resolve();
 		deleteWithUndoArgs = undefined;
-		confirmDeleteResult = true;
 	});
 
 	test('a clean batch exits without writing anything', async () => {
@@ -480,19 +474,18 @@ describe('commit', () => {
 		expect(harness.exited).toBe(true);
 	});
 
-	test('declining the delete confirm aborts the commit before any write', async () => {
-		confirmDeleteResult = false;
-
+	test('a marked delete goes straight to deleteWithUndo, with no confirm first', async () => {
 		const harness = commitHarness();
 
-		harness.batch.bookmarks.b2.deleted = true;
-		harness.batch.bookmarks.b1.order = 5;
+		harness.batch.categories.cat1.deleted = true;
 
+		// Nothing answers a dialog here, so a confirm in the way would leave this await hanging
 		await harness.commitBatchEdit();
 
-		expect(writes).toEqual([]);
-		expect(deleteWithUndoArgs).toBeUndefined();
-		expect(harness.exited).toBe(false);
+		// The category's bookmarks go with it, so Undo can put them back inside the restored category
+		expect(deleteWithUndoArgs.bookmarks.map(bookmark => bookmark.id)).toEqual(['b1', 'b2']);
+		expect(deleteWithUndoArgs.categories.map(category => category.id)).toEqual(['cat1']);
+		expect(harness.exited).toBe(true);
 	});
 
 	test('Escape during a save is ignored instead of tearing down the board mid-commit', async () => {

@@ -108,7 +108,7 @@ export default async function deleteWithUndo({ bookmarks, categories = [] }) {
 
 	// Restoring is one request per record; the toast's action runs once however often it's pressed
 	new Notify({
-		intent: 'warning',
+		intent: 'success',
 		timeout: 10000,
 		content: describeDeletion(bookmarks, categories),
 		actions: [{ textContent: 'Undo', onPointerPress: restore }],
