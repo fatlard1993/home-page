@@ -79,27 +79,63 @@ describe('BookmarksContainer', () => {
 		expect(heading).not.toHaveAttribute('tabindex');
 	});
 
-	// In batch mode the name marks the category, by keyboard as well as pointer
-	test('in batch mode the category name presses by Enter too', async () => {
+	// In batch mode the name stays a plain heading; a toggle beside it, named with the category, marks it
+	test('in batch mode a Mark button beside the name marks the category, pressed while marked', async () => {
 		const tapped = [];
 
-		new BookmarksContainer({
+		const bc = new BookmarksContainer({
 			batchEdit: true,
 			bookmarks: [],
-			label: 'Dev',
+			label: 'Play',
 			categoryId: 'c1',
 			appendTo: container,
 			onTapCategory: id => tapped.push(id),
 		});
 
-		const heading = await findByRole(container, 'heading', { name: 'Dev' });
+		const heading = await findByRole(container, 'heading', { name: 'Play' });
+		const mark = getByRole(container, 'button', { name: 'Mark Play', pressed: false });
 
-		expect(heading).toHaveAttribute('tabindex', '0');
+		expect(heading).not.toHaveAttribute('tabindex');
 
-		fireEvent.keyDown(heading, { key: 'Enter' });
 		heading.click();
+		mark.click();
 
-		expect(tapped).toEqual(['c1', 'c1']);
+		expect(tapped).toEqual(['c1']);
+
+		bc.options.categoryMarkedForDeletion = true;
+
+		expect(getByRole(container, 'button', { name: 'Mark Play', pressed: true })).toBe(mark);
+	});
+
+	test('in paint mode the button paints the category instead, and is no toggle', async () => {
+		const bc = new BookmarksContainer({
+			batchEdit: true,
+			bookmarks: [],
+			label: 'Play',
+			categoryId: 'c1',
+			categoryMarkedForDeletion: true,
+			appendTo: container,
+		});
+
+		const button = await findByRole(container, 'button', { name: 'Mark Play', pressed: true });
+
+		bc.options.batchMode = 'paint';
+
+		expect(button.textContent).toContain('Paint Play');
+		expect(button).not.toHaveAttribute('aria-pressed');
+
+		bc.options.batchMode = 'delete';
+
+		expect(button).toHaveAttribute('aria-pressed', 'true');
+	});
+
+	test('the uncategorized group and a view outside batch mode have no category button', async () => {
+		new BookmarksContainer({ batchEdit: true, bookmarks: [], label: 'Bookmarks', categoryId: '', appendTo: container });
+		new BookmarksContainer({ bookmarks: [], label: 'Dev', categoryId: 'c1', appendTo: container });
+
+		await findByRole(container, 'heading', { name: 'Dev' });
+
+		expect(queryByRole(container, 'button')).toBeNull();
 	});
 
 	test('reflects post-construction option updates', async () => {
@@ -111,7 +147,7 @@ describe('BookmarksContainer', () => {
 			appendTo: container,
 		});
 
-		await findByRole(container, 'button');
+		await findByRole(container, 'button', { name: 'test' });
 
 		expect(bc.elem.classList.contains('categoryMarked')).toBe(false);
 

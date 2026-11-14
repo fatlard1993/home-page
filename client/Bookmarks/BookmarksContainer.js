@@ -6,6 +6,18 @@ export default class BookmarksContainer extends styled(
 	({ colors, space }) => `
 	border-radius: 0;
 
+	.categoryHeader {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: ${space.xs} ${space.sm};
+		margin-bottom: ${space.sm};
+
+		.categoryName {
+			margin: 0;
+		}
+	}
+
 	.categoryName {
 		pointer-events: none;
 	}
@@ -120,10 +132,25 @@ export default class BookmarksContainer extends styled(
 		if (button) button.options.pressed = marked;
 	}
 
+	/** The batch-mode button beside the name: in delete mode a toggle marking the category, in paint mode a press painting it. */
+	_renderCategoryButton() {
+		if (!this._categoryButton) return;
+
+		const { label, batchMode, categoryMarkedForDeletion } = this.options;
+		const painting = batchMode === 'paint';
+
+		this._categoryButton.setOptions({
+			textContent: `${painting ? 'Paint' : 'Mark'} ${label ?? ''}`.trim(),
+			icon: painting ? 'paintbrush' : 'trash-can',
+			pressed: painting ? undefined : !!categoryMarkedForDeletion,
+		});
+	}
+
 	static schema = {
 		label: {
 			set(value) {
 				this._labelText.elem.textContent = value;
+				this._renderCategoryButton();
 			},
 		},
 		bookmarks: {
@@ -146,6 +173,13 @@ export default class BookmarksContainer extends styled(
 		categoryMarkedForDeletion: {
 			set(value) {
 				this[value ? 'addClass' : 'removeClass']('categoryMarked');
+				this._renderCategoryButton();
+			},
+		},
+		// The batch bar's mode, 'delete' or 'paint': what the category's button does
+		batchMode: {
+			set() {
+				this._renderCategoryButton();
 			},
 		},
 		onTapBookmark: {},
@@ -153,23 +187,26 @@ export default class BookmarksContainer extends styled(
 	};
 
 	build() {
-		// Same construction-time split as the bookmarks: outside batch mode the heading is inert
-		// (pointer-events: none via CSS); in batch mode it presses, by keyboard too, to mark the category.
-		const marksCategory = !!(this.options.batchEdit && this.options.categoryId);
+		// Outside batch mode the heading is inert (pointer-events: none via CSS); in batch mode it stays a plain
+		// heading, dragged to reorder, and a button beside it marks or paints the category.
+		const header = new Elem({ addClass: 'categoryHeader', appendTo: this });
 
-		this._labelText = new SectionLabel({
-			addClass: 'categoryName',
-			appendTo: this,
-			...(marksCategory && {
-				pressable: true,
+		this._labelText = new SectionLabel({ addClass: 'categoryName', appendTo: header });
+
+		if (this.options.batchEdit && this.options.categoryId) {
+			this._categoryButton = new Button({
+				appendTo: header,
+				variant: 'flat',
+				size: 'small',
 				onPointerPress: event => {
-					event.preventDefault();
 					event.stopPropagation();
 
 					this.options.onTapCategory?.(this.options.categoryId);
 				},
-			}),
-		});
+			});
+			this._renderCategoryButton();
+		}
+
 		this.linkContainer = new Elem({ addClass: 'links', appendTo: this });
 	}
 }

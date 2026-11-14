@@ -154,6 +154,18 @@ describe('paint mode', () => {
 		expect(harness.marked).toEqual([['b1', true]]);
 	});
 
+	test('switching mode tells each category, so its button marks or paints', () => {
+		const harness = paintHarness({ mode: 'delete' });
+
+		harness.setBatchMode('paint');
+
+		expect(harness._batchContainers.cat1.options.batchMode).toBe('paint');
+
+		harness.setBatchMode('delete');
+
+		expect(harness._batchContainers.cat1.options.batchMode).toBe('delete');
+	});
+
 	test('an erase brush clears a bookmark’s own color', () => {
 		const harness = paintHarness({ brushColor: '' });
 

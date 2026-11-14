@@ -492,6 +492,9 @@ export default class Bookmarks extends View {
 		if (!this.batchEdit) return;
 
 		this.batchBar.options.mode = mode;
+
+		// Each category's button marks it or paints it, as the mode says
+		for (const container of Object.values(this._batchContainers || {})) container.options.batchMode = mode;
 	}
 
 	setBrushColor(color) {
@@ -725,6 +728,7 @@ export default class Bookmarks extends View {
 				categoryId: categoryKey,
 				batchEdit: true,
 				categoryMarkedForDeletion: categoryId ? !!category.deleted : false,
+				batchMode: this.batchMode,
 				bookmarks: this._batchBookmarksFor(categoryId),
 				onTapBookmark: id => this.tapBookmark(id),
 				onTapCategory: id => this.tapCategory(id),
