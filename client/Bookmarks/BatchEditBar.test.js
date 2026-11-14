@@ -1,4 +1,4 @@
-import { beforeEach, describe, test, expect } from 'bun:test';
+import { afterEach, beforeEach, describe, test, expect } from 'bun:test';
 
 import { getAllByRole } from '@testing-library/dom';
 import { theme } from '@vanilla-bean/components';
@@ -209,11 +209,54 @@ describe('BatchEditBar', () => {
 	test('reports the marked count', () => {
 		const bar = new BatchEditBar({ appendTo: container, markedCount: 3 });
 
-		expect(bar.countElem.elem.textContent).toBe('3 marked for deletion');
+		expect(bar.countElem.elem.textContent).toBe('3 marked');
 
 		bar.options.markedCount = 0;
 
 		expect(bar.countElem.elem.textContent).toBe('');
+	});
+
+	describe('on a phone', () => {
+		const realMatchMedia = window.matchMedia;
+		let narrow;
+
+		beforeEach(() => {
+			narrow = new EventTarget();
+			narrow.matches = true;
+			window.matchMedia = () => narrow;
+		});
+
+		afterEach(() => {
+			window.matchMedia = realMatchMedia;
+		});
+
+		const controls = bar => [bar.deleteModeButton, bar.paintModeButton, bar.cancelButton, bar.doneButton];
+
+		// Mark, Paint, the count, Cancel and Done share one line there, which they fit small and in words alone
+		test('the controls are small, without icons, and get them back when the screen widens', () => {
+			const bar = new BatchEditBar({ appendTo: container });
+
+			expect(controls(bar).every(button => button.hasClass('size-small'))).toBe(true);
+			expect(controls(bar).map(button => button.options.icon)).toEqual([undefined, undefined, undefined, undefined]);
+
+			narrow.matches = false;
+			narrow.dispatchEvent(new Event('change'));
+
+			expect(controls(bar).some(button => button.hasClass('size-small'))).toBe(false);
+			expect(controls(bar).map(button => button.options.icon)).toEqual(['trash-can', 'paintbrush', 'xmark', 'check']);
+		});
+
+		test('saving still spins on a phone, and Done goes back to words alone after', () => {
+			const bar = new BatchEditBar({ appendTo: container });
+
+			bar.options.saving = true;
+
+			expect(bar.doneButton.options.icon).toBe('spinner');
+
+			bar.options.saving = false;
+
+			expect(bar.doneButton.options.icon).toBeUndefined();
+		});
 	});
 
 	test('starts with a real color loaded, not the eraser', () => {

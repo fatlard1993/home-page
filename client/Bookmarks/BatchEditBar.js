@@ -3,6 +3,9 @@ import { Elem, Button, Icon, Label, ColorPicker, styled, theme } from '@vanilla-
 import { ClearColorSwatch, BrushSwatch } from './swatches';
 import { getRecentColors } from './util';
 
+// A phone's width: the bar's controls share one line under the instructions
+export const NARROW = '(max-width: 480px)';
+
 export default class BatchEditBar extends styled.Component(
 	({ colors, space, radius, fontSize }) => `
 		display: flex;
@@ -80,6 +83,28 @@ export default class BatchEditBar extends styled.Component(
 			display: none;
 			flex-basis: 100%;
 		}
+
+		/* On a phone the instructions take the first line whole, and Mark, Paint, the count, Cancel and
+		   Done share the next; the brush and custom color follow below them. */
+		@media ${NARROW} {
+			gap: ${space.sm};
+			padding: ${space.sm} ${space.md};
+
+			.label {
+				flex: 1 1 calc(100% - 3em);
+				min-width: 0;
+			}
+
+			.brush,
+			.customColor {
+				order: 1;
+			}
+
+			/* Cancel and Done keep to the line's end */
+			.markedCount {
+				margin-right: auto;
+			}
+		}
 	`,
 ) {
 	build() {
@@ -144,6 +169,28 @@ export default class BatchEditBar extends styled.Component(
 		this._renderMode(this.options.mode);
 		this._renderMarkedCount(this.options.markedCount);
 		this._renderBrushColor(this.options.brushColor);
+
+		const narrow = window.matchMedia(NARROW);
+		const fit = () => this._renderNarrow(narrow.matches);
+
+		narrow.addEventListener('change', fit, { signal: this.signal });
+		fit();
+	}
+
+	// Five controls fit a phone's line only small and in words alone, so there they drop their icons
+	_renderNarrow(narrow) {
+		this._narrow = narrow;
+
+		for (const [button, icon] of [
+			[this.deleteModeButton, 'trash-can'],
+			[this.paintModeButton, 'paintbrush'],
+			[this.cancelButton, 'xmark'],
+		]) {
+			button.setOptions({ size: narrow ? 'small' : undefined, icon: narrow ? undefined : icon });
+		}
+
+		this.doneButton.options.size = narrow ? 'small' : undefined;
+		this._renderSaving(this.options.saving);
 	}
 
 	refreshSwatches() {
@@ -194,7 +241,7 @@ export default class BatchEditBar extends styled.Component(
 	}
 
 	_renderMarkedCount(value) {
-		this.countElem.elem.textContent = value > 0 ? `${value} marked for deletion` : '';
+		this.countElem.elem.textContent = value > 0 ? `${value} marked` : '';
 	}
 
 	_renderBrushColor(color) {
@@ -211,7 +258,12 @@ export default class BatchEditBar extends styled.Component(
 		this.doneButton.options.disabled = !!saving;
 		this.cancelButton.options.disabled = !!saving;
 		this.doneButton.options.textContent = saving ? 'Saving…' : 'Done';
-		this.doneButton.options.icon = saving ? 'spinner' : 'check';
+		// On a phone Done is words alone, but a save in progress still spins
+		let icon = this._narrow ? undefined : 'check';
+
+		if (saving) icon = 'spinner';
+
+		this.doneButton.options.icon = icon;
 		this.doneButton.options.iconAnimation = saving ? 'spin' : null;
 	}
 
