@@ -126,7 +126,7 @@ describe('BatchEditBar', () => {
 		localStorage.setItem('recentColors', JSON.stringify(['hsl(1, 1%, 1%)', 'hsl(2, 2%, 2%)']));
 
 		const bar = new BatchEditBar({ appendTo: container, brushColor: 'hsl(2, 2%, 2%)' });
-		const selected = () => bar.swatches.filter(({ swatch }) => swatch.hasClass('selected')).map(({ value }) => value);
+		const selected = () => bar.swatches.filter(({ swatch }) => swatch.options.pressed).map(({ value }) => value);
 
 		expect(selected()).toEqual(['hsl(2, 2%, 2%)']);
 
@@ -292,6 +292,6 @@ describe('BatchEditBar', () => {
 		const [erase] = bar.swatches;
 
 		expect(erase.value).toBe('');
-		expect(erase.swatch.hasClass('selected')).toBe(true);
+		expect(erase.swatch.elem.getAttribute('aria-pressed')).toBe('true');
 	});
 });

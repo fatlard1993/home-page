@@ -12,10 +12,6 @@ export default class BookmarksContainer extends styled(
 		align-items: center;
 		gap: ${space.xs} ${space.sm};
 		margin-bottom: ${space.sm};
-
-		.categoryName {
-			margin: 0;
-		}
 	}
 
 	.categoryName {
@@ -191,7 +187,7 @@ export default class BookmarksContainer extends styled(
 		// heading, dragged to reorder, and a button beside it marks or paints the category.
 		const header = new Elem({ addClass: 'categoryHeader', appendTo: this });
 
-		this._labelText = new SectionLabel({ addClass: 'categoryName', appendTo: header });
+		this._labelText = new SectionLabel({ addClass: 'categoryName', inRow: true, appendTo: header });
 
 		if (this.options.batchEdit && this.options.categoryId) {
 			this._categoryButton = new Button({

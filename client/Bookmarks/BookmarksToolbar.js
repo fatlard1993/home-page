@@ -79,7 +79,7 @@ export default class BookmarksToolbar extends Toolbar {
 			context.searchElem = this.search.elem;
 		});
 
-		new Button({
+		const addButton = new Button({
 			appendTo: this.elem,
 			icon: 'plus',
 			title: 'Add',
@@ -102,7 +102,7 @@ export default class BookmarksToolbar extends Toolbar {
 					},
 				];
 
-				this.contextMenu.open({ x: event.clientX, y: event.clientY });
+				this.contextMenu.open({ anchor: addButton });
 			},
 		});
 	}

@@ -116,6 +116,7 @@ export default class BatchEditBar extends styled.Component(
 
 		this.deleteModeButton = new Button({
 			appendTo: this.modeToggle,
+			variant: 'chip',
 			textContent: 'Mark',
 			icon: 'trash-can',
 			tooltip: 'Click to mark bookmarks and categories for deletion',
@@ -124,6 +125,7 @@ export default class BatchEditBar extends styled.Component(
 
 		this.paintModeButton = new Button({
 			appendTo: this.modeToggle,
+			variant: 'chip',
 			textContent: 'Paint',
 			icon: 'paintbrush',
 			tooltip: 'Click to apply the brush color',
@@ -246,7 +248,7 @@ export default class BatchEditBar extends styled.Component(
 
 	_renderBrushColor(color) {
 		for (const { value, swatch } of this.swatches) {
-			swatch[value === color ? 'addClass' : 'removeClass']('selected');
+			swatch.options.pressed = value === color;
 		}
 
 		if (color && color !== 'random' && this.colorPicker.options.value !== color) {

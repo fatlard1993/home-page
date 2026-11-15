@@ -120,6 +120,7 @@ export default class BookmarkForm extends Form {
 		// Pressed, or with an image dropped or pasted on it, the button hands the image to the form
 		this.faviconUploadButton = new Button({
 			textContent: 'Upload image…',
+			variant: 'flat',
 			// The button sits in a form, so its press would otherwise submit it
 			onPointerPress: event => event.preventDefault(),
 		});

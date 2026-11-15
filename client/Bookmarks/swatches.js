@@ -1,10 +1,10 @@
 import { ColorSwatch, styled } from '@vanilla-bean/components';
 
-// The brush row's swatch: .selected marks the brush color
+// The brush row's swatch: pressed is the brush color, outlined rather than filled, so the swatch keeps its own
 export const BrushSwatch = styled(
 	ColorSwatch,
 	({ colors }) => `
-		&.selected {
+		&[aria-pressed='true'] {
 			outline: 3px solid ${colors.superWhite};
 			outline-offset: 2px;
 		}
