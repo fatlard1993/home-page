@@ -7,6 +7,7 @@ import {
 	setBookmarkFaviconFromDataUri,
 	deleteCategory,
 	createCategory,
+	updateBookmark,
 } from '../api';
 
 const describeDeletion = (bookmarks, categories) => {
@@ -30,6 +31,37 @@ const accepted = async request => {
 
 	return result;
 };
+
+// A restore that the server refuses part way says so; what it already put back stays
+const undoing = restore => async () => {
+	try {
+		await restore();
+	} catch (error) {
+		// eslint-disable-next-line no-console
+		console.error(error);
+
+		new Notify({
+			intent: 'danger',
+			content: `Undo failed part way through: ${error.message}. Some items may already be restored.`,
+		});
+	}
+};
+
+// Restoring is one request per record; the toast's action runs once however often it's pressed
+const toastUndo = (content, restore) =>
+	new Notify({
+		intent: 'success',
+		timeout: 10000,
+		content,
+		actions: [{ textContent: 'Undo', onPointerPress: undoing(restore) }],
+	});
+
+const recreateCategory = async category =>
+	(
+		await accepted(
+			createCategory({ body: { name: category.name, color: category.color || '', order: category.order } }),
+		)
+	).body.id;
 
 /**
  * Delete bookmarks and categories, showing a notification with a time-limited Undo button
@@ -66,50 +98,67 @@ export default async function deleteWithUndo({ bookmarks, categories = [] }) {
 	}
 
 	const restore = async () => {
-		try {
-			const categoryIdMap = {};
+		const categoryIdMap = {};
 
-			for (const category of categories) {
-				const created = await accepted(
-					createCategory({ body: { name: category.name, color: category.color || '', order: category.order } }),
-				);
-				categoryIdMap[category.id] = created.body.id;
+		for (const category of categories) categoryIdMap[category.id] = await recreateCategory(category);
+
+		for (const bookmark of bookmarks) {
+			const category = categoryIdMap[bookmark.category] ?? bookmark.category ?? '';
+			const created = await accepted(
+				createBookmark({
+					body: {
+						name: bookmark.name,
+						url: bookmark.url,
+						color: bookmark.color || '',
+						category,
+						order: bookmark.order,
+					},
+				}),
+			);
+
+			if (favicons[bookmark.id]) {
+				await accepted(setBookmarkFaviconFromDataUri(created.body.id, favicons[bookmark.id]));
 			}
-
-			for (const bookmark of bookmarks) {
-				const category = categoryIdMap[bookmark.category] ?? bookmark.category ?? '';
-				const created = await accepted(
-					createBookmark({
-						body: {
-							name: bookmark.name,
-							url: bookmark.url,
-							color: bookmark.color || '',
-							category,
-							order: bookmark.order,
-						},
-					}),
-				);
-
-				if (favicons[bookmark.id]) {
-					await accepted(setBookmarkFaviconFromDataUri(created.body.id, favicons[bookmark.id]));
-				}
-			}
-		} catch (error) {
-			// eslint-disable-next-line no-console
-			console.error(error);
-
-			new Notify({
-				intent: 'danger',
-				content: `Undo failed part way through: ${error.message}. Some items may already be restored.`,
-			});
 		}
 	};
 
-	// Restoring is one request per record; the toast's action runs once however often it's pressed
-	new Notify({
-		intent: 'success',
-		timeout: 10000,
-		content: describeDeletion(bookmarks, categories),
-		actions: [{ textContent: 'Undo', onPointerPress: restore }],
-	});
+	toastUndo(describeDeletion(bookmarks, categories), restore);
+}
+
+/**
+ * Delete a category, its bookmarks moved to another category (`moveTo`, '' for Default) or deleted with it (`moveTo`
+ * left out), showing a notification with a time-limited Undo button that puts the category back where it was in the
+ * order, with its bookmarks in it, moved ones included. A refused delete throws its reason.
+ * @param {object} options - What to delete
+ * @param {object} options.category - The category
+ * @param {object[]} options.bookmarks - The category's bookmarks
+ * @param {string} [options.moveTo] - The id of the category its bookmarks move to, '' for Default; left out, they go too
+ * @param {string} [options.moveToName] - That category's name, for the toast
+ */
+export async function deleteCategoryWithUndo({ category, bookmarks, moveTo, moveToName = 'Default' }) {
+	if (moveTo === undefined) return deleteWithUndo({ bookmarks, categories: [category] });
+
+	// The server moves the bookmarks in the category's own write; they keep their ids and favicons, so the undo moves
+	// them back rather than recreating them
+	await accepted(deleteCategory(category.id, { searchParameters: { moveTo } }));
+
+	const restore = async () => {
+		const restoredId = await recreateCategory(category);
+
+		// Only the last write wakes the bookmarks and categories caches, as with the deletes above
+		for (const [index, bookmark] of bookmarks.entries()) {
+			await accepted(
+				updateBookmark(bookmark.id, {
+					body: { category: restoredId, order: bookmark.order },
+					...(index < bookmarks.length - 1 && { invalidates: [] }),
+				}),
+			);
+		}
+	};
+
+	const moved = bookmarks.length
+		? `, its ${bookmarks.length === 1 ? 'bookmark' : `${bookmarks.length} bookmarks`} moved to ${moveToName}`
+		: '';
+
+	toastUndo(`Deleted category "${category.name}"${moved}`, restore);
 }

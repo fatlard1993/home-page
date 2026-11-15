@@ -1,17 +1,17 @@
 import { Dialog, Select, Input, Label, Notify, failureReason } from '@vanilla-bean/components';
 
-import { getCategories, deleteCategory } from '../api';
+import { getBookmarks, getCategories } from '../api';
+import { deleteCategoryWithUndo } from './deleteWithUndo';
 
 export default class DeleteCategoryDialog extends Dialog {
 	constructor(options = {}) {
 		options.keepBookmarks = options.keepBookmarks ?? true;
 
+		// Not a danger confirm: the delete is toasted with Undo. The dialog is here to ask where the bookmarks go.
 		super({
 			size: 'standard',
-			intent: 'danger',
 			header: `Delete ${options.category.name}?`,
-			// Safe choice first: the dialog focuses its first button, so a reflexive Enter cancels
-			// instead of deleting. Marked cancel, it keeps out of the danger color the Delete takes.
+			// The safe way out first, the verb last
 			buttons: [{ textContent: 'Cancel', 'data-action': 'cancel' }, 'Delete'],
 			...options,
 		});
@@ -56,19 +56,29 @@ export default class DeleteCategoryDialog extends Dialog {
 
 		this.options.onButtonPress = async ({ button, closeDialog }) => {
 			if (button === 'Delete') {
-				const reason = failureReason(
-					await deleteCategory(
-						this.options.category.id,
-						this.options.keepBookmarks ? { searchParameters: { moveTo: moveTo.value } } : {},
-					),
-				);
+				const { id, name } = this.options.category;
 
-				// A refused delete leaves the question open, as it was
-				if (reason) {
-					new Notify({
-						intent: 'danger',
-						content: `Could not delete "${this.options.category.name}": ${reason}`,
+				try {
+					// Read fresh, so the undo puts back what is in the category now, and where
+					const bookmarksResponse = await getBookmarks();
+
+					bookmarksResponse.unsubscribe?.();
+
+					const refused = failureReason(bookmarksResponse);
+
+					if (refused) throw new Error(refused);
+
+					await deleteCategoryWithUndo({
+						category: { ...this.options.category, ...categories[id] },
+						bookmarks: Object.values(bookmarksResponse.body).filter(bookmark => bookmark?.category === id),
+						...(this.options.keepBookmarks && {
+							moveTo: moveTo.value,
+							moveToName: categories[moveTo.value]?.name ?? 'Default',
+						}),
 					});
+				} catch (error) {
+					// A refused delete leaves the question open, as it was
+					new Notify({ intent: 'danger', content: `Could not delete "${name}": ${error.message}` });
 
 					return;
 				}

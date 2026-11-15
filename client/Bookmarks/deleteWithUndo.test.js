@@ -1,8 +1,8 @@
-import { beforeAll, beforeEach, describe, test, expect } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, test, expect } from 'bun:test';
 
 import * as api from '../api';
 import deleteBookmarkWithUndo from './deleteBookmarkWithUndo';
-import deleteWithUndo from './deleteWithUndo';
+import deleteWithUndo, { deleteCategoryWithUndo } from './deleteWithUndo';
 
 // The write/read functions are the only thing under deleteWithUndo it cannot own, so '../api' is
 // mocked to record calls. Spreading the real exports keeps every other api function intact for any
@@ -26,7 +26,7 @@ beforeAll(() => {
 		deleteCategory: (id, options) => {
 			calls.push({ fn: 'deleteCategory', id, options });
 
-			return Promise.resolve();
+			return Promise.resolve(id === 'refused' ? { status: 'error', body: { error: 'Category not found' } } : {});
 		},
 		createCategory: ({ body }) => {
 			const newId = `newcat-${createdSeq++}`;
@@ -42,12 +42,24 @@ beforeAll(() => {
 
 			return Promise.resolve({ body: { id: newId, ...body } });
 		},
+		updateBookmark: (id, options) => {
+			calls.push({ fn: 'updateBookmark', id, options });
+
+			return Promise.resolve({ body: { id, ...options.body } });
+		},
 		setBookmarkFaviconFromDataUri: (id, dataUri) => {
 			calls.push({ fn: 'setFavicon', id, dataUri });
 
 			return Promise.resolve();
 		},
 	}));
+});
+
+// updateBookmark is mocked too, which another file's test uses for real, so the real api goes back after these
+const real = { ...api };
+
+afterAll(() => {
+	mock.module('../api', () => real);
 });
 
 beforeEach(() => {
@@ -197,6 +209,65 @@ describe('deleteWithUndo', () => {
 			expect(only('createBookmark')).toHaveLength(0);
 			expect(document.body.textContent).toContain('Undo failed part way through: Name is required.');
 		});
+	});
+});
+
+describe('deleteCategoryWithUndo', () => {
+	const category = { id: 'c1', name: 'Dev', color: '#f00', order: 3 };
+	const bookmarks = [
+		{ id: 'b1', name: 'a', url: 'http://a', category: 'c1', order: 0, favicon: 'yes.png' },
+		{ id: 'b2', name: 'b', url: 'http://b', category: 'c1', order: 1 },
+	];
+
+	test('its bookmarks moved, the server moves them in the one delete, and the toast says where', async () => {
+		await deleteCategoryWithUndo({ category, bookmarks, moveTo: 'c2', moveToName: 'News' });
+
+		expect(calls.filter(call => call.fn.startsWith('delete'))).toEqual([
+			{ fn: 'deleteCategory', id: 'c1', options: { searchParameters: { moveTo: 'c2' } } },
+		]);
+
+		const toast = [...document.querySelectorAll('[role="status"]')].find(notify =>
+			notify.textContent.includes('Deleted category "Dev", its 2 bookmarks moved to News'),
+		);
+
+		expect(toast.textContent).toContain('Undo');
+	});
+
+	test('undo puts the category back in its place, and moves its moved bookmarks back into it, in their order', async () => {
+		await deleteCategoryWithUndo({ category, bookmarks, moveTo: '' });
+
+		pressUndo();
+		await flush();
+
+		expect(only('createCategory').map(call => call.body)).toEqual([{ name: 'Dev', color: '#f00', order: 3 }]);
+		// The same bookmarks, not copies: they kept their ids and favicons where they were moved to
+		expect(only('createBookmark')).toHaveLength(0);
+		expect(only('updateBookmark')).toEqual([
+			{ fn: 'updateBookmark', id: 'b1', options: { body: { category: 'newcat-0', order: 0 }, invalidates: [] } },
+			{ fn: 'updateBookmark', id: 'b2', options: { body: { category: 'newcat-0', order: 1 } } },
+		]);
+	});
+
+	test('its bookmarks going with it, they are deleted and restored with it, favicons and all', async () => {
+		await deleteCategoryWithUndo({ category, bookmarks });
+
+		expect(calls.filter(call => call.fn.startsWith('delete')).map(call => call.id)).toEqual(['b1', 'b2', 'c1']);
+
+		pressUndo();
+		await flush();
+
+		expect(only('createBookmark').map(call => call.body.category)).toEqual(['newcat-0', 'newcat-0']);
+		expect(only('setFavicon')).toHaveLength(1);
+	});
+
+	test('a refused delete throws its reason, and offers no Undo', async () => {
+		const toasts = document.querySelectorAll('[role="status"]').length;
+
+		await expect(
+			deleteCategoryWithUndo({ category: { id: 'refused', name: 'Gone' }, bookmarks: [], moveTo: '' }),
+		).rejects.toThrow('Category not found');
+
+		expect(document.querySelectorAll('[role="status"]').length).toBe(toasts);
 	});
 });
 
